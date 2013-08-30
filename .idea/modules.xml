@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/SmarterWifiManager/SmarterWifiManager.iml" filepath="$PROJECT_DIR$/SmarterWifiManager/SmarterWifiManager.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SmarterWifiManagerProject.iml" filepath="$PROJECT_DIR$/SmarterWifiManagerProject.iml" />
+    </modules>
+  </component>
+</project>
+
