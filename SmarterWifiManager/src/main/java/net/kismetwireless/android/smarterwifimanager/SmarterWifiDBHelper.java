@@ -22,6 +22,7 @@ public class SmarterWifiDBHelper extends SQLiteOpenHelper {
     public static final String COL_SCMAP_ID = "_id";
     public static final String COL_SCMAP_SSIDID = "ssidid";
     public static final String COL_SCMAP_CELLID = "cellid";
+    public static final String COL_SCMAP_TIME_S = "timesec";
 
     public static final String CREATE_SSID_TABLE =
             "CREATE TABLE " + TABLE_SSID + " (" +
@@ -41,8 +42,10 @@ public class SmarterWifiDBHelper extends SQLiteOpenHelper {
             "CREATE TABLE " + TABLE_SSID_CELL_MAP + " (" +
                     COL_SCMAP_ID + " integer primary key autoincrement, " +
                     COL_SCMAP_SSIDID + " int, " +
-                    COL_SCMAP_CELLID + " int " +
+                    COL_SCMAP_CELLID + " int, " +
+                    COL_SCMAP_TIME_S + " int" +
                     ");";
+
 
     public static final String DATABASE_NAME = "smartermap.db";
     private static final int DATABASE_VERSION = 1;

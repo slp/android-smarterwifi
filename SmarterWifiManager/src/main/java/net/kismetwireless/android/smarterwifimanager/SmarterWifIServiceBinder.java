@@ -10,6 +10,13 @@ class SmarterWifiServiceBinder {
     private SmarterWifiService smarterService;
     private boolean isBound;
     Context context;
+    BinderCallback onBindCb;
+
+    public static class BinderCallback {
+        public void run(SmarterWifiService service) {
+            return;
+        }
+    }
 
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
@@ -20,6 +27,9 @@ class SmarterWifiServiceBinder {
             smarterService = binder.getService();
 
             isBound = true;
+
+            if (onBindCb != null)
+                onBindCb.run(smarterService);
         }
 
         @Override
@@ -48,6 +58,16 @@ class SmarterWifiServiceBinder {
             return;
 
         smarterService.shutdownService();
+    }
+
+    // Call a cb as soon as we finish binding
+    void doCallAndBindService(BinderCallback cb) {
+        if (isBound)
+            cb.run(smarterService);
+
+        onBindCb = cb;
+
+        doBindService();
     }
 
     void doBindService() {
