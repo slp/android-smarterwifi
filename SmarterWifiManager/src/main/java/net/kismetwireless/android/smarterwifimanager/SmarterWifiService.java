@@ -17,6 +17,8 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import java.util.ArrayList;
+
 public class SmarterWifiService extends Service {
     private boolean shutdown = false;
 
@@ -42,6 +44,18 @@ public class SmarterWifiService extends Service {
     private Handler timerHandler = new Handler();
 
     private SmarterDBSource dbSource;
+
+    public static abstract class SmarterServiceCallback {
+        public void handleLearningMode(boolean learning) {
+            return;
+        }
+
+        public void handleActiveMode(boolean active) {
+            return;
+        }
+    }
+
+    ArrayList<SmarterServiceCallback> callbackList = new ArrayList<SmarterServiceCallback>();
 
     // Minimal in the extreme binder which returns the service for direct calling
     public class ServiceBinder extends Binder {
@@ -118,15 +132,16 @@ public class SmarterWifiService extends Service {
 
         if (!running) {
             networkConnected = false;
-            learningCell = false;
+
+            setLearningCell(false);
             wifiEnabled = false;
             currentSsid = null;
-            return;
-        }
 
-        // If wifi is shutting down and we're in an active cell, force it back on
-        if (!running && inActiveCell) {
-            wifiManager.setWifiEnabled(true);
+            // If wifi is shutting down and we're in an active cell, force it back on
+            if (inActiveCell) {
+                Log.d("smarter", "we're in an active cell, turning wifi back on");
+                wifiManager.setWifiEnabled(true);
+            }
         }
     }
 
@@ -146,7 +161,8 @@ public class SmarterWifiService extends Service {
 
             // Wifi must be enabled...
             wifiEnabled = true;
-            learningCell = true;
+
+            setLearningCell(true);
 
             WifiInfo wi = wifiManager.getConnectionInfo();
 
@@ -171,7 +187,7 @@ public class SmarterWifiService extends Service {
             networkConnected = false;
 
             // We're not learning anymore since we're not connected
-            learningCell = false;
+            setLearningCell(false);
 
             currentSsid = "";
 
@@ -243,11 +259,12 @@ public class SmarterWifiService extends Service {
             return;
         }
 
-        inActiveCell = false;
+        boolean movedactive = false;
 
         // If we're in an active area...
         if (dbSource.queryTowerMapped(clc.getTowerId())) {
-            inActiveCell = true;
+            setActiveCell(true);
+            movedactive = true;
 
             // If wifi isn't turned on, and we're not in the middle of trying to turn it on... turn it on
             if (!wifiEnabled && wifiManager.getWifiState() != WifiManager.WIFI_STATE_ENABLING) {
@@ -259,13 +276,14 @@ public class SmarterWifiService extends Service {
         // If we're learning, update this tower in the database - learningCell means we've got
         // an active network and we're recording cells.  Learn new towers and update existing ones
         if (learningCell && !clc.equals(currentCellLocation)) {
-            inActiveCell = true;
+            setActiveCell(true);
+            movedactive = true;
             dbSource.mapTower(currentSsid, clc.getTowerId());
         }
 
         currentCellLocation = clc;
 
-        if (!inActiveCell) {
+        if (!movedactive) {
             // We're not learning about where we are (so we're not online), we don't know this tower
             // (so we shouldn't stay on)... So start the countdown to shut off wifi
             Log.d("smarter", "No wifi connection, unknown tower " + clc.getTowerId() + " starting timer to shut down");
@@ -277,6 +295,42 @@ public class SmarterWifiService extends Service {
         @Override
         public void onCellLocationChanged(CellLocation location) {
             handleCellLocation(location);
+        }
+    }
+
+    public void addCallback(SmarterServiceCallback cb) {
+        synchronized (callbackList) {
+            callbackList.add(cb);
+        }
+
+        // Call our CBs immediately for setup
+        cb.handleLearningMode(learningCell);
+        cb.handleActiveMode(inActiveCell);
+    }
+
+    public void removeCallback(SmarterServiceCallback cb) {
+        synchronized (callbackList) {
+            callbackList.remove(cb);
+        }
+    }
+
+    private void setLearningCell(boolean learn) {
+        learningCell = learn;
+
+        synchronized (callbackList) {
+            for (SmarterServiceCallback cb : callbackList) {
+                cb.handleLearningMode(learn);
+            }
+        }
+    }
+
+    private void setActiveCell(boolean active) {
+        inActiveCell = active;
+
+        synchronized (callbackList) {
+            for (SmarterServiceCallback cb : callbackList) {
+                cb.handleActiveMode(active);
+            }
         }
     }
 
