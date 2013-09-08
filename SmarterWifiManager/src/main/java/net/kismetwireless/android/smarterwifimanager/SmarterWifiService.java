@@ -33,11 +33,11 @@ public class SmarterWifiService extends Service {
     private String currentSsid;
     private CellLocationCommon currentCellLocation;
 
-    private boolean wifiEnabled;
-    private boolean networkConnected;
+    private boolean wifiEnabled = false;
+    private boolean networkConnected = false;
 
-    private boolean learningCell;
-    private boolean inActiveCell;
+    private boolean learningCell = false;
+    private boolean inActiveCell = false;
 
     private Handler timerHandler = new Handler();
 
@@ -57,31 +57,10 @@ public class SmarterWifiService extends Service {
     public void onCreate() {
         super.onCreate();
 
-        telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-
-        if (telephonyManager == null) {
-            Log.d("smarter", "No telephony manager!?");
-        }
+        context = this;
 
         currentSsid = new String("");
         currentCellLocation = new CellLocationCommon((CellLocation) null);
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return serviceBinder;
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        shutdown = true;
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        context = this;
 
         preferences = PreferenceManager.getDefaultSharedPreferences(context);
         updatePreferences();
@@ -101,12 +80,29 @@ public class SmarterWifiService extends Service {
 
         phoneListener = new SmarterPhoneListener();
 
+        telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         telephonyManager.listen(phoneListener, PhoneStateListener.LISTEN_CELL_LOCATION);
 
         // Kick an update
         setWifiRunning(wifiManager.isWifiEnabled());
         setNetworkConfigured(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected());
 
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return serviceBinder;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        shutdown = true;
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
         return START_STICKY;
     }
 
@@ -136,13 +132,19 @@ public class SmarterWifiService extends Service {
 
     // Network is configured, we have a valid wifi state
     public void setNetworkConfigured(boolean configured) {
-        networkConnected = configured;
+        // If we haven't connected and we weren't connected, do nothing.
+        if (!networkConnected && !configured) {
+            return;
+        }
 
         // If we've connected to a network, cancel any wifi killer we have running, and
         // enable learning new cell
-        if (networkConnected) {
+        if (!networkConnected && configured) {
+            networkConnected = true;
+
             timerHandler.removeCallbacks(wifiDisableTask);
 
+            // Wifi must be enabled...
             wifiEnabled = true;
             learningCell = true;
 
@@ -159,12 +161,25 @@ public class SmarterWifiService extends Service {
 
             // Kick a forced update
             handleCellLocation(null);
-        } else {
+            return;
+        }
+
+        // Otherwise we've lost the connection we had
+        if (networkConnected && !configured) {
+            Log.d("smarter", "We've lost the network connection");
+
+            networkConnected = false;
+
             // We're not learning anymore since we're not connected
             learningCell = false;
 
-            // Start counting down to turning off
-            startWifiCountdown();
+            currentSsid = "";
+
+            // Start counting down to turning off - this can be overridden if we're still in an active cell
+            if (!inActiveCell)
+                startWifiCountdown();
+
+            return;
         }
     }
 
@@ -179,17 +194,19 @@ public class SmarterWifiService extends Service {
     }
 
     private void startWifiCountdown() {
-        if (!wifiEnabled) return;
-
-        if (networkConnected) return;
-
         // If we're not proctoring wifi...
         if (!disableWifi) return;
 
-        // If we've moved into a cell we're active in
+        // If we've moved into a cell we're supposed to be active in
         if (inActiveCell) return;
 
-        // Restart the countdown
+        // If wifi isn't turned on at all
+        if (!wifiEnabled) return;
+
+        // If we're actually connected to a network again
+        if (networkConnected) return;
+
+        // Restart the countdown incase we got called while a countdown was already running
         timerHandler.removeCallbacks(wifiDisableTask);
 
         // Set a timer - if we haven't connected to a network by the time this
@@ -221,30 +238,37 @@ public class SmarterWifiService extends Service {
 
         CellLocationCommon clc = new CellLocationCommon(location);
 
-        if (clc.getTowerId() < 0)
+        if (clc.getTowerId() < 0) {
+            Log.d("smarter", "Got invalid tower id - out of range or something is up");
             return;
+        }
 
-        // Don't update if we haven't moved
-        if (clc == currentCellLocation)
-            return;
+        inActiveCell = false;
+
+        // If we're in an active area...
+        if (dbSource.queryTowerMapped(clc.getTowerId())) {
+            inActiveCell = true;
+
+            // If wifi isn't turned on, and we're not in the middle of trying to turn it on... turn it on
+            if (!wifiEnabled && wifiManager.getWifiState() != WifiManager.WIFI_STATE_ENABLING) {
+                Log.d("smarter", "We're in range of " + clc.getTowerId() + " and we think we should turn on wifi");
+                wifiManager.setWifiEnabled(true);
+            }
+        }
+
+        // If we're learning, update this tower in the database - learningCell means we've got
+        // an active network and we're recording cells.  Learn new towers and update existing ones
+        if (learningCell && !clc.equals(currentCellLocation)) {
+            inActiveCell = true;
+            dbSource.mapTower(currentSsid, clc.getTowerId());
+        }
 
         currentCellLocation = clc;
 
-        if (learningCell) {
-            // If we're learning, update this tower in the database
-            dbSource.mapTower(currentSsid, clc.getTowerId());
-        } else  if (dbSource.queryTowerMapped(clc.getTowerId())) {
-            // Otherwise, if we exist in the mapping, we should turn on... force staying on
-            // while in this cell...
-            inActiveCell = true;
-
-            // And on wifi, it'll call back to us when it enables and start the countdown
-            if (!wifiEnabled) {
-                wifiManager.setWifiEnabled(true);
-            }
-        } else {
+        if (!inActiveCell) {
             // We're not learning about where we are (so we're not online), we don't know this tower
             // (so we shouldn't stay on)... So start the countdown to shut off wifi
+            Log.d("smarter", "No wifi connection, unknown tower " + clc.getTowerId() + " starting timer to shut down");
             startWifiCountdown();
         }
     }
@@ -254,5 +278,13 @@ public class SmarterWifiService extends Service {
         public void onCellLocationChanged(CellLocation location) {
             handleCellLocation(location);
         }
+    }
+
+    public boolean getLearningCell() {
+        return learningCell;
+    }
+
+    public boolean getActiveCell() {
+        return inActiveCell;
     }
 }
