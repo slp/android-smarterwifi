@@ -14,7 +14,9 @@ public class CellLocationCommon {
     private boolean valid = true;
 
     public CellLocationCommon(CellLocation l) {
-        if (l instanceof GsmCellLocation) {
+        if (l == null) {
+            valid = false;
+        } else if (l instanceof GsmCellLocation) {
             setGsmLocation((GsmCellLocation) l);
         } else if (l instanceof CdmaCellLocation) {
             setCdmaLocation((CdmaCellLocation) l);
@@ -50,6 +52,10 @@ public class CellLocationCommon {
             return towerId;
 
         return -1;
+    }
+
+    public boolean equals(CellLocationCommon c) {
+        return (c.getTowerId() == getTowerId());
     }
 
 }
