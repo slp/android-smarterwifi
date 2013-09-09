@@ -40,10 +40,10 @@ public class CellLocationCommon {
             valid = false;
 
         // Network 16 bit, system 15bit, basestation 16 bit
-        // towerId = (cdma.getNetworkId() << 32) + (cdma.getSystemId() << 16) + cdma.getBaseStationId();
+        towerId = (cdma.getNetworkId() << 32) + (cdma.getSystemId() << 16) + cdma.getBaseStationId();
 
         // Don't track BSID, it changes a lot w/ no real extra data
-        towerId = (cdma.getNetworkId() << 32) + (cdma.getSystemId() << 16);
+        // towerId = (cdma.getNetworkId() << 32) + (cdma.getSystemId() << 16);
     }
 
     public CellLocationCommon(CdmaCellLocation cdma) {

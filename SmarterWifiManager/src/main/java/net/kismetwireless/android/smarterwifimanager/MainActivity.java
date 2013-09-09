@@ -6,6 +6,10 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.widget.ImageView;
 
+
+// Main icon color shifts
+// 00e8d5    b8b8b8    a40000
+
 public class MainActivity extends Activity {
     SmarterWifiServiceBinder serviceBinder;
     Context context;

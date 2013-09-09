@@ -12,6 +12,7 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -139,8 +140,12 @@ public class SmarterWifiService extends Service {
 
             // If wifi is shutting down and we're in an active cell, force it back on
             if (inActiveCell) {
-                Log.d("smarter", "we're in an active cell, turning wifi back on");
-                wifiManager.setWifiEnabled(true);
+                if (getAirplaneMode()) {
+                    Log.d("smarter", "We think we're in an active cell but we're also in airplane mode");
+                } else {
+                    Log.d("smarter", "we're in an active cell, turning wifi back on");
+                    wifiManager.setWifiEnabled(true);
+                }
             }
         }
     }
@@ -256,6 +261,7 @@ public class SmarterWifiService extends Service {
 
         if (clc.getTowerId() < 0) {
             Log.d("smarter", "Got invalid tower id - out of range or something is up");
+            setActiveCell(false);
             return;
         }
 
@@ -268,8 +274,12 @@ public class SmarterWifiService extends Service {
 
             // If wifi isn't turned on, and we're not in the middle of trying to turn it on... turn it on
             if (!wifiEnabled && wifiManager.getWifiState() != WifiManager.WIFI_STATE_ENABLING) {
-                Log.d("smarter", "We're in range of " + clc.getTowerId() + " and we think we should turn on wifi");
-                wifiManager.setWifiEnabled(true);
+                if (getAirplaneMode()) {
+                    Log.d("smarter", "Would try to activate wifi but we're in airplane mode");
+                } else {
+                    Log.d("smarter", "We're in range of " + clc.getTowerId() + " and we think we should turn on wifi");
+                    wifiManager.setWifiEnabled(true);
+                }
             }
         }
 
@@ -286,6 +296,7 @@ public class SmarterWifiService extends Service {
         if (!movedactive) {
             // We're not learning about where we are (so we're not online), we don't know this tower
             // (so we shouldn't stay on)... So start the countdown to shut off wifi
+            setActiveCell(false);
             Log.d("smarter", "No wifi connection, unknown tower " + clc.getTowerId() + " starting timer to shut down");
             startWifiCountdown();
         }
@@ -340,5 +351,9 @@ public class SmarterWifiService extends Service {
 
     public boolean getActiveCell() {
         return inActiveCell;
+    }
+
+    public boolean getAirplaneMode() {
+        return Settings.System.getInt(context.getContentResolver(),Settings.System.AIRPLANE_MODE_ON, 0) != 0;
     }
 }
