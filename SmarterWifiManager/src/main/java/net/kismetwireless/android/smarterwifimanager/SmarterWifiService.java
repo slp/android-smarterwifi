@@ -51,7 +51,11 @@ public class SmarterWifiService extends Service {
             return;
         }
 
-        public void handleActiveMode(boolean active) {
+        public void handleTowerMode(long towerid, boolean active) {
+            return;
+        }
+
+        public void handleWifiMode(boolean wifi, boolean network, String ssid) {
             return;
         }
     }
@@ -74,8 +78,7 @@ public class SmarterWifiService extends Service {
 
         context = this;
 
-        currentSsid = new String("");
-        currentCellLocation = new CellLocationCommon((CellLocation) null);
+        setCurrentTower(new CellLocationCommon((CellLocation) null));
 
         preferences = PreferenceManager.getDefaultSharedPreferences(context);
         updatePreferences();
@@ -132,11 +135,10 @@ public class SmarterWifiService extends Service {
         }
 
         if (!running) {
-            networkConnected = false;
-
             setLearningCell(false);
-            wifiEnabled = false;
-            currentSsid = null;
+            setWifiState(false, false);
+
+            setCurrentSsid(null);
 
             // If wifi is shutting down and we're in an active cell, force it back on
             if (inActiveCell) {
@@ -160,14 +162,7 @@ public class SmarterWifiService extends Service {
         // If we've connected to a network, cancel any wifi killer we have running, and
         // enable learning new cell
         if (!networkConnected && configured) {
-            networkConnected = true;
-
             timerHandler.removeCallbacks(wifiDisableTask);
-
-            // Wifi must be enabled...
-            wifiEnabled = true;
-
-            setLearningCell(true);
 
             WifiInfo wi = wifiManager.getConnectionInfo();
 
@@ -176,7 +171,9 @@ public class SmarterWifiService extends Service {
                 return;
             }
 
-            currentSsid = wi.getSSID();
+            setWifiState(true, true);
+            setLearningCell(true);
+            setCurrentSsid(wi.getSSID());
 
             Log.d("smarter", "We've connected to wifi " + currentSsid);
 
@@ -189,12 +186,12 @@ public class SmarterWifiService extends Service {
         if (networkConnected && !configured) {
             Log.d("smarter", "We've lost the network connection");
 
-            networkConnected = false;
+            setWifiState(wifiEnabled, false);
 
             // We're not learning anymore since we're not connected
             setLearningCell(false);
 
-            currentSsid = "";
+            setCurrentSsid(null);
 
             // Start counting down to turning off - this can be overridden if we're still in an active cell
             if (!inActiveCell)
@@ -269,7 +266,7 @@ public class SmarterWifiService extends Service {
 
         // If we're in an active area...
         if (dbSource.queryTowerMapped(clc.getTowerId())) {
-            setActiveCell(true);
+            setTowerMode(clc, true);
             movedactive = true;
 
             // If wifi isn't turned on, and we're not in the middle of trying to turn it on... turn it on
@@ -286,17 +283,15 @@ public class SmarterWifiService extends Service {
         // If we're learning, update this tower in the database - learningCell means we've got
         // an active network and we're recording cells.  Learn new towers and update existing ones
         if (learningCell && !clc.equals(currentCellLocation)) {
-            setActiveCell(true);
-            movedactive = true;
             dbSource.mapTower(currentSsid, clc.getTowerId());
         }
 
-        currentCellLocation = clc;
+        // Update tower mode regardless
+        setTowerMode(clc, movedactive);
 
+        // We're not learning about where we are (so we're not online), we don't know this tower
+        // (so we shouldn't stay on)... So start the countdown to shut off wifi
         if (!movedactive) {
-            // We're not learning about where we are (so we're not online), we don't know this tower
-            // (so we shouldn't stay on)... So start the countdown to shut off wifi
-            setActiveCell(false);
             Log.d("smarter", "No wifi connection, unknown tower " + clc.getTowerId() + " starting timer to shut down");
             startWifiCountdown();
         }
@@ -316,7 +311,8 @@ public class SmarterWifiService extends Service {
 
         // Call our CBs immediately for setup
         cb.handleLearningMode(learningCell);
-        cb.handleActiveMode(inActiveCell);
+        cb.handleTowerMode(currentCellLocation.getTowerId(), inActiveCell);
+        cb.handleWifiMode(wifiEnabled, networkConnected, currentSsid);
     }
 
     public void removeCallback(SmarterServiceCallback cb) {
@@ -338,9 +334,43 @@ public class SmarterWifiService extends Service {
     private void setActiveCell(boolean active) {
         inActiveCell = active;
 
+        setTowerMode(currentCellLocation, active);
+    }
+
+    private void setCurrentTower(CellLocationCommon curloc) {
+        currentCellLocation = curloc;
+
+        setTowerMode(curloc, inActiveCell);
+    }
+
+    private void setTowerMode(CellLocationCommon curloc, boolean active) {
+        inActiveCell = active;
+        currentCellLocation = curloc;
+
         synchronized (callbackList) {
             for (SmarterServiceCallback cb : callbackList) {
-                cb.handleActiveMode(active);
+                cb.handleTowerMode(curloc.getTowerId(), active);
+            }
+        }
+
+    }
+
+    private void setCurrentSsid(String ssid) {
+        setWifiState(wifiEnabled, networkConnected, ssid);
+    }
+
+    private void setWifiState(boolean wifi, boolean network) {
+        setWifiState(wifi, network, currentSsid);
+    }
+
+    private void setWifiState(boolean wifi, boolean network, String ssid) {
+        wifiEnabled = wifi;
+        networkConnected = network;
+        currentSsid = ssid;
+
+        synchronized (callbackList) {
+            for (SmarterServiceCallback cb : callbackList) {
+                cb.handleWifiMode(wifi, network, ssid);
             }
         }
     }
@@ -351,6 +381,18 @@ public class SmarterWifiService extends Service {
 
     public boolean getActiveCell() {
         return inActiveCell;
+    }
+
+    public String getCurrentSsid() {
+        return currentSsid;
+    }
+
+    public Long getCurrentTower() {
+        return currentCellLocation.getTowerId();
+    }
+
+    public boolean getWifiActive() {
+        return wifiEnabled;
     }
 
     public boolean getAirplaneMode() {
