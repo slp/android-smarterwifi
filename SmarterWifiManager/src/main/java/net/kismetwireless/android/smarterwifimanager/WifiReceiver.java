@@ -16,23 +16,12 @@ public class WifiReceiver extends BroadcastReceiver {
         final SmarterWifiServiceBinder serviceBinder = new SmarterWifiServiceBinder(context);
 
         if (intent.getAction().equals(WifiManager.WIFI_STATE_CHANGED_ACTION)) {
-            int state = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_UNKNOWN);
-
-            if (state == WifiManager.WIFI_STATE_ENABLED) {
-                serviceBinder.doCallAndBindService(new SmarterWifiServiceBinder.BinderCallback() {
-                    public void run(SmarterWifiService s) {
-                        s.setWifiRunning(true);
-                        serviceBinder.doUnbindService();
-                    }
-                });
-            } else if (state == WifiManager.WIFI_STATE_DISABLED) {
-                serviceBinder.doCallAndBindService(new SmarterWifiServiceBinder.BinderCallback() {
-                    public void run(SmarterWifiService s) {
-                        s.setWifiRunning(false);
-                        serviceBinder.doUnbindService();
-                    }
-                });
-            }
+            serviceBinder.doCallAndBindService(new SmarterWifiServiceBinder.BinderCallback() {
+                public void run(SmarterWifiService s) {
+                    s.configureWifiState();
+                    serviceBinder.doUnbindService();
+                }
+            });
         }
 
         if (intent.getAction().equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
@@ -43,7 +32,7 @@ public class WifiReceiver extends BroadcastReceiver {
 
             serviceBinder.doCallAndBindService(new SmarterWifiServiceBinder.BinderCallback() {
                 public void run(SmarterWifiService s) {
-                    s.setNetworkConfigured(ni.isConnected());
+                    s.configureWifiState();
                     serviceBinder.doUnbindService();
                 }
             });
