@@ -6,7 +6,9 @@
 
     <TableLayout
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp">
 
         <TableRow
             android:layout_width="wrap_content"
@@ -15,18 +17,102 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/imageWifiStatus"
-                android:layout_margin="5px"
-                android:src="@drawable/custom_wifi_disabled" />
+                android:id="@+id/imageView"
+                android:src="@drawable/custom_wifi_inactive"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="20dp" />
 
-            <TextView
+            <LinearLayout
+                android:orientation="vertical"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Medium Text"
-                android:id="@+id/textView" />
+                android:layout_height="fill_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="Medium Text"
+                    android:id="@+id/textView" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="Small Text"
+                    android:id="@+id/textView2" />
+            </LinearLayout>
 
         </TableRow>
     </TableLayout>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp" />
+
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/scrollView" >
+
+    </ScrollView>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+        <Switch
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Manage Wifi"
+            android:id="@+id/switchManageWifi"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="5dp"
+            android:checked="false" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="@string/manage_wifi_explanation"
+            android:id="@+id/textView3"
+            android:layout_below="@+id/switchManageWifi"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="50dp" />
+
+        <View
+            android:layout_width="100dp"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:layout_below="@+id/textView3"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:id="@+id/view" />
+
+        <Switch
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Auto-Learn Locations"
+            android:id="@+id/switchAutoLearn"
+            android:checked="false"
+            android:layout_below="@+id/view"
+            android:layout_alignParentRight="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="@string/autolean_wifi_description"
+            android:id="@+id/textView4"
+            android:layout_below="@+id/switchAutoLearn"
+            android:layout_alignRight="@+id/textView3"
+            android:layout_marginLeft="50dp" />
+    </RelativeLayout>
 
 </LinearLayout>

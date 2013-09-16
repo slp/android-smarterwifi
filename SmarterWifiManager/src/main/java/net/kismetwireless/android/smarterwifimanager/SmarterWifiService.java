@@ -86,8 +86,7 @@ public class SmarterWifiService extends Service {
             return;
         }
 
-        public void targetStateChanged(ControlState target, ControlType type) {
-            controlState = target;
+        public void controlTypeChanged(ControlType type) {
             controlType = type;
 
             return;
@@ -184,6 +183,13 @@ public class SmarterWifiService extends Service {
         notificationBuilder.setPriority(NotificationCompat.PRIORITY_MIN);
         notificationBuilder.setOnlyAlertOnce(true);
         notificationBuilder.setOngoing(true);
+
+        /*
+        Intent intent = new Intent(this, MainActivity.class);
+        PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        notificationBuilder.addAction(R.drawable.custom_wifi_disabled, "Disable", pIntent);
+        notificationBuilder.addAction(R.drawable.custom_wifi_enabled, "Enable", pIntent);
+        */
 
         notificationManager.notify(0, notificationBuilder.build());
 
@@ -350,6 +356,14 @@ public class SmarterWifiService extends Service {
         }
     }
 
+    public void triggerCallbackTypeChanged() {
+        synchronized (callbackList) {
+            for (SmarterServiceCallback cb: callbackList) {
+                cb.controlTypeChanged(lastControlReason);
+            }
+        }
+    }
+
     public void configureWifiState() {
         WifiState curstate = getWifiState();
         WifiState targetstate = getShouldWifiBeEnabled();
@@ -372,6 +386,7 @@ public class SmarterWifiService extends Service {
             }
         }
 
+        triggerCallbackTypeChanged();
         triggerCallbackWifiChanged();
     }
 
