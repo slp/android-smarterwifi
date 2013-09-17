@@ -24,24 +24,21 @@ import java.util.ArrayList;
 
 public class SmarterWifiService extends Service {
     public enum ControlType {
-        CONTROL_USER, CONTROL_RANGE, CONTROL_TOWERID, CONTROL_GEOFENCE, CONTROL_BLUETOOTH, CONTROL_TIME
+        CONTROL_DISABLED, CONTROL_USER, CONTROL_RANGE, CONTROL_TOWERID, CONTROL_GEOFENCE, CONTROL_BLUETOOTH, CONTROL_TIME
     }
 
     public enum WifiState {
+        // Hard blocked, on, off, idle, ignore
         WIFI_BLOCKED, WIFI_ON, WIFI_OFF, WIFI_IDLE, WIFI_IGNORE
     }
 
+    // Are we autolearning, and if not, why not
     public enum LearningState {
-        LEARNING_OFF, LEARNING_TOWER, LEARNING_BLOCKED, LEARNING_IDLE
+        LEARNING_OFF, LEARNING_ON, LEARNING_IDLE, LEARNING_SSIDBLACKLIST
     }
 
     public enum TowerType {
         TOWER_UNKNOWN, TOWER_BLOCK, TOWER_ENABLE
-    }
-
-    public enum ControlState {
-        // Hard block, ignoring, enable, soft disable
-        CONTROL_BLOCK, CONTROL_IGNORE, CONTROL_ENABLE, CONTROL_DISABLE;
     }
 
     private boolean shutdown = false;
@@ -55,6 +52,8 @@ public class SmarterWifiService extends Service {
     private NotificationManager notificationManager;
 
     private boolean proctorWifi = true;
+    private boolean learnWifi = true;
+
     private int enableWaitSeconds = 1;
     private int disableWaitSeconds = 30;
 
@@ -73,20 +72,15 @@ public class SmarterWifiService extends Service {
     private NotificationCompat.Builder notificationBuilder;
 
     public static abstract class SmarterServiceCallback {
-        protected ControlState controlState;
         protected ControlType controlType;
         protected WifiState wifiState;
         protected String lastSsid;
         protected TowerType towerType;
+        protected LearningState learningState;
 
-        public void wifiStateChanged(String ssid, WifiState state) {
+        public void wifiStateChanged(String ssid, WifiState state, ControlType type) {
             lastSsid = ssid;
             wifiState = state;
-
-            return;
-        }
-
-        public void controlTypeChanged(ControlType type) {
             controlType = type;
 
             return;
@@ -113,9 +107,12 @@ public class SmarterWifiService extends Service {
 
     private SmarterServiceCallback notifcationCallback = new SmarterServiceCallback() {
         @Override
-        public void wifiStateChanged(String ssid, WifiState state) {
+        public void wifiStateChanged(String ssid, WifiState state, ControlType type) {
+            super.wifiStateChanged(ssid, state, type);
+
             int wifiIconId = R.drawable.custom_wifi_inactive;
             String wifiText = "";
+            String reasonText = "";
 
             switch (state) {
                 case WIFI_IDLE:
@@ -124,7 +121,7 @@ public class SmarterWifiService extends Service {
                     break;
                 case WIFI_BLOCKED:
                     wifiIconId = R.drawable.custom_wifi_disabled_tower;
-                    wifiText = "Wi-Fi disabled by location";
+                    wifiText = "Wi-Fi ";
                     break;
                 case WIFI_ON:
                     wifiIconId = R.drawable.custom_wifi_enabled;
@@ -134,13 +131,20 @@ public class SmarterWifiService extends Service {
                     wifiIconId = R.drawable.custom_wifi_inactive;
                     wifiText = "Wi-Fi turned off";
                     break;
+                case WIFI_IGNORE:
+                    wifiIconId = R.drawable.custom_wifi_enabled;
+                    wifiText = "Wi-Fi management disabled";
+                    break;
 
                 default:
                     wifiIconId = R.drawable.custom_wifi_inactive;
             }
 
+            reasonText = SmarterWifiService.controlTypeToText(lastControlReason);
+
             notificationBuilder.setSmallIcon(wifiIconId);
-            notificationBuilder.setContentText(wifiText);
+            notificationBuilder.setContentTitle(wifiText);
+            notificationBuilder.setContentText(reasonText);
 
             notificationManager.notify(0, notificationBuilder.build());
         }
@@ -153,7 +157,6 @@ public class SmarterWifiService extends Service {
         context = this;
 
         preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        updatePreferences();
 
         wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 
@@ -173,9 +176,6 @@ public class SmarterWifiService extends Service {
 
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        // Kick an update
-        setCurrentTower(new CellLocationCommon((CellLocation) null));
-
         notificationBuilder = new NotificationCompat.Builder(context);
 
         // Make the notification
@@ -190,6 +190,10 @@ public class SmarterWifiService extends Service {
         notificationBuilder.addAction(R.drawable.custom_wifi_disabled, "Disable", pIntent);
         notificationBuilder.addAction(R.drawable.custom_wifi_enabled, "Enable", pIntent);
         */
+
+        // Kick an update
+        setCurrentTower(new CellLocationCommon((CellLocation) null));
+        updatePreferences();
 
         notificationManager.notify(0, notificationBuilder.build());
 
@@ -215,7 +219,10 @@ public class SmarterWifiService extends Service {
     }
 
     public void updatePreferences() {
+        learnWifi = preferences.getBoolean(getString(R.string.pref_learn), true);
+        proctorWifi = preferences.getBoolean(getString(R.string.pref_enable), true);
 
+        configureWifiState();
     }
 
     public void shutdownService() {
@@ -299,7 +306,7 @@ public class SmarterWifiService extends Service {
 
         currentTowerType = TowerType.TOWER_UNKNOWN;
 
-        if (curloc.getTowerId() > 0) {
+        if (curloc.getTowerId() > 0 && learnWifi) {
             // If we know this tower already, set type to enable
             if (dbSource.queryTowerMapped(curloc.getTowerId())) {
                 Log.d("smarter", "Found known tower");
@@ -330,7 +337,7 @@ public class SmarterWifiService extends Service {
 
         // Call our CBs immediately for setup
         cb.towerStateChanged(currentCellLocation.getTowerId(), currentTowerType);
-        cb.wifiStateChanged(getCurrentSsid(), getWifiState());
+        cb.wifiStateChanged(getCurrentSsid(), getWifiState(), lastControlReason);
 
     }
 
@@ -351,15 +358,7 @@ public class SmarterWifiService extends Service {
     public void triggerCallbackWifiChanged() {
         synchronized (callbackList) {
             for (SmarterServiceCallback cb: callbackList) {
-                cb.wifiStateChanged(getCurrentSsid(), getWifiState());
-            }
-        }
-    }
-
-    public void triggerCallbackTypeChanged() {
-        synchronized (callbackList) {
-            for (SmarterServiceCallback cb: callbackList) {
-                cb.controlTypeChanged(lastControlReason);
+                cb.wifiStateChanged(getCurrentSsid(), getWifiState(), lastControlReason);
             }
         }
     }
@@ -386,7 +385,6 @@ public class SmarterWifiService extends Service {
             }
         }
 
-        triggerCallbackTypeChanged();
         triggerCallbackWifiChanged();
     }
 
@@ -397,6 +395,12 @@ public class SmarterWifiService extends Service {
     // WIFI_IDLE - Do nothing
     public WifiState getShouldWifiBeEnabled() {
         WifiState curstate = getWifiState();
+
+        // We're not looking at all
+        if (proctorWifi == false) {
+            lastControlReason = ControlType.CONTROL_DISABLED;
+            return WifiState.WIFI_IGNORE;
+        }
 
         // User requests override everything
         if (userOverrideState == WifiState.WIFI_OFF) {
@@ -409,33 +413,42 @@ public class SmarterWifiService extends Service {
             return WifiState.WIFI_ON;
         }
 
-        if (currentTowerType == TowerType.TOWER_BLOCK) {
-            lastControlReason = ControlType.CONTROL_TOWERID;
-            return WifiState.WIFI_BLOCKED;
-        }
+        if (learnWifi) {
+            if (currentTowerType == TowerType.TOWER_BLOCK) {
+                lastControlReason = ControlType.CONTROL_TOWERID;
+                return WifiState.WIFI_BLOCKED;
+            }
 
-        if (currentTowerType == TowerType.TOWER_ENABLE) {
-            lastControlReason = ControlType.CONTROL_RANGE;
-            return WifiState.WIFI_ON;
-        }
+            if (currentTowerType == TowerType.TOWER_ENABLE) {
+                lastControlReason = ControlType.CONTROL_RANGE;
+                return WifiState.WIFI_ON;
+            }
 
-        if (currentTowerType == TowerType.TOWER_UNKNOWN &&
-                curstate == WifiState.WIFI_ON) {
-            lastControlReason = ControlType.CONTROL_RANGE;
-            return WifiState.WIFI_ON;
-        }
+            if (currentTowerType == TowerType.TOWER_UNKNOWN &&
+                    curstate == WifiState.WIFI_ON) {
+                lastControlReason = ControlType.CONTROL_RANGE;
+                return WifiState.WIFI_ON;
+            }
 
-        if (currentTowerType == TowerType.TOWER_UNKNOWN &&
-                curstate == WifiState.WIFI_IDLE) {
+            if (currentTowerType == TowerType.TOWER_UNKNOWN &&
+                    curstate == WifiState.WIFI_IDLE) {
+                lastControlReason = ControlType.CONTROL_RANGE;
+                return WifiState.WIFI_OFF;
+            }
+
             lastControlReason = ControlType.CONTROL_RANGE;
             return WifiState.WIFI_OFF;
         }
 
-        lastControlReason = ControlType.CONTROL_RANGE;
-        return WifiState.WIFI_OFF;
+        return WifiState.WIFI_IGNORE;
     }
 
     public WifiState getWifiState() {
+        if (!proctorWifi) {
+            lastControlReason = ControlType.CONTROL_DISABLED;
+            return WifiState.WIFI_IGNORE;
+        }
+
         int rawstate = wifiManager.getWifiState();
 
         boolean rawwifienabled = false;
@@ -478,35 +491,29 @@ public class SmarterWifiService extends Service {
         return Settings.System.getInt(context.getContentResolver(), Settings.System.AIRPLANE_MODE_ON, 0) != 0;
     }
 
-    static public String controlStateToText(ControlState s) {
-        switch (s) {
-            case CONTROL_BLOCK:
-                return "Block";
-            case CONTROL_ENABLE:
-                return "Enable";
-            case CONTROL_IGNORE:
-                return "Ignore";
-            case CONTROL_DISABLE:
-                return "Disable";
-        }
+    public boolean getWifiStateEnabled(WifiState state) {
+        if (state == WifiState.WIFI_ON || state == WifiState.WIFI_IDLE)
+            return true;
 
-        return "Unknown";
+        return false;
     }
 
     static public String controlTypeToText(ControlType t) {
         switch (t) {
+            case CONTROL_DISABLED:
+                return "Wi-Fi management disabled";
             case CONTROL_BLUETOOTH:
                 return "Bluetooth";
             case CONTROL_GEOFENCE:
                 return "Geofence";
             case CONTROL_RANGE:
-                return "Tower range";
+                return "Auto-learned location";
             case CONTROL_TIME:
                 return "Time range";
             case CONTROL_TOWERID:
                 return "Tower ID";
             case CONTROL_USER:
-                return "User";
+                return "User override";
         }
 
         return "Unknown";

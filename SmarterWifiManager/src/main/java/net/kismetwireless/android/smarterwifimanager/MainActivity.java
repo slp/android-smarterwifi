@@ -1,25 +1,19 @@
 package net.kismetwireless.android.smarterwifimanager;
 
+import android.app.ActionBar;
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.Menu;
-import android.widget.CompoundButton;
-import android.widget.Switch;
 
 
 // Main icon color shifts
 // 00e8d5    b8b8b8    a40000
 
 public class MainActivity extends Activity {
-    SmarterWifiServiceBinder serviceBinder;
     Context context;
-
-    Switch switchManageWifi, switchAutoLearn;
-
-    SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,46 +22,27 @@ public class MainActivity extends Activity {
 
         context = this;
 
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        ActionBar actionBar = getActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-        serviceBinder = new SmarterWifiServiceBinder(context);
-        serviceBinder.doBindService();
+        ActionBar.Tab tab1 = actionBar.newTab().setText("Smarter");
 
-        switchManageWifi = (Switch) findViewById(R.id.switchManageWifi);
-        switchAutoLearn =  (Switch) findViewById(R.id.switchAutoLearn);
+        Fragment fragmentMain = new FragmentMain();
 
-        switchManageWifi.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b == false) {
-                    switchAutoLearn.setEnabled(false);
-                } else {
-                    switchAutoLearn.setEnabled(true);
-                }
+        tab1.setTabListener(new SmarterTabsListener(fragmentMain));
 
-                setManageWifi(b);
-            }
-        });
+        actionBar.addTab(tab1);
+    }
 
-        switchAutoLearn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                setLearnWifi(b);
-            }
-        });
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
 
-        if (sharedPreferences.getBoolean(getString(R.string.pref_enable), true)) {
-            switchManageWifi.setChecked(true);
-        } else {
-            switchManageWifi.setChecked(false);
-        }
-
-        if (sharedPreferences.getBoolean(getString(R.string.pref_learn), true)) {
-            switchAutoLearn.setChecked(true);
-        } else {
-            switchAutoLearn.setChecked(false);
-        }
-
+    @Override
+    public void onResume() {
+        super.onResume();
     }
 
     @Override
@@ -77,18 +52,26 @@ public class MainActivity extends Activity {
         return true;
     }
 
-    private void setManageWifi(boolean b) {
-        SharedPreferences.Editor e = sharedPreferences.edit();
-        e.putBoolean(getString(R.string.pref_enable), b);
-        e.commit();
+    class SmarterTabsListener implements ActionBar.TabListener {
+        public Fragment fragment;
 
-        serviceBinder.doUpdatePreferences();
-    }
+        public SmarterTabsListener(Fragment fragment) {
+            this.fragment = fragment;
+        }
 
-    private void setLearnWifi(boolean b) {
-        SharedPreferences.Editor e = sharedPreferences.edit();
-        e.putBoolean(getString(R.string.pref_learn), b);
-        e.commit();
+        @Override
+        public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
+            //do what you want when tab is reselected, I do nothing
+        }
+
+        @Override
+        public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
+            ft.replace(R.id.fragment_placeholder, fragment);
+        }
+
+        @Override
+        public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
+            ft.remove(fragment);
+        }
     }
-    
 }
