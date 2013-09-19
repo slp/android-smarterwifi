@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -124,11 +125,22 @@ class SmarterWifiServiceBinder {
             smarterService.updatePreferences();
     }
 
-    public ArrayList<SsidBlacklistEntry> getSsidBlacklist() {
-        if (smarterService == null)
+    public ArrayList<SmarterSSID> getSsidBlacklist() {
+        if (smarterService == null) {
+            Log.e("smarter", "service null getting blacklist");
             return null;
+        }
 
         return smarterService.getSsidBlacklist();
+    }
+
+    public void setSsidBlacklisted(SmarterSSID e, boolean b) {
+        if (smarterService == null) {
+            Log.e("smarter", "Service null setting blacklisted ssid");
+            return;
+        }
+
+        smarterService.setSsidBlacklist(e, b);
     }
 
     public void addCallback(SmarterWifiService.SmarterServiceCallback cb) {

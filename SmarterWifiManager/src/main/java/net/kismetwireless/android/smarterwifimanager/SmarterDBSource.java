@@ -165,11 +165,11 @@ public class SmarterDBSource {
         return id;
     }
 
-    public SsidBlacklistEntry getSsidBlacklisted(String ssid) {
+    public SmarterSSID getSsidBlacklisted(String ssid) {
         boolean bl = false;
         long id = -1;
 
-        final String[] idcol = {SmarterWifiDBHelper.COL_SSIDBL_ID};
+        final String[] idcol = {SmarterWifiDBHelper.COL_SSIDBL_ID, SmarterWifiDBHelper.COL_SSIDBL_BLACKLIST};
 
         String compare = SmarterWifiDBHelper.COL_SSIDBL_SSID + "=?";
         String[] args = {ssid};
@@ -179,39 +179,54 @@ public class SmarterDBSource {
         if (c.getCount() > 0) {
             c.moveToFirst();
 
-            bl = true;
             id = c.getLong(0);
+            bl = c.getInt(1) == 1;
         }
 
         c.close();
 
-        return new SsidBlacklistEntry(ssid, bl, id);
+        return new SmarterSSID(ssid, bl, id);
     }
 
-    public void setSsidBlacklisted(SsidBlacklistEntry e, boolean b) {
-        if (b && e.isBlacklisted())
+    public void setSsidBlacklisted(SmarterSSID e, boolean b) {
+        if (e == null)
             return;
 
-        if (b) {
-            ContentValues cv = new ContentValues();
+        Log.d("smarter", "Blacklisting " + e.getSsid() + " in database: " + b);
+
+        ContentValues cv = new ContentValues();
+        cv.put(SmarterWifiDBHelper.COL_SSIDBL_BLACKLIST, e.isBlacklisted() ? "1" : "0");
+
+        if (e.getDatabaseId() >= 0) {
+            if (e.getDatabaseId() >= 0) {
+                String compare = SmarterWifiDBHelper.COL_SSIDBL_ID + "=?";
+                String[] args = {Long.toString(e.getDatabaseId())};
+
+                dataBase.update(SmarterWifiDBHelper.TABLE_SSID_BLACKLIST, cv, compare, args);
+            }
+
+            Log.d("smarter", "Blacklist entry updated in db");
+        } else {
             cv.put(SmarterWifiDBHelper.COL_SSIDBL_SSID, e.getSsid());
 
-            dataBase.insert(SmarterWifiDBHelper.TABLE_SSID_BLACKLIST, null, cv);
-        } else {
-            String compare = SmarterWifiDBHelper.COL_SSIDBL_ID + " =?";
-            String[] args = {Long.toString(e.getDatabaseId())};
+            long sid = dataBase.insert(SmarterWifiDBHelper.TABLE_SSID_BLACKLIST, null, cv);
 
-            dataBase.delete(SmarterWifiDBHelper.TABLE_SSID_BLACKLIST, compare, args);
+            e.setDatabaseId(sid);
+
+            Log.d("smarter", "Blacklist entry added to db");
         }
 
         e.setBlacklisted(b);
     }
 
-    public void mapTower(String ssid, long towerid) {
-        long sid = getSsidDbId(ssid);
+    public void mapTower(SmarterSSID ssid, long towerid) {
+        if (ssid == null)
+            return;
+
+        long sid = getSsidDbId(ssid.getSsid());
         long tid = getTowerDbId(towerid);
 
-        sid = updateSsid(ssid, sid);
+        sid = updateSsid(ssid.getSsid(), sid);
         tid = updateTower(towerid, tid);
 
         long mid = getMapId(sid, tid);

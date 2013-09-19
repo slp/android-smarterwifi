@@ -1,6 +1,7 @@
 package net.kismetwireless.android.smarterwifimanager;
 
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -26,17 +27,13 @@ import java.util.List;
 
 public class SmarterWifiService extends Service {
     public enum ControlType {
-        CONTROL_DISABLED, CONTROL_USER, CONTROL_RANGE, CONTROL_TOWERID, CONTROL_GEOFENCE, CONTROL_BLUETOOTH, CONTROL_TIME
+        CONTROL_DISABLED, CONTROL_USER, CONTROL_RANGE, CONTROL_TOWERID, CONTROL_GEOFENCE, CONTROL_BLUETOOTH, CONTROL_TIME,
+        CONTROL_SSIDBLACKLIST, CONTROL_AIRPLANE
     }
 
     public enum WifiState {
         // Hard blocked, on, off, idle, ignore
         WIFI_BLOCKED, WIFI_ON, WIFI_OFF, WIFI_IDLE, WIFI_IGNORE
-    }
-
-    // Are we autolearning, and if not, why not
-    public enum LearningState {
-        LEARNING_OFF, LEARNING_ON, LEARNING_IDLE, LEARNING_SSIDBLACKLIST
     }
 
     public enum TowerType {
@@ -61,7 +58,6 @@ public class SmarterWifiService extends Service {
 
     private WifiState userOverrideState = WifiState.WIFI_IGNORE;
 
-    private String currentSsid;
     private CellLocationCommon currentCellLocation;
     private TowerType currentTowerType = TowerType.TOWER_UNKNOWN;
 
@@ -76,11 +72,10 @@ public class SmarterWifiService extends Service {
     public static abstract class SmarterServiceCallback {
         protected ControlType controlType;
         protected WifiState wifiState;
-        protected String lastSsid;
+        protected SmarterSSID lastSsid;
         protected TowerType towerType;
-        protected LearningState learningState;
 
-        public void wifiStateChanged(String ssid, WifiState state, ControlType type) {
+        public void wifiStateChanged(SmarterSSID ssid, WifiState state, ControlType type) {
             lastSsid = ssid;
             wifiState = state;
             controlType = type;
@@ -109,7 +104,7 @@ public class SmarterWifiService extends Service {
 
     private SmarterServiceCallback notifcationCallback = new SmarterServiceCallback() {
         @Override
-        public void wifiStateChanged(String ssid, WifiState state, ControlType type) {
+        public void wifiStateChanged(SmarterSSID ssid, WifiState state, ControlType type) {
             super.wifiStateChanged(ssid, state, type);
 
             int wifiIconId = R.drawable.custom_wifi_inactive;
@@ -186,9 +181,12 @@ public class SmarterWifiService extends Service {
         notificationBuilder.setOnlyAlertOnce(true);
         notificationBuilder.setOngoing(true);
 
-        /*
         Intent intent = new Intent(this, MainActivity.class);
         PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+        notificationBuilder.setContentIntent(pIntent);
+
+        /*
         notificationBuilder.addAction(R.drawable.custom_wifi_disabled, "Disable", pIntent);
         notificationBuilder.addAction(R.drawable.custom_wifi_enabled, "Enable", pIntent);
         */
@@ -397,6 +395,7 @@ public class SmarterWifiService extends Service {
     // WIFI_IDLE - Do nothing
     public WifiState getShouldWifiBeEnabled() {
         WifiState curstate = getWifiState();
+        SmarterSSID currentSsid = getCurrentSsid();
 
         // We're not looking at all
         if (proctorWifi == false) {
@@ -413,6 +412,16 @@ public class SmarterWifiService extends Service {
         if (userOverrideState == WifiState.WIFI_ON) {
             lastControlReason = ControlType.CONTROL_USER;
             return WifiState.WIFI_ON;
+        }
+
+        if (getAirplaneMode()) {
+            lastControlReason = ControlType.CONTROL_AIRPLANE;
+            return WifiState.WIFI_IGNORE;
+        }
+
+        if (curstate == WifiState.WIFI_ON && (currentSsid != null && currentSsid.isBlacklisted())) {
+            lastControlReason = ControlType.CONTROL_SSIDBLACKLIST;
+            return WifiState.WIFI_IGNORE;
         }
 
         if (learnWifi) {
@@ -466,23 +475,23 @@ public class SmarterWifiService extends Service {
             rawnetenabled = true;
 
         if (rawwifienabled && rawnetenabled) {
-            currentSsid = wifiManager.getConnectionInfo().getSSID();
             return WifiState.WIFI_ON;
         }
 
         if (rawwifienabled && !rawnetenabled) {
-            currentSsid = null;
             return WifiState.WIFI_IDLE;
         }
 
         return WifiState.WIFI_OFF;
     }
 
-    public String getCurrentSsid() {
-        if (currentSsid == null && getWifiState() == WifiState.WIFI_ON)
-            currentSsid = wifiManager.getConnectionInfo().getSSID();
+    public SmarterSSID getCurrentSsid() {
+        SmarterSSID curssid = null;
 
-        return currentSsid;
+        if (getWifiState() == WifiState.WIFI_ON)
+            curssid = dbSource.getSsidBlacklisted(wifiManager.getConnectionInfo().getSSID());
+
+        return curssid;
     }
 
     public Long getCurrentTower() {
@@ -516,14 +525,21 @@ public class SmarterWifiService extends Service {
                 return "Tower ID";
             case CONTROL_USER:
                 return "User override";
+            case CONTROL_SSIDBLACKLIST:
+                return "SSID blacklisted";
+            case CONTROL_AIRPLANE:
+                return "Airplane mode";
         }
 
         return "Unknown";
     }
 
-    public ArrayList<SsidBlacklistEntry> getSsidBlacklist() {
-        ArrayList<SsidBlacklistEntry> blist = new ArrayList<SsidBlacklistEntry>();
+    public ArrayList<SmarterSSID> getSsidBlacklist() {
+        ArrayList<SmarterSSID> blist = new ArrayList<SmarterSSID>();
         List<WifiConfiguration> wic = wifiManager.getConfiguredNetworks();
+
+        if (wic == null)
+            return blist;
 
         for (WifiConfiguration w : wic) {
             blist.add(dbSource.getSsidBlacklisted(w.SSID));
@@ -532,8 +548,10 @@ public class SmarterWifiService extends Service {
         return blist;
     }
 
-    public void setSsidBlacklist(SsidBlacklistEntry ssid, boolean blacklisted) {
+    public void setSsidBlacklist(SmarterSSID ssid, boolean blacklisted) {
+        Log.d("smarter", "service backend setting ssid " + ssid.getSsid() + " blacklist " + blacklisted);
         dbSource.setSsidBlacklisted(ssid, blacklisted);
+        configureWifiState();
     }
 
 }

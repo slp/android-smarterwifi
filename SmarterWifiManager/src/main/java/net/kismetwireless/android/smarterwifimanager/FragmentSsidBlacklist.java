@@ -1,5 +1,6 @@
 package net.kismetwireless.android.smarterwifimanager;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
@@ -7,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.ListView;
@@ -21,10 +23,47 @@ public class FragmentSsidBlacklist extends Fragment {
     Context context;
     View mainView;
 
-    ArrayList<SsidBlacklistEntry> lastSsidList = new ArrayList<SsidBlacklistEntry>();
+    ArrayList<SmarterSSID> lastSsidList = new ArrayList<SmarterSSID>();
 
     SmarterWifiServiceBinder serviceBinder;
     SsidListAdapter listAdapter;
+    ListView lv;
+    TextView emptyView;
+
+    SmarterWifiService.WifiState wifiState = SmarterWifiService.WifiState.WIFI_IGNORE;
+
+    private SmarterWifiService.SmarterServiceCallback callback = new SmarterWifiService.SmarterServiceCallback() {
+        @Override
+        public void wifiStateChanged(final SmarterSSID ssid, final SmarterWifiService.WifiState state, final SmarterWifiService.ControlType type) {
+            super.wifiStateChanged(ssid, state, type);
+
+            Activity ma = getActivity();
+
+            if (ma != null) {
+                ma.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if ((state == SmarterWifiService.WifiState.WIFI_ON || state == SmarterWifiService.WifiState.WIFI_IDLE) &&
+                                (wifiState == SmarterWifiService.WifiState.WIFI_OFF || wifiState == SmarterWifiService.WifiState.WIFI_BLOCKED)) {
+
+                            lastSsidList = serviceBinder.getSsidBlacklist();
+                            listAdapter.addAll(lastSsidList);
+
+                            if (lastSsidList.size() == 0) {
+                                lv.setVisibility(View.GONE);
+                                emptyView.setVisibility(View.VISIBLE);
+                            } else {
+                                lv.setVisibility(View.VISIBLE);
+                                emptyView.setVisibility(View.GONE);
+                            }
+
+                        }
+                    }
+                });
+            }
+            wifiState = state;
+        }
+    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -35,23 +74,39 @@ public class FragmentSsidBlacklist extends Fragment {
 
         context = getActivity().getApplicationContext();
 
+        serviceBinder = new SmarterWifiServiceBinder(context);
+
+        lv = (ListView) mainView.findViewById(R.id.ssidBlacklistListview);
+        emptyView = (TextView) mainView.findViewById(R.id.textViewNoWifi);
+
         listAdapter = new SsidListAdapter(context, R.layout.ssid_list_entry);
-        ListView lv = (ListView) mainView.findViewById(R.id.ssidBlacklistListview);
         lv.setAdapter(listAdapter);
 
-        serviceBinder = new SmarterWifiServiceBinder(context);
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            }
+        });
 
         serviceBinder.doCallAndBindService(new SmarterWifiServiceBinder.BinderCallback() {
             public void run(SmarterWifiService s) {
                 lastSsidList = serviceBinder.getSsidBlacklist();
                 listAdapter.addAll(lastSsidList);
+
+                if (lastSsidList.size() == 0) {
+                    lv.setVisibility(View.GONE);
+                    emptyView.setVisibility(View.VISIBLE);
+                } else {
+                    lv.setVisibility(View.VISIBLE);
+                    emptyView.setVisibility(View.GONE);
+                }
             }
         });
 
         return mainView;
     }
 
-    public class SsidListAdapter extends ArrayAdapter<SsidBlacklistEntry> {
+    public class SsidListAdapter extends ArrayAdapter<SmarterSSID> {
         private int layoutResourceId;
 
         public SsidListAdapter(Context context, int textViewResourceId) {
@@ -63,7 +118,7 @@ public class FragmentSsidBlacklist extends Fragment {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             try {
-                SsidBlacklistEntry entry = getItem(position);
+                final SmarterSSID entry = getItem(position);
 
                 View v = null;
 
@@ -80,6 +135,30 @@ public class FragmentSsidBlacklist extends Fragment {
 
                 ssidView.setText(entry.getSsid());
                 ssidCb.setChecked(entry.isBlacklisted());
+
+                ssidCb.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        CheckBox cb = (CheckBox) view;
+
+                        entry.setBlacklisted(!entry.isBlacklisted());
+                        cb.setChecked(entry.isBlacklisted());
+
+                        Log.d("smarter", "listadapter setting " + entry.getSsid() + " to " + entry.isBlacklisted());
+                        serviceBinder.setSsidBlacklisted(entry, entry.isBlacklisted());
+                        listAdapter.notifyDataSetChanged();
+
+                    }
+                });
+                /*
+                ssidCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                        serviceBinder.setSsidBlacklisted(entry, b);
+                        entry.setBlacklisted(b);
+                    }
+                });
+                */
 
                 return v;
             } catch (Exception ex) {

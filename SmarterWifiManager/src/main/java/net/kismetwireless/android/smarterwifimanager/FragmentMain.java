@@ -32,7 +32,7 @@ public class FragmentMain extends Fragment {
 
     private SmarterWifiService.SmarterServiceCallback guiCallback = new SmarterWifiService.SmarterServiceCallback() {
         @Override
-        public void wifiStateChanged(final String ssid, final SmarterWifiService.WifiState state, final SmarterWifiService.ControlType type) {
+        public void wifiStateChanged(final SmarterSSID ssid, final SmarterWifiService.WifiState state, final SmarterWifiService.ControlType type) {
             super.wifiStateChanged(ssid, state, type);
 
             Activity ma = getActivity();
