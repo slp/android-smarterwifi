@@ -165,6 +165,48 @@ public class SmarterDBSource {
         return id;
     }
 
+    public SsidBlacklistEntry getSsidBlacklisted(String ssid) {
+        boolean bl = false;
+        long id = -1;
+
+        final String[] idcol = {SmarterWifiDBHelper.COL_SSIDBL_ID};
+
+        String compare = SmarterWifiDBHelper.COL_SSIDBL_SSID + "=?";
+        String[] args = {ssid};
+
+        Cursor c = dataBase.query(SmarterWifiDBHelper.TABLE_SSID_BLACKLIST, idcol, compare, args, null, null, null);
+
+        if (c.getCount() > 0) {
+            c.moveToFirst();
+
+            bl = true;
+            id = c.getLong(0);
+        }
+
+        c.close();
+
+        return new SsidBlacklistEntry(ssid, bl, id);
+    }
+
+    public void setSsidBlacklisted(SsidBlacklistEntry e, boolean b) {
+        if (b && e.isBlacklisted())
+            return;
+
+        if (b) {
+            ContentValues cv = new ContentValues();
+            cv.put(SmarterWifiDBHelper.COL_SSIDBL_SSID, e.getSsid());
+
+            dataBase.insert(SmarterWifiDBHelper.TABLE_SSID_BLACKLIST, null, cv);
+        } else {
+            String compare = SmarterWifiDBHelper.COL_SSIDBL_ID + " =?";
+            String[] args = {Long.toString(e.getDatabaseId())};
+
+            dataBase.delete(SmarterWifiDBHelper.TABLE_SSID_BLACKLIST, compare, args);
+        }
+
+        e.setBlacklisted(b);
+    }
+
     public void mapTower(String ssid, long towerid) {
         long sid = getSsidDbId(ssid);
         long tid = getTowerDbId(towerid);

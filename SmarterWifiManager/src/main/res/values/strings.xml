@@ -9,6 +9,6 @@
     <string name="pref_learn">enable_learning</string>
 
     <string name="service_desc">Smarter Wifi Service</string>
-    <string name="manage_wifi_explanation">Control Wi-Fi radio based on auto-learned locations and other criteria</string><string name="autolean_wifi_description">Automatically learn when to enable Wi-Fi based on cell tower identities.  To begin learning in a new location, enable Wi-Fi normally.</string>
+    <string name="manage_wifi_explanation">Control Wi-Fi radio based on auto-learned locations and other criteria</string><string name="autolean_wifi_description">Automatically learn when to enable Wi-Fi based on cell tower identities.  To begin learning in a new location, enable Wi-Fi normally.</string><string name="ssid_blacklist_desc">While connected to a blacklisted SSID, automatic location learning will be disabled.  It will be re-enabled when you leave the blocked network.</string>
 
 </resources>

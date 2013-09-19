@@ -124,6 +124,13 @@ class SmarterWifiServiceBinder {
             smarterService.updatePreferences();
     }
 
+    public ArrayList<SsidBlacklistEntry> getSsidBlacklist() {
+        if (smarterService == null)
+            return null;
+
+        return smarterService.getSsidBlacklist();
+    }
+
     public void addCallback(SmarterWifiService.SmarterServiceCallback cb) {
         synchronized (this) {
             if (smarterService == null) {

@@ -27,12 +27,16 @@ public class MainActivity extends Activity {
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
         ActionBar.Tab tab1 = actionBar.newTab().setText("Smarter");
+        ActionBar.Tab tab2 = actionBar.newTab().setText("Blacklist");
 
         Fragment fragmentMain = new FragmentMain();
+        Fragment fragmentSsid = new FragmentSsidBlacklist();
 
         tab1.setTabListener(new SmarterTabsListener(fragmentMain));
+        tab2.setTabListener(new SmarterTabsListener(fragmentSsid));
 
         actionBar.addTab(tab1);
+        actionBar.addTab(tab2);
     }
 
     @Override

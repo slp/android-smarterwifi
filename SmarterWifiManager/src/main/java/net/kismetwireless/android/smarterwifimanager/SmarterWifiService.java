@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteException;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
 import android.os.Handler;
@@ -21,6 +22,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class SmarterWifiService extends Service {
     public enum ControlType {
@@ -517,6 +519,21 @@ public class SmarterWifiService extends Service {
         }
 
         return "Unknown";
+    }
+
+    public ArrayList<SsidBlacklistEntry> getSsidBlacklist() {
+        ArrayList<SsidBlacklistEntry> blist = new ArrayList<SsidBlacklistEntry>();
+        List<WifiConfiguration> wic = wifiManager.getConfiguredNetworks();
+
+        for (WifiConfiguration w : wic) {
+            blist.add(dbSource.getSsidBlacklisted(w.SSID));
+        }
+
+        return blist;
+    }
+
+    public void setSsidBlacklist(SsidBlacklistEntry ssid, boolean blacklisted) {
+        dbSource.setSsidBlacklisted(ssid, blacklisted);
     }
 
 }

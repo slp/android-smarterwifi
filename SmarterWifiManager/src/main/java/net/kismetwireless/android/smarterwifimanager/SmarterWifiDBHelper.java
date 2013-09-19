@@ -24,6 +24,10 @@ public class SmarterWifiDBHelper extends SQLiteOpenHelper {
     public static final String COL_SCMAP_CELLID = "cellid";
     public static final String COL_SCMAP_TIME_S = "timesec";
 
+    public static final String TABLE_SSID_BLACKLIST = "ssidblacklist";
+    public static final String COL_SSIDBL_ID = "_id";
+    public static final String COL_SSIDBL_SSID = "ssid";
+
     public static final String CREATE_SSID_TABLE =
             "CREATE TABLE " + TABLE_SSID + " (" +
                     COL_SSID_ID + " integer primary key autoincrement, " +
@@ -46,9 +50,14 @@ public class SmarterWifiDBHelper extends SQLiteOpenHelper {
                     COL_SCMAP_TIME_S + " int" +
                     ");";
 
+    public static final String CREATE_SSID_BLACKLIST_TABLE =
+            "CREATE TABLE " + TABLE_SSID_BLACKLIST + " (" +
+                    COL_SSIDBL_ID + " integer primary key autoincrement, " +
+                    COL_SSIDBL_SSID + " text" +
+                    ");";
 
     public static final String DATABASE_NAME = "smartermap.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     public SmarterWifiDBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -59,10 +68,13 @@ public class SmarterWifiDBHelper extends SQLiteOpenHelper {
         database.execSQL(CREATE_SSID_TABLE);
         database.execSQL(CREATE_CELL_TABLE);
         database.execSQL(CREATE_SSID_CELL_MAP_TABLE);
+        database.execSQL(CREATE_SSID_BLACKLIST_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        if (oldVersion < 2)
+            db.execSQL(CREATE_SSID_BLACKLIST_TABLE);
 
     }
 
