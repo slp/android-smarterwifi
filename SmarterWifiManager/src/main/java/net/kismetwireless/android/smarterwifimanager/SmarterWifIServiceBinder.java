@@ -143,6 +143,24 @@ class SmarterWifiServiceBinder {
         smarterService.setSsidBlacklist(e, b);
     }
 
+    public ArrayList<SmarterSSID> getSsidTowerlist() {
+        if (smarterService == null) {
+            Log.e("smarter", "service null getting towerlist");
+            return null;
+        }
+
+        return smarterService.getSsidTowerlist();
+    }
+
+    public void deleteSsidTowerMap(SmarterSSID ssid) {
+        if (smarterService == null) {
+            Log.e("smarter", "service null deleting towermap");
+            return;
+        }
+
+        smarterService.deleteSsidTowerMap(ssid);
+    }
+
     public void addCallback(SmarterWifiService.SmarterServiceCallback cb) {
         synchronized (this) {
             if (smarterService == null) {
