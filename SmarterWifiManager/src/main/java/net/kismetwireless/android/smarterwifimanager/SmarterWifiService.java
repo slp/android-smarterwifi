@@ -103,9 +103,18 @@ public class SmarterWifiService extends Service {
     private Context context;
 
     private SmarterServiceCallback notifcationCallback = new SmarterServiceCallback() {
+        WifiState lastState = WifiState.WIFI_IDLE;
+        ControlType lastControl = ControlType.CONTROL_DISABLED;
+
         @Override
         public void wifiStateChanged(SmarterSSID ssid, WifiState state, ControlType type) {
             super.wifiStateChanged(ssid, state, type);
+
+            if (state == lastState && type == lastControl)
+                return;
+
+            lastState = state;
+            lastControl = type;
 
             int wifiIconId = R.drawable.custom_wifi_inactive;
             String wifiText = "";
@@ -185,11 +194,6 @@ public class SmarterWifiService extends Service {
         PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
         notificationBuilder.setContentIntent(pIntent);
-
-        /*
-        notificationBuilder.addAction(R.drawable.custom_wifi_disabled, "Disable", pIntent);
-        notificationBuilder.addAction(R.drawable.custom_wifi_enabled, "Enable", pIntent);
-        */
 
         // Kick an update
         setCurrentTower(new CellLocationCommon((CellLocation) null));
@@ -552,6 +556,14 @@ public class SmarterWifiService extends Service {
         Log.d("smarter", "service backend setting ssid " + ssid.getSsid() + " blacklist " + blacklisted);
         dbSource.setSsidBlacklisted(ssid, blacklisted);
         configureWifiState();
+    }
+
+    public ArrayList<SmarterSSID> getSsidTowerlist() {
+        return dbSource.getMappedSSIDList();
+    }
+
+    public void deleteSsidTowerMap(SmarterSSID ssid) {
+        dbSource.deleteSsidTowerMap(ssid);
     }
 
 }

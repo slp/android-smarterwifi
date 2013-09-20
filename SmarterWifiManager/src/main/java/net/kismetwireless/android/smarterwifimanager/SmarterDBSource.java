@@ -7,6 +7,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.util.Log;
 
+import java.util.ArrayList;
+
 /**
  * Created by dragorn on 8/30/13.
  */
@@ -29,12 +31,12 @@ public class SmarterDBSource {
 
         Cursor c = dataBase.query(SmarterWifiDBHelper.TABLE_CELL, idcol, compare, null, null, null, null);
 
+        c.moveToFirst();
+
         if (c.getCount() <= 0) {
             c.close();
             return -1;
         }
-
-        c.moveToFirst();
 
         id = c.getLong(0);
 
@@ -57,6 +59,8 @@ public class SmarterDBSource {
         String compare = SmarterWifiDBHelper.COL_SCMAP_CELLID + " = " + tid;
 
         Cursor c = dataBase.query(SmarterWifiDBHelper.TABLE_SSID_CELL_MAP, idcol, compare, null, null, null, null);
+
+        c.moveToFirst();
 
         if (c.getCount() <= 0) {
             c.close();
@@ -103,12 +107,12 @@ public class SmarterDBSource {
 
         Cursor c = dataBase.query(SmarterWifiDBHelper.TABLE_SSID, idcol, compare, args, null, null, null);
 
+        c.moveToFirst();
+
         if (c.getCount() <= 0) {
             c.close();
             return -1;
         }
-
-        c.moveToFirst();
 
         id = c.getLong(0);
 
@@ -151,12 +155,12 @@ public class SmarterDBSource {
 
         Cursor c = dataBase.query(SmarterWifiDBHelper.TABLE_SSID_CELL_MAP, idcol, compare, args, null, null, null);
 
+        c.moveToFirst();
+
         if (c.getCount() <= 0) {
             c.close();
             return -1;
         }
-
-        c.moveToFirst();
 
         id = c.getLong(0);
 
@@ -176,9 +180,9 @@ public class SmarterDBSource {
 
         Cursor c = dataBase.query(SmarterWifiDBHelper.TABLE_SSID_BLACKLIST, idcol, compare, args, null, null, null);
 
-        if (c.getCount() > 0) {
-            c.moveToFirst();
+        c.moveToFirst();
 
+        if (c.getCount() > 0) {
             id = c.getLong(0);
             bl = c.getInt(1) == 1;
         }
@@ -197,10 +201,10 @@ public class SmarterDBSource {
         ContentValues cv = new ContentValues();
         cv.put(SmarterWifiDBHelper.COL_SSIDBL_BLACKLIST, e.isBlacklisted() ? "1" : "0");
 
-        if (e.getDatabaseId() >= 0) {
-            if (e.getDatabaseId() >= 0) {
+        if (e.getBlacklistDatabaseId() >= 0) {
+            if (e.getBlacklistDatabaseId() >= 0) {
                 String compare = SmarterWifiDBHelper.COL_SSIDBL_ID + "=?";
-                String[] args = {Long.toString(e.getDatabaseId())};
+                String[] args = {Long.toString(e.getBlacklistDatabaseId())};
 
                 dataBase.update(SmarterWifiDBHelper.TABLE_SSID_BLACKLIST, cv, compare, args);
             }
@@ -211,7 +215,7 @@ public class SmarterDBSource {
 
             long sid = dataBase.insert(SmarterWifiDBHelper.TABLE_SSID_BLACKLIST, null, cv);
 
-            e.setDatabaseId(sid);
+            e.setBlacklistDatabaseId(sid);
 
             Log.d("smarter", "Blacklist entry added to db");
         }
@@ -251,6 +255,66 @@ public class SmarterDBSource {
             dataBase.update(SmarterWifiDBHelper.TABLE_SSID_CELL_MAP, cv, compare, args);
         }
 
+    }
+
+    public int getNumTowersInSsid(long ssidid) {
+        String[] cols = {SmarterWifiDBHelper.COL_SCMAP_CELLID};
+
+        String compare = SmarterWifiDBHelper.COL_SCMAP_SSIDID + "=?";
+        String[] args= {Long.toString(ssidid)};
+
+        Cursor c = dataBase.query(SmarterWifiDBHelper.TABLE_SSID_CELL_MAP, cols, compare, args, null, null, null);
+
+        c.moveToFirst();
+
+        int rc = c.getCount();
+
+        c.close();
+
+        return rc;
+    }
+
+    public ArrayList<SmarterSSID> getMappedSSIDList() {
+        ArrayList<SmarterSSID> retlist = new ArrayList<SmarterSSID>();
+
+        String[] cols = {SmarterWifiDBHelper.COL_SSID_ID, SmarterWifiDBHelper.COL_SSID_SSID};
+
+        Cursor ssidc = dataBase.query(SmarterWifiDBHelper.TABLE_SSID, cols, null, null, null, null, null);
+
+        ssidc.moveToFirst();
+
+        if (ssidc.getCount() <= 0) {
+            ssidc.close();
+            return retlist;
+        }
+
+        while (!ssidc.isLast()) {
+            SmarterSSID s = new SmarterSSID();
+
+            s.setMapDbId(ssidc.getLong(0));
+            s.setSsid(ssidc.getString(1));
+
+            s.setNumTowers(getNumTowersInSsid(s.getMapDbId()));
+
+            if (s.getNumTowers() > 0)
+                retlist.add(s);
+
+            ssidc.moveToNext();
+        }
+
+        ssidc.close();
+
+        return retlist;
+    }
+
+    public void deleteSsidTowerMap(SmarterSSID ssid) {
+        if (ssid.getMapDbId() < 0)
+            return;
+
+        String compare = SmarterWifiDBHelper.COL_SCMAP_SSIDID + "=?";
+        String[] args = {Long.toString(ssid.getMapDbId())};
+
+        dataBase.delete(SmarterWifiDBHelper.TABLE_SSID_CELL_MAP, compare, args);
     }
 
 }

@@ -26,17 +26,21 @@ public class MainActivity extends Activity {
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-        ActionBar.Tab tab1 = actionBar.newTab().setText("Smarter");
-        ActionBar.Tab tab2 = actionBar.newTab().setText("Blacklist");
+        ActionBar.Tab tab1 = actionBar.newTab().setText(R.string.tab_main);
+        ActionBar.Tab tab2 = actionBar.newTab().setText(R.string.tab_ignore);
+        ActionBar.Tab tab3 = actionBar.newTab().setText(R.string.tab_learned);
 
         Fragment fragmentMain = new FragmentMain();
         Fragment fragmentSsid = new FragmentSsidBlacklist();
+        Fragment fragmentLearned = new FragmentLearned();
 
         tab1.setTabListener(new SmarterTabsListener(fragmentMain));
         tab2.setTabListener(new SmarterTabsListener(fragmentSsid));
+        tab3.setTabListener(new SmarterTabsListener(fragmentLearned));
 
         actionBar.addTab(tab1);
         actionBar.addTab(tab2);
+        actionBar.addTab(tab3);
     }
 
     @Override

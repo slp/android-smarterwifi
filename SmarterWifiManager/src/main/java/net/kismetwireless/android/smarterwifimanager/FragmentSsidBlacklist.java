@@ -79,7 +79,7 @@ public class FragmentSsidBlacklist extends Fragment {
         lv = (ListView) mainView.findViewById(R.id.ssidBlacklistListview);
         emptyView = (TextView) mainView.findViewById(R.id.textViewNoWifi);
 
-        listAdapter = new SsidListAdapter(context, R.layout.ssid_list_entry);
+        listAdapter = new SsidListAdapter(context, R.layout.ssid_blacklist_entry);
         lv.setAdapter(listAdapter);
 
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -133,7 +133,7 @@ public class FragmentSsidBlacklist extends Fragment {
                 TextView ssidView = (TextView) v.findViewById(R.id.ssidListSsid);
                 CheckBox ssidCb = (CheckBox) v.findViewById(R.id.ssidListCheck);
 
-                ssidView.setText(entry.getSsid());
+                ssidView.setText(entry.getDisplaySsid());
                 ssidCb.setChecked(entry.isBlacklisted());
 
                 ssidCb.setOnClickListener(new View.OnClickListener() {
