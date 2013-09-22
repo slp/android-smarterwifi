@@ -10,18 +10,28 @@ package net.kismetwireless.android.smarterwifimanager;
  *
  */
 public class SmarterBluetooth {
-    private String btmac;
-    private boolean blacklisted;
+    private String btmac, btname;
+    private boolean blacklisted, enabled;
     private long bldbid;
 
     public SmarterBluetooth() {
         bldbid = -1;
     }
 
-    public SmarterBluetooth(String btmac, boolean blacklisted, long bldb) {
+    public SmarterBluetooth(String btmac, String name, boolean blacklisted, boolean enabled, long bldb) {
         this.btmac = btmac;
         this.blacklisted = blacklisted;
+        this.enabled = enabled;
+        this.btname = name;
         bldbid = bldb;
+    }
+
+    public void setBtName(String s) {
+        btname = s;
+    }
+
+    public String getBtName() {
+        return btname;
     }
 
     public void setBtmac(String s) {
@@ -48,8 +58,16 @@ public class SmarterBluetooth {
         bldbid = i;
     }
 
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean e) {
+        enabled = e;
+    }
+
     public boolean equals(SmarterBluetooth e) {
-        return (btmac.equals(e.getBtmac()) && blacklisted == e.isBlacklisted());
+        return (btmac.equals(e.getBtmac()) && blacklisted == e.isBlacklisted() && enabled == e.isEnabled());
     }
 
 }

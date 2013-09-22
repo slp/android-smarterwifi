@@ -43,9 +43,6 @@ public class FragmentLearned extends Fragment {
     }
 
     private void updateTowerList() {
-        if (serviceBinder == null)
-            return;
-
         ArrayList<SmarterSSID> ssids = serviceBinder.getSsidTowerlist();
 
         for (SmarterSSID s : ssids) {
@@ -56,6 +53,14 @@ public class FragmentLearned extends Fragment {
             } else {
                 lastSsidList.get(lastSsidDbToArraylist.get(s.getMapDbId())).setNumTowers(s.getNumTowers());
             }
+        }
+
+        if (lastSsidList.size() <= 0) {
+            emptyView.setVisibility(View.VISIBLE);
+            lv.setVisibility(View.GONE);
+        } else {
+            emptyView.setVisibility(View.GONE);
+            lv.setVisibility(View.VISIBLE);
         }
 
         listAdapter.notifyDataSetChanged();

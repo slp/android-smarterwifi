@@ -34,21 +34,25 @@ public class MainActivity extends Activity {
         serviceBinder.doCallAndBindService(new SmarterWifiServiceBinder.BinderCallback() {
             @Override
             public void run(SmarterWifiServiceBinder b) {
-                ActionBar.Tab tab1 = actionBar.newTab().setText(R.string.tab_main);
-                ActionBar.Tab tab2 = actionBar.newTab().setText(R.string.tab_ignore);
-                ActionBar.Tab tab3 = actionBar.newTab().setText(R.string.tab_learned);
+                ActionBar.Tab tabMain = actionBar.newTab().setText(R.string.tab_main);
+                ActionBar.Tab tabIgnore = actionBar.newTab().setText(R.string.tab_ignore);
+                ActionBar.Tab tabLearned = actionBar.newTab().setText(R.string.tab_learned);
+                ActionBar.Tab tabBluetooth = actionBar.newTab().setText(R.string.tab_bluetooth);
 
                 final FragmentMain fragmentMain = new FragmentMain(b);
                 final FragmentSsidBlacklist fragmentSsid = new FragmentSsidBlacklist(b);
                 final FragmentLearned fragmentLearned = new FragmentLearned(b);
+                final FragmentBluetoothBlacklist fragmentBluetooth = new FragmentBluetoothBlacklist(b);
 
-                tab1.setTabListener(new SmarterTabsListener(fragmentMain));
-                tab2.setTabListener(new SmarterTabsListener(fragmentSsid));
-                tab3.setTabListener(new SmarterTabsListener(fragmentLearned));
+                tabMain.setTabListener(new SmarterTabsListener(fragmentMain));
+                tabIgnore.setTabListener(new SmarterTabsListener(fragmentSsid));
+                tabLearned.setTabListener(new SmarterTabsListener(fragmentLearned));
+                tabBluetooth.setTabListener(new SmarterTabsListener(fragmentBluetooth));
 
-                actionBar.addTab(tab1);
-                actionBar.addTab(tab2);
-                actionBar.addTab(tab3);
+                actionBar.addTab(tabMain);
+                actionBar.addTab(tabIgnore);
+                actionBar.addTab(tabBluetooth);
+                actionBar.addTab(tabLearned);
             }
 
         });
