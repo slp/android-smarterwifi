@@ -223,6 +223,60 @@ public class SmarterDBSource {
         e.setBlacklisted(b);
     }
 
+    public SmarterBluetooth getBluetoothBlacklisted(String btmac) {
+        boolean bl = false;
+        long id = -1;
+
+        final String[] idcol = {SmarterWifiDBHelper.COL_BTBL_ID, SmarterWifiDBHelper.COL_BTBL_BLACKLIST};
+
+        String compare = SmarterWifiDBHelper.COL_BTBL_MAC + "=?";
+        String[] args = {btmac};
+
+        Cursor c = dataBase.query(SmarterWifiDBHelper.TABLE_BT_BLACKLIST, idcol, compare, args, null, null, null);
+
+        c.moveToFirst();
+
+        if (c.getCount() > 0) {
+            id = c.getLong(0);
+            bl = c.getInt(1) == 1;
+        }
+
+        c.close();
+
+        return new SmarterBluetooth(btmac, bl, id);
+    }
+
+    public void setBluetoothBlacklisted(SmarterBluetooth e, boolean b) {
+        if (e == null)
+            return;
+
+        Log.d("smarter", "Blacklisting bluetooth " + e.getBtmac() + " in database: " + b);
+
+        ContentValues cv = new ContentValues();
+        cv.put(SmarterWifiDBHelper.COL_BTBL_BLACKLIST, e.isBlacklisted() ? "1" : "0");
+
+        if (e.getBlacklistDatabaseId() >= 0) {
+            if (e.getBlacklistDatabaseId() >= 0) {
+                String compare = SmarterWifiDBHelper.COL_BTBL_ID + "=?";
+                String[] args = {Long.toString(e.getBlacklistDatabaseId())};
+
+                dataBase.update(SmarterWifiDBHelper.TABLE_BT_BLACKLIST, cv, compare, args);
+            }
+
+            Log.d("smarter", "Bluetooth blacklist entry updated in db");
+        } else {
+            cv.put(SmarterWifiDBHelper.COL_BTBL_MAC, e.getBtmac());
+
+            long sid = dataBase.insert(SmarterWifiDBHelper.TABLE_BT_BLACKLIST, null, cv);
+
+            e.setBlacklistDatabaseId(sid);
+
+            Log.d("smarter", "Bluetooth blacklist entry added to db");
+        }
+
+        e.setBlacklisted(b);
+    }
+
     public void mapTower(SmarterSSID ssid, long towerid) {
         if (ssid == null)
             return;
@@ -288,7 +342,7 @@ public class SmarterDBSource {
             return retlist;
         }
 
-        while (!ssidc.isLast()) {
+        while (!ssidc.isAfterLast()) {
             SmarterSSID s = new SmarterSSID();
 
             s.setMapDbId(ssidc.getLong(0));

@@ -69,6 +69,8 @@ public class SmarterWifiService extends Service {
 
     private NotificationCompat.Builder notificationBuilder;
 
+    private long lastTowerMap = 0;
+
     public static abstract class SmarterServiceCallback {
         protected ControlType controlType;
         protected WifiState wifiState;
@@ -322,6 +324,7 @@ public class SmarterWifiService extends Service {
             if (getWifiState() == WifiState.WIFI_ON) {
                 Log.d("smarter", "New tower, Wi-Fi enabled, learning tower");
                 dbSource.mapTower(getCurrentSsid(), curloc.getTowerId());
+                lastTowerMap = System.currentTimeMillis();
                 currentTowerType = TowerType.TOWER_ENABLE;
             }
 
@@ -564,6 +567,10 @@ public class SmarterWifiService extends Service {
 
     public void deleteSsidTowerMap(SmarterSSID ssid) {
         dbSource.deleteSsidTowerMap(ssid);
+    }
+
+    public long getLastTowerMap() {
+        return lastTowerMap;
     }
 
 }

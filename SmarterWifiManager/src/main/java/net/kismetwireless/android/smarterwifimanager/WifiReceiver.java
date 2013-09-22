@@ -1,5 +1,6 @@
 package net.kismetwireless.android.smarterwifimanager;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -17,8 +18,8 @@ public class WifiReceiver extends BroadcastReceiver {
 
         if (intent.getAction().equals(WifiManager.WIFI_STATE_CHANGED_ACTION)) {
             serviceBinder.doCallAndBindService(new SmarterWifiServiceBinder.BinderCallback() {
-                public void run(SmarterWifiService s) {
-                    s.configureWifiState();
+                public void run(SmarterWifiServiceBinder b) {
+                    b.configureWifiState();
                     serviceBinder.doUnbindService();
                 }
             });
@@ -31,11 +32,15 @@ public class WifiReceiver extends BroadcastReceiver {
                 return;
 
             serviceBinder.doCallAndBindService(new SmarterWifiServiceBinder.BinderCallback() {
-                public void run(SmarterWifiService s) {
-                    s.configureWifiState();
+                public void run(SmarterWifiServiceBinder b) {
+                    b.configureWifiState();
                     serviceBinder.doUnbindService();
                 }
             });
+
+        }
+
+        if (intent.getAction().equals(BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED)) {
 
         }
 

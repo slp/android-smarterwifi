@@ -19,23 +19,19 @@
     </layouts>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5cf4bc51-d75b-40a5-a545-323845e4d986" name="Default" comment="Add learning screen, change around some text, try to make">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/SmarterWifiManager/SmarterWifiManager.apk" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/SmarterWifiManager/src/main/res/drawable-hdpi/content_discard.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/SmarterWifiManager/src/main/res/drawable-mdpi/content_discard.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/SmarterWifiManager/src/main/res/drawable-xhdpi/content_discard.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/FragmentLearned.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/SmarterWifiManager/src/main/res/layout/fragment_learnedssid.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/SmarterWifiManager/src/main/res/layout/ssid_learnlist_entry.xml" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/SmarterWifiManager/src/main/res/layout/ssid_list_entry.xml" afterPath="$PROJECT_DIR$/SmarterWifiManager/src/main/res/layout/ssid_blacklist_entry.xml" />
+    <list default="true" id="5cf4bc51-d75b-40a5-a545-323845e4d986" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterBluetooth.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SmarterWifiManager/SmarterWifiManager.apk" afterPath="$PROJECT_DIR$/SmarterWifiManager/SmarterWifiManager.apk" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SmarterWifiManager/src/main/AndroidManifest.xml" afterPath="$PROJECT_DIR$/SmarterWifiManager/src/main/AndroidManifest.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/FragmentLearned.java" afterPath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/FragmentLearned.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/FragmentMain.java" afterPath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/FragmentMain.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/FragmentSsidBlacklist.java" afterPath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/FragmentSsidBlacklist.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/MainActivity.java" afterPath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/MainActivity.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterDBSource.java" afterPath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterDBSource.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterSSID.java" afterPath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterSSID.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterWifIServiceBinder.java" afterPath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterWifIServiceBinder.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterWifiDBHelper.java" afterPath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterWifiDBHelper.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterWifiService.java" afterPath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterWifiService.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SmarterWifiManager/src/main/res/values/strings.xml" afterPath="$PROJECT_DIR$/SmarterWifiManager/src/main/res/values/strings.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/WifiReceiver.java" afterPath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/WifiReceiver.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="SmarterWifiManager.iws" />
@@ -103,45 +99,7 @@
       <file leaf-file-name="SmarterWifiService.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterWifiService.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="116" column="30" selection-start="3727" selection-end="3727" vertical-scroll-proportion="0.0" vertical-offset="1200" max-vertical-offset="8205">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="AndroidManifest.xml" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/AndroidManifest.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="3" column="25" selection-start="193" selection-end="193" vertical-scroll-proportion="0.06378987" vertical-offset="11" max-vertical-offset="765">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="SmarterWifIServiceBinder.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterWifIServiceBinder.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="157" column="18" selection-start="4625" selection-end="4625" vertical-scroll-proportion="0.0" vertical-offset="1792" max-vertical-offset="2730">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="SmarterDBSource.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterDBSource.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="300" column="0" selection-start="8657" selection-end="8657" vertical-scroll-proportion="0.0" vertical-offset="4125" max-vertical-offset="4785">
-              <folding>
-                <element signature="e#7998#8011#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="SmarterSSID.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterSSID.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="48" column="51" selection-start="1146" selection-end="1146" vertical-scroll-proportion="0.0" vertical-offset="217" max-vertical-offset="1410">
+            <state line="72" column="0" selection-start="2252" selection-end="2252" vertical-scroll-proportion="0.0" vertical-offset="495" max-vertical-offset="8310">
               <folding />
             </state>
           </provider>
@@ -150,14 +108,54 @@
       <file leaf-file-name="FragmentLearned.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/FragmentLearned.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="120" column="0" selection-start="4600" selection-end="4600" vertical-scroll-proportion="0.0" vertical-offset="1305" max-vertical-offset="1935">
+            <state line="58" column="8" selection-start="1798" selection-end="1798" vertical-scroll-proportion="0.0" vertical-offset="375" max-vertical-offset="2490">
               <folding>
-                <element signature="e#1577#2123#0" expanded="true" />
-                <element signature="e#2112#2113#0" expanded="true" />
-                <element signature="e#3453#4748#0" expanded="true" />
-                <element signature="e#4158#4655#0" expanded="true" />
-                <element signature="e#4628#4629#0" expanded="true" />
-                <element signature="e#4729#4730#0" expanded="true" />
+                <element signature="e#846#861#0" expanded="true" />
+                <element signature="e#1895#2054#0" expanded="true" />
+                <element signature="e#2047#2048#0" expanded="true" />
+                <element signature="e#4063#5358#0" expanded="true" />
+                <element signature="e#4768#5265#0" expanded="true" />
+                <element signature="e#5238#5239#0" expanded="true" />
+                <element signature="e#5339#5340#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="MainActivity.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/MainActivity.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="32" column="60" selection-start="922" selection-end="922" vertical-scroll-proportion="0.42213884" vertical-offset="165" max-vertical-offset="1455">
+              <folding>
+                <element signature="e#967#1970#0" expanded="true" />
+                <element signature="e#1958#1959#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="FragmentSsidBlacklist.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/FragmentSsidBlacklist.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="102" column="0" selection-start="3665" selection-end="3665" vertical-scroll-proportion="0.0" vertical-offset="990" max-vertical-offset="2550">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="FragmentMain.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/FragmentMain.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="36" column="0" selection-start="909" selection-end="909" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2595">
+              <folding>
+                <element signature="e#977#3054#0" expanded="true" />
+                <element signature="e#3047#3048#0" expanded="true" />
+                <element signature="e#3945#4343#0" expanded="true" />
+                <element signature="e#4332#4333#0" expanded="true" />
+                <element signature="e#4447#4657#0" expanded="true" />
+                <element signature="e#4646#4647#0" expanded="true" />
+                <element signature="e#4702#4733#0" expanded="true" />
+                <element signature="e#4908#4938#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -529,21 +527,21 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/res/layout/ssid_list_entry.xml" />
-        <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterWifiDBHelper.java" />
-        <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/res/layout/fragment_ssidblacklist.xml" />
-        <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/MappedSsid.java" />
         <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/res/layout/fragment_learnedssid.xml" />
         <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterSSID.java" />
-        <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/FragmentSsidBlacklist.java" />
         <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/res/layout/ssid_blacklist_entry.xml" />
         <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/res/layout/ssid_learnlist_entry.xml" />
-        <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/MainActivity.java" />
         <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/res/values/strings.xml" />
-        <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterWifIServiceBinder.java" />
-        <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/FragmentLearned.java" />
+        <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterWifiDBHelper.java" />
+        <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterBluetooth.java" />
         <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterDBSource.java" />
         <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterWifiService.java" />
+        <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/WifiReceiver.java" />
+        <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterWifIServiceBinder.java" />
+        <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/FragmentSsidBlacklist.java" />
+        <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/FragmentMain.java" />
+        <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/FragmentLearned.java" />
+        <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/MainActivity.java" />
         <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/AndroidManifest.xml" />
       </list>
     </option>
@@ -1022,7 +1020,11 @@
       <created>1379621279027</created>
       <updated>1379621279027</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Add learning screen, change some verbage, try to minimize notification updates">
+      <created>1379710778276</created>
+      <updated>1379710778276</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -1079,63 +1081,13 @@
     <MESSAGE value="Conversion to fragments" />
     <MESSAGE value="Blacklist GUI" />
     <MESSAGE value="Fix npe in blacklist gui, link notification" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix npe in blacklist gui, link notification" />
+    <MESSAGE value="Add learning screen, change some verbage, try to minimize notification updates" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add learning screen, change some verbage, try to minimize notification updates" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/res/layout/fragment_main.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="47" column="0" selection-start="1725" selection-end="1725" vertical-scroll-proportion="-0.07042254" vertical-offset="750" max-vertical-offset="1920">
-          <folding />
-        </state>
-      </provider>
-      <provider editor-type-id="android-designer">
-        <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/FragmentMain.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="50" column="0" selection-start="1544" selection-end="1544" vertical-scroll-proportion="0.0" vertical-offset="9" max-vertical-offset="2250">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/res/layout/fragment_ssidblacklist.xml">
-      <provider editor-type-id="text-editor">
-        <state line="42" column="0" selection-start="1533" selection-end="1533" vertical-scroll-proportion="0.0" vertical-offset="285" max-vertical-offset="720">
-          <folding />
-        </state>
-      </provider>
-      <provider selected="true" editor-type-id="android-designer">
-        <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterWifiDBHelper.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="83" column="0" selection-start="3343" selection-end="3343" vertical-scroll-proportion="0.956848" vertical-offset="705" max-vertical-offset="1320">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterSSID.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="48" column="51" selection-start="1146" selection-end="1146" vertical-scroll-proportion="0.0" vertical-offset="217" max-vertical-offset="1410">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/FragmentSsidBlacklist.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="49" column="28" selection-start="1815" selection-end="1815" vertical-scroll-proportion="0.0" vertical-offset="495" max-vertical-offset="2325">
-          <folding>
-            <element signature="e#969#2370#0" expanded="true" />
-            <element signature="e#2363#2364#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/res/layout/ssid_blacklist_entry.xml">
       <provider editor-type-id="text-editor">
         <state line="5" column="52" selection-start="281" selection-end="281" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="525">
@@ -1156,13 +1108,6 @@
         <state />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/MainActivity.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="30" column="75" selection-start="979" selection-end="979" vertical-scroll-proportion="0.40816328" vertical-offset="60" max-vertical-offset="1275">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/res/values/strings.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state line="19" column="67" selection-start="909" selection-end="909" vertical-scroll-proportion="0.39473686" vertical-offset="0" max-vertical-offset="722">
@@ -1180,47 +1125,120 @@
         <state />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterWifIServiceBinder.java">
+    <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterWifiDBHelper.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="157" column="18" selection-start="4625" selection-end="4625" vertical-scroll-proportion="0.0" vertical-offset="1792" max-vertical-offset="2730">
+        <state line="95" column="38" selection-start="3967" selection-end="3967" vertical-scroll-proportion="0.9437148" vertical-offset="892" max-vertical-offset="1560">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/FragmentLearned.java">
+    <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterBluetooth.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="120" column="0" selection-start="4600" selection-end="4600" vertical-scroll-proportion="0.0" vertical-offset="1305" max-vertical-offset="1935">
-          <folding>
-            <element signature="e#1577#2123#0" expanded="true" />
-            <element signature="e#2112#2113#0" expanded="true" />
-            <element signature="e#3453#4748#0" expanded="true" />
-            <element signature="e#4158#4655#0" expanded="true" />
-            <element signature="e#4628#4629#0" expanded="true" />
-            <element signature="e#4729#4730#0" expanded="true" />
-          </folding>
+        <state line="52" column="0" selection-start="1219" selection-end="1219" vertical-scroll-proportion="0.9005628" vertical-offset="300" max-vertical-offset="915">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterSSID.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="48" column="51" selection-start="1146" selection-end="1146" vertical-scroll-proportion="0.9437148" vertical-offset="217" max-vertical-offset="1410">
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterDBSource.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="300" column="0" selection-start="8657" selection-end="8657" vertical-scroll-proportion="0.0" vertical-offset="4125" max-vertical-offset="4785">
+        <state line="291" column="40" selection-start="8366" selection-end="8366" vertical-scroll-proportion="0.0" vertical-offset="3750" max-vertical-offset="5595">
           <folding>
-            <element signature="e#7998#8011#0" expanded="true" />
+            <element signature="e#9767#9780#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/WifiReceiver.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="43" column="0" selection-start="1628" selection-end="1628" vertical-scroll-proportion="0.0" vertical-offset="52" max-vertical-offset="720">
+          <folding>
+            <element signature="e#705#943#0" expanded="true" />
+            <element signature="e#928#929#0" expanded="true" />
+            <element signature="e#1284#1522#0" expanded="true" />
+            <element signature="e#1507#1508#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterWifIServiceBinder.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="172" column="16" selection-start="4945" selection-end="4945" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3105">
+          <folding>
+            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterWifiService.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="116" column="30" selection-start="3727" selection-end="3727" vertical-scroll-proportion="0.0" vertical-offset="1200" max-vertical-offset="8205">
+        <state line="72" column="0" selection-start="2252" selection-end="2252" vertical-scroll-proportion="0.0" vertical-offset="495" max-vertical-offset="8310">
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/FragmentSsidBlacklist.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="102" column="0" selection-start="3665" selection-end="3665" vertical-scroll-proportion="0.0" vertical-offset="990" max-vertical-offset="2550">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/FragmentMain.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="36" column="0" selection-start="909" selection-end="909" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2595">
+          <folding>
+            <element signature="e#977#3054#0" expanded="true" />
+            <element signature="e#3047#3048#0" expanded="true" />
+            <element signature="e#3945#4343#0" expanded="true" />
+            <element signature="e#4332#4333#0" expanded="true" />
+            <element signature="e#4447#4657#0" expanded="true" />
+            <element signature="e#4646#4647#0" expanded="true" />
+            <element signature="e#4702#4733#0" expanded="true" />
+            <element signature="e#4908#4938#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/FragmentLearned.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="58" column="8" selection-start="1798" selection-end="1798" vertical-scroll-proportion="0.0" vertical-offset="375" max-vertical-offset="2490">
+          <folding>
+            <element signature="e#846#861#0" expanded="true" />
+            <element signature="e#1895#2054#0" expanded="true" />
+            <element signature="e#2047#2048#0" expanded="true" />
+            <element signature="e#4063#5358#0" expanded="true" />
+            <element signature="e#4768#5265#0" expanded="true" />
+            <element signature="e#5238#5239#0" expanded="true" />
+            <element signature="e#5339#5340#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/AndroidManifest.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="3" column="25" selection-start="193" selection-end="193" vertical-scroll-proportion="0.06378987" vertical-offset="11" max-vertical-offset="765">
-          <folding />
+        <state line="36" column="0" selection-start="1568" selection-end="1568" vertical-scroll-proportion="0.7035647" vertical-offset="165" max-vertical-offset="780">
+          <folding>
+            <element signature="e#905#923#0" expanded="true" />
+            <element signature="e#1096#1114#0" expanded="true" />
+            <element signature="e#1714#1736#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/MainActivity.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="32" column="60" selection-start="922" selection-end="922" vertical-scroll-proportion="0.42213884" vertical-offset="165" max-vertical-offset="1455">
+          <folding>
+            <element signature="e#967#1970#0" expanded="true" />
+            <element signature="e#1958#1959#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
