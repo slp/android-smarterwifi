@@ -1,5 +1,6 @@
 package net.kismetwireless.android.smarterwifimanager;
 
+import android.bluetooth.BluetoothDevice;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -199,7 +200,7 @@ public class SmarterDBSource {
         Log.d("smarter", "Blacklisting " + e.getSsid() + " in database: " + b);
 
         ContentValues cv = new ContentValues();
-        cv.put(SmarterWifiDBHelper.COL_SSIDBL_BLACKLIST, e.isBlacklisted() ? "1" : "0");
+        cv.put(SmarterWifiDBHelper.COL_SSIDBL_BLACKLIST, b ? "1" : "0");
 
         if (e.getBlacklistDatabaseId() >= 0) {
             if (e.getBlacklistDatabaseId() >= 0) {
@@ -223,14 +224,14 @@ public class SmarterDBSource {
         e.setBlacklisted(b);
     }
 
-    public SmarterBluetooth getBluetoothBlacklisted(String btmac) {
-        boolean bl = false;
+    public SmarterBluetooth getBluetoothBlacklisted(BluetoothDevice dev) {
+        boolean bl = false, en = false;
         long id = -1;
 
-        final String[] idcol = {SmarterWifiDBHelper.COL_BTBL_ID, SmarterWifiDBHelper.COL_BTBL_BLACKLIST};
+        final String[] idcol = {SmarterWifiDBHelper.COL_BTBL_ID, SmarterWifiDBHelper.COL_BTBL_BLACKLIST, SmarterWifiDBHelper.COL_BTBL_ENABLE};
 
         String compare = SmarterWifiDBHelper.COL_BTBL_MAC + "=?";
-        String[] args = {btmac};
+        String[] args = {dev.getAddress()};
 
         Cursor c = dataBase.query(SmarterWifiDBHelper.TABLE_BT_BLACKLIST, idcol, compare, args, null, null, null);
 
@@ -239,21 +240,23 @@ public class SmarterDBSource {
         if (c.getCount() > 0) {
             id = c.getLong(0);
             bl = c.getInt(1) == 1;
+            en = c.getInt(2) == 1;
         }
 
         c.close();
 
-        return new SmarterBluetooth(btmac, bl, id);
+        return new SmarterBluetooth(dev.getAddress(), dev.getName(), bl, en, id);
     }
 
-    public void setBluetoothBlacklisted(SmarterBluetooth e, boolean b) {
+    public void setBluetoothBlacklisted(SmarterBluetooth e, boolean blacklist, boolean enable) {
         if (e == null)
             return;
 
-        Log.d("smarter", "Blacklisting bluetooth " + e.getBtmac() + " in database: " + b);
+        Log.d("smarter", "Blacklisting bluetooth " + e.getBtmac() + " in database: " + blacklist);
 
         ContentValues cv = new ContentValues();
-        cv.put(SmarterWifiDBHelper.COL_BTBL_BLACKLIST, e.isBlacklisted() ? "1" : "0");
+        cv.put(SmarterWifiDBHelper.COL_BTBL_BLACKLIST, blacklist ? "1" : "0");
+        cv.put(SmarterWifiDBHelper.COL_BTBL_ENABLE, enable ? "1" : "0");
 
         if (e.getBlacklistDatabaseId() >= 0) {
             if (e.getBlacklistDatabaseId() >= 0) {
@@ -266,6 +269,7 @@ public class SmarterDBSource {
             Log.d("smarter", "Bluetooth blacklist entry updated in db");
         } else {
             cv.put(SmarterWifiDBHelper.COL_BTBL_MAC, e.getBtmac());
+            cv.put(SmarterWifiDBHelper.COL_BTBL_NAME, e.getBtName());
 
             long sid = dataBase.insert(SmarterWifiDBHelper.TABLE_BT_BLACKLIST, null, cv);
 
@@ -274,7 +278,8 @@ public class SmarterDBSource {
             Log.d("smarter", "Bluetooth blacklist entry added to db");
         }
 
-        e.setBlacklisted(b);
+        e.setBlacklisted(blacklist);
+        e.setEnabled(enable);
     }
 
     public void mapTower(SmarterSSID ssid, long towerid) {

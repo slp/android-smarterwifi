@@ -8,6 +8,7 @@
     <string name="tab_main">Smarter</string>
     <string name="tab_ignore">Ignore</string>
     <string name="tab_learned">Learned</string>
+    <string name="tab_bluetooth">Bluetooth</string>
 
     <string name="pref_enable">enable_system</string>
     <string name="pref_learn">enable_learning</string>
@@ -21,6 +22,6 @@
     <string name="learned_wifi_description">Cell tower identifiers are mapped to Wi-Fi network names in auto-learn mode.  If a network is turning on at inappropriate times, removing its entry will reset that networks state.</string>
 
     <string name="delete_dialog_title">Delete known network?</string>
-    <string name="delete_learned_message">Deleting a learned network will reset all associations to known towers.  If auto-learning is enabled, the network will begin learning towers again.  To disable auto-learning for a network, set the network to "ignore" in the Ignore tab</string>
+    <string name="delete_learned_message">Deleting a learned network will reset all associations to known towers.  If auto-learning is enabled, the network will begin learning towers again.  To disable auto-learning for a network, set the network to "ignore" in the Ignore tab</string><string name="bluetooth_blacklist_description">Wi-Fi will be disabled when connected to blacklisted Bluetooth devices.</string>
 
 </resources>

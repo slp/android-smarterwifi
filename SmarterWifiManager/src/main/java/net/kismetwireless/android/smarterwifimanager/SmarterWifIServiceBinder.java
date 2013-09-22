@@ -134,6 +134,24 @@ class SmarterWifiServiceBinder {
         smarterService.configureWifiState();
     }
 
+    public ArrayList<SmarterBluetooth> getBluetoothBlacklist() {
+        if (smarterService == null) {
+            Log.e("smarter", "service null getting bt blacklist");
+            return null;
+        }
+
+        return smarterService.getBluetoothBlacklist();
+    }
+
+    public void setBluetoothBlacklisted(SmarterBluetooth bt, boolean blacklist, boolean enable) {
+        if (smarterService == null) {
+            Log.e("smarter", "service null settting bt blacklist");
+            return;
+        }
+
+        smarterService.setBluetoothBlacklist(bt, blacklist, enable);
+    }
+
     public ArrayList<SmarterSSID> getSsidBlacklist() {
         if (smarterService == null) {
             Log.e("smarter", "service null getting blacklist");

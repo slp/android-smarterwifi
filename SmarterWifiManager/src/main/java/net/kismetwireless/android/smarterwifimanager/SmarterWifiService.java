@@ -3,6 +3,8 @@ package net.kismetwireless.android.smarterwifimanager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -24,6 +26,7 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class SmarterWifiService extends Service {
     public enum ControlType {
@@ -47,6 +50,7 @@ public class SmarterWifiService extends Service {
     TelephonyManager telephonyManager;
     SmarterPhoneListener phoneListener;
     WifiManager wifiManager;
+    BluetoothAdapter btAdapter;
     ConnectivityManager connectivityManager;
     private NotificationManager notificationManager;
 
@@ -181,6 +185,8 @@ public class SmarterWifiService extends Service {
 
         telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         telephonyManager.listen(phoneListener, PhoneStateListener.LISTEN_CELL_LOCATION);
+
+        btAdapter = BluetoothAdapter.getDefaultAdapter();
 
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -539,6 +545,27 @@ public class SmarterWifiService extends Service {
         }
 
         return "Unknown";
+    }
+
+    public ArrayList<SmarterBluetooth> getBluetoothBlacklist() {
+        ArrayList<SmarterBluetooth> btlist = new ArrayList<SmarterBluetooth>();
+
+        if (btAdapter == null)
+            return btlist;
+
+        Set<BluetoothDevice> btset = btAdapter.getBondedDevices();
+
+        for (BluetoothDevice d : btset) {
+            SmarterBluetooth sbt = dbSource.getBluetoothBlacklisted(d);
+
+            btlist.add(sbt);
+        }
+
+        return btlist;
+    }
+
+    public void setBluetoothBlacklist(SmarterBluetooth device, boolean blacklist, boolean enable) {
+        dbSource.setBluetoothBlacklisted(device, blacklist, enable);
     }
 
     public ArrayList<SmarterSSID> getSsidBlacklist() {
