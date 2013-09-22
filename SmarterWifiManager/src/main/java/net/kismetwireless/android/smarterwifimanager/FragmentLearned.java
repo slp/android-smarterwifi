@@ -5,6 +5,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,20 +16,59 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by dragorn on 9/17/13.
  */
 public class FragmentLearned extends Fragment {
-    Context context;
-    View mainView;
+    private Context context;
+    private View mainView;
 
-    ArrayList<SmarterSSID> lastSsidList = new ArrayList<SmarterSSID>();
+    private ArrayList<SmarterSSID> lastSsidList = new ArrayList<SmarterSSID>();
+    private HashMap<Long, Integer> lastSsidDbToArraylist = new HashMap<Long, Integer>();
 
-    SmarterWifiServiceBinder serviceBinder;
-    LearnedSsidListAdapter listAdapter;
-    ListView lv;
-    TextView emptyView;
+    private SmarterWifiServiceBinder serviceBinder;
+
+    private LearnedSsidListAdapter listAdapter;
+    private ListView lv;
+    private TextView emptyView;
+
+    private long lastTowerUpdate = 0;
+
+    private Handler timeHandler = new Handler();
+
+    public FragmentLearned(SmarterWifiServiceBinder binder) {
+        serviceBinder = binder;
+    }
+
+    private void updateTowerList() {
+        if (serviceBinder == null)
+            return;
+
+        ArrayList<SmarterSSID> ssids = serviceBinder.getSsidTowerlist();
+
+        for (SmarterSSID s : ssids) {
+            if (!lastSsidDbToArraylist.containsKey(s.getMapDbId())) {
+                listAdapter.add(s);
+                lastSsidList.add(s);
+                lastSsidDbToArraylist.put(s.getMapDbId(), lastSsidList.size() - 1);
+            } else {
+                lastSsidList.get(lastSsidDbToArraylist.get(s.getMapDbId())).setNumTowers(s.getNumTowers());
+            }
+        }
+
+        listAdapter.notifyDataSetChanged();
+    }
+
+    private Runnable updateTowerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            updateTowerList();
+
+            timeHandler.postDelayed(this, 1000);
+        }
+    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -39,28 +79,13 @@ public class FragmentLearned extends Fragment {
 
         context = getActivity().getApplicationContext();
 
-        serviceBinder = new SmarterWifiServiceBinder(context);
-
         lv = (ListView) mainView.findViewById(R.id.learnedListView);
         emptyView = (TextView) mainView.findViewById(R.id.textViewNoneLearned);
 
         listAdapter = new LearnedSsidListAdapter(context, R.layout.ssid_learnlist_entry);
         lv.setAdapter(listAdapter);
 
-        serviceBinder.doCallAndBindService(new SmarterWifiServiceBinder.BinderCallback() {
-            public void run(SmarterWifiService s) {
-                lastSsidList = serviceBinder.getSsidTowerlist();
-                listAdapter.addAll(lastSsidList);
-
-                if (lastSsidList.size() == 0) {
-                    lv.setVisibility(View.GONE);
-                    emptyView.setVisibility(View.VISIBLE);
-                } else {
-                    lv.setVisibility(View.VISIBLE);
-                    emptyView.setVisibility(View.GONE);
-                }
-            }
-        });
+        updateTowerRunnable.run();
 
         return mainView;
     }
@@ -132,6 +157,20 @@ public class FragmentLearned extends Fragment {
                 return null;
             }
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        timeHandler.removeCallbacks(updateTowerRunnable);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        updateTowerRunnable.run();
     }
 
 }

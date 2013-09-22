@@ -29,6 +29,11 @@ public class SmarterWifiDBHelper extends SQLiteOpenHelper {
     public static final String COL_SSIDBL_SSID = "ssid";
     public static final String COL_SSIDBL_BLACKLIST = "blacklist";
 
+    public static final String TABLE_BT_BLACKLIST = "btblacklist";
+    public static final String COL_BTBL_ID = "_id";
+    public static final String COL_BTBL_MAC = "btmac";
+    public static final String COL_BTBL_BLACKLIST = "blacklist";
+
     public static final String CREATE_SSID_TABLE =
             "CREATE TABLE " + TABLE_SSID + " (" +
                     COL_SSID_ID + " integer primary key autoincrement, " +
@@ -58,8 +63,15 @@ public class SmarterWifiDBHelper extends SQLiteOpenHelper {
                     COL_SSIDBL_BLACKLIST +  " int" +
                     ");";
 
+    public static final String CREATE_BLUETOOTH_BLACKLIST_TABLE =
+            "CREATE TABLE " + TABLE_BT_BLACKLIST + " (" +
+                    COL_BTBL_ID + " integer primary key autoincrement, " +
+                    COL_BTBL_MAC + " text," +
+                    COL_BTBL_BLACKLIST + " int" +
+                    ");";
+
     public static final String DATABASE_NAME = "smartermap.db";
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
 
     public SmarterWifiDBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -78,6 +90,10 @@ public class SmarterWifiDBHelper extends SQLiteOpenHelper {
         if (oldVersion < 4) {
             db.execSQL("DROP TABLE " + TABLE_SSID_BLACKLIST);
             db.execSQL(CREATE_SSID_BLACKLIST_TABLE);
+        }
+
+        if (oldVersion < 5) {
+            db.execSQL(CREATE_BLUETOOTH_BLACKLIST_TABLE);
         }
     }
 

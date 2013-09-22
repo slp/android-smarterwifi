@@ -15,6 +15,8 @@ import android.view.Menu;
 public class MainActivity extends Activity {
     Context context;
 
+    SmarterWifiServiceBinder serviceBinder;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,25 +24,35 @@ public class MainActivity extends Activity {
 
         context = this;
 
-        ActionBar actionBar = getActionBar();
+        serviceBinder = new SmarterWifiServiceBinder(this);
+
+        final ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-        ActionBar.Tab tab1 = actionBar.newTab().setText(R.string.tab_main);
-        ActionBar.Tab tab2 = actionBar.newTab().setText(R.string.tab_ignore);
-        ActionBar.Tab tab3 = actionBar.newTab().setText(R.string.tab_learned);
+        // Defer UI creation until we've bound to the service
+        serviceBinder.doCallAndBindService(new SmarterWifiServiceBinder.BinderCallback() {
+            @Override
+            public void run(SmarterWifiServiceBinder b) {
+                ActionBar.Tab tab1 = actionBar.newTab().setText(R.string.tab_main);
+                ActionBar.Tab tab2 = actionBar.newTab().setText(R.string.tab_ignore);
+                ActionBar.Tab tab3 = actionBar.newTab().setText(R.string.tab_learned);
 
-        Fragment fragmentMain = new FragmentMain();
-        Fragment fragmentSsid = new FragmentSsidBlacklist();
-        Fragment fragmentLearned = new FragmentLearned();
+                final FragmentMain fragmentMain = new FragmentMain(b);
+                final FragmentSsidBlacklist fragmentSsid = new FragmentSsidBlacklist(b);
+                final FragmentLearned fragmentLearned = new FragmentLearned(b);
 
-        tab1.setTabListener(new SmarterTabsListener(fragmentMain));
-        tab2.setTabListener(new SmarterTabsListener(fragmentSsid));
-        tab3.setTabListener(new SmarterTabsListener(fragmentLearned));
+                tab1.setTabListener(new SmarterTabsListener(fragmentMain));
+                tab2.setTabListener(new SmarterTabsListener(fragmentSsid));
+                tab3.setTabListener(new SmarterTabsListener(fragmentLearned));
 
-        actionBar.addTab(tab1);
-        actionBar.addTab(tab2);
-        actionBar.addTab(tab3);
+                actionBar.addTab(tab1);
+                actionBar.addTab(tab2);
+                actionBar.addTab(tab3);
+            }
+
+        });
+
     }
 
     @Override

@@ -19,7 +19,7 @@ class SmarterWifiServiceBinder {
     ArrayList<SmarterWifiService.SmarterServiceCallback> registeredList = new ArrayList<SmarterWifiService.SmarterServiceCallback>();
 
     public static class BinderCallback {
-        public void run(SmarterWifiService service) {
+        public void run(SmarterWifiServiceBinder binder) {
             return;
         }
     }
@@ -46,7 +46,7 @@ class SmarterWifiServiceBinder {
             }
 
             if (onBindCb != null)
-                onBindCb.run(smarterService);
+                onBindCb.run(SmarterWifiServiceBinder.this);
         }
 
         @Override
@@ -80,7 +80,7 @@ class SmarterWifiServiceBinder {
     // Call a cb as soon as we finish binding
     void doCallAndBindService(BinderCallback cb) {
         if (isBound)
-            cb.run(smarterService);
+            cb.run(this);
 
         onBindCb = cb;
 
@@ -125,6 +125,15 @@ class SmarterWifiServiceBinder {
             smarterService.updatePreferences();
     }
 
+    public void configureWifiState() {
+        if (smarterService == null) {
+            Log.e("smarter", "service null configurewifistate");
+            return;
+        }
+
+        smarterService.configureWifiState();
+    }
+
     public ArrayList<SmarterSSID> getSsidBlacklist() {
         if (smarterService == null) {
             Log.e("smarter", "service null getting blacklist");
@@ -159,6 +168,15 @@ class SmarterWifiServiceBinder {
         }
 
         smarterService.deleteSsidTowerMap(ssid);
+    }
+
+    public long getLastTowerMap() {
+        if (smarterService == null) {
+            Log.e("smarter", "service null getting last towermap");
+            return -1;
+        }
+
+        return smarterService.getLastTowerMap();
     }
 
     public void addCallback(SmarterWifiService.SmarterServiceCallback cb) {

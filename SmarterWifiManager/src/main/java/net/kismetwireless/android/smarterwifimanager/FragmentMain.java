@@ -30,6 +30,10 @@ public class FragmentMain extends Fragment {
 
     SharedPreferences sharedPreferences;
 
+    public FragmentMain(SmarterWifiServiceBinder binder) {
+        serviceBinder = binder;
+    }
+
     private SmarterWifiService.SmarterServiceCallback guiCallback = new SmarterWifiService.SmarterServiceCallback() {
         @Override
         public void wifiStateChanged(final SmarterSSID ssid, final SmarterWifiService.WifiState state, final SmarterWifiService.ControlType type) {
@@ -91,11 +95,6 @@ public class FragmentMain extends Fragment {
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 
-        serviceBinder = new SmarterWifiServiceBinder(context);
-        serviceBinder.doBindService();
-
-        serviceBinder.addCallback(guiCallback);
-
         mainIcon = (ImageView) mainView.findViewById(R.id.imageWifiStatus);
         headlineText = (TextView) mainView.findViewById(R.id.textViewMain);
         smallText = (TextView) mainView.findViewById(R.id.textViewMinor);
@@ -116,6 +115,8 @@ public class FragmentMain extends Fragment {
             }
         });
 
+        serviceBinder.addCallback(guiCallback);
+
         switchAutoLearn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -135,6 +136,7 @@ public class FragmentMain extends Fragment {
             switchAutoLearn.setChecked(false);
         }
 
+
         return mainView;
     }
 
@@ -142,27 +144,39 @@ public class FragmentMain extends Fragment {
     public void onPause() {
         super.onPause();
 
-        serviceBinder.removeCallback(guiCallback);
+        if (serviceBinder != null)
+            serviceBinder.removeCallback(guiCallback);
     }
 
     @Override
     public void onResume() {
         super.onResume();
 
-        serviceBinder.addCallback(guiCallback);
+        if (serviceBinder != null)
+            serviceBinder.addCallback(guiCallback);
     }
 
-    private void setManageWifi(boolean b) {
+    private boolean setManageWifi(boolean b) {
+        if (serviceBinder == null)
+            return false;
+
         SharedPreferences.Editor e = sharedPreferences.edit();
         e.putBoolean(getString(R.string.pref_enable), b);
         e.commit();
 
         serviceBinder.doUpdatePreferences();
+
+        return true;
     }
 
-    private void setLearnWifi(boolean b) {
+    private boolean setLearnWifi(boolean b) {
+        if (serviceBinder == null)
+            return false;
+
         SharedPreferences.Editor e = sharedPreferences.edit();
         e.putBoolean(getString(R.string.pref_learn), b);
         e.commit();
+
+        return true;
     }
 }
