@@ -31,10 +31,6 @@ public class FragmentSsidBlacklist extends Fragment {
 
     private SmarterWifiService.WifiState wifiState = SmarterWifiService.WifiState.WIFI_IGNORE;
 
-    public FragmentSsidBlacklist(SmarterWifiServiceBinder binder) {
-        serviceBinder = binder;
-    }
-
     public void updateSsidList() {
         lastSsidList = serviceBinder.getSsidBlacklist();
 
@@ -99,8 +95,15 @@ public class FragmentSsidBlacklist extends Fragment {
         listAdapter = new SsidListAdapter(context, R.layout.ssid_blacklist_entry);
         lv.setAdapter(listAdapter);
 
-        serviceBinder.addCallback(callback);
-        updateSsidList();
+        serviceBinder = new SmarterWifiServiceBinder(context);
+
+        serviceBinder.doCallAndBindService(new SmarterWifiServiceBinder.BinderCallback() {
+            @Override
+            public void run(SmarterWifiServiceBinder b) {
+                serviceBinder.addCallback(callback);
+                updateSsidList();
+            }
+        });
 
         return mainView;
     }
@@ -181,6 +184,14 @@ public class FragmentSsidBlacklist extends Fragment {
 
         if (serviceBinder != null)
             serviceBinder.addCallback(callback);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (serviceBinder != null)
+            serviceBinder.doUnbindService();
     }
 
 }

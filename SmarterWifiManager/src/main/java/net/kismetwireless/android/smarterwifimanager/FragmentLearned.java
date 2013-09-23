@@ -34,20 +34,13 @@ public class FragmentLearned extends Fragment {
     private ListView lv;
     private TextView emptyView;
 
-    private long lastTowerUpdate = 0;
-
     private Handler timeHandler = new Handler();
-
-    public FragmentLearned(SmarterWifiServiceBinder binder) {
-        serviceBinder = binder;
-    }
 
     private void updateTowerList() {
         ArrayList<SmarterSSID> ssids = serviceBinder.getSsidTowerlist();
 
         for (SmarterSSID s : ssids) {
             if (!lastSsidDbToArraylist.containsKey(s.getMapDbId())) {
-                listAdapter.add(s);
                 lastSsidList.add(s);
                 lastSsidDbToArraylist.put(s.getMapDbId(), lastSsidList.size() - 1);
             } else {
@@ -87,10 +80,17 @@ public class FragmentLearned extends Fragment {
         lv = (ListView) mainView.findViewById(R.id.learnedListView);
         emptyView = (TextView) mainView.findViewById(R.id.textViewNoneLearned);
 
-        listAdapter = new LearnedSsidListAdapter(context, R.layout.ssid_learnlist_entry);
+        listAdapter = new LearnedSsidListAdapter(context, R.layout.ssid_learnlist_entry, lastSsidList);
         lv.setAdapter(listAdapter);
 
-        updateTowerRunnable.run();
+        serviceBinder = new SmarterWifiServiceBinder(context);
+
+        serviceBinder.doCallAndBindService(new SmarterWifiServiceBinder.BinderCallback() {
+            @Override
+            public void run(SmarterWifiServiceBinder b) {
+                updateTowerRunnable.run();
+            }
+        });
 
         return mainView;
     }
@@ -98,8 +98,8 @@ public class FragmentLearned extends Fragment {
     public class LearnedSsidListAdapter extends ArrayAdapter<SmarterSSID> {
         private int layoutResourceId;
 
-        public LearnedSsidListAdapter(Context context, int textViewResourceId) {
-            super(context, textViewResourceId);
+        public LearnedSsidListAdapter(Context context, int textViewResourceId, ArrayList<SmarterSSID> items) {
+            super(context, textViewResourceId, items);
             layoutResourceId = textViewResourceId;
         }
 
@@ -167,15 +167,21 @@ public class FragmentLearned extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-
-        timeHandler.removeCallbacks(updateTowerRunnable);
     }
 
     @Override
     public void onResume() {
         super.onResume();
+    }
 
-        updateTowerRunnable.run();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        timeHandler.removeCallbacks(updateTowerRunnable);
+
+        if (serviceBinder != null)
+            serviceBinder.doUnbindService();
     }
 
 }
