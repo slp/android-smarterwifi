@@ -78,7 +78,8 @@ public class SmarterWifiService extends Service {
 
     private boolean bluetoothEnabled = false;
     private boolean bluetoothBlocking = false;
-    private HashMap<String, Boolean> bluetoothBlockingDevices = new HashMap<String, Boolean>();
+    private HashMap<String, SmarterBluetooth> bluetoothBlockingDevices = new HashMap<String, SmarterBluetooth>();
+    private HashMap<String, SmarterBluetooth> bluetoothConnectedDevices = new HashMap<String, SmarterBluetooth>();
 
     public static abstract class SmarterServiceCallback {
         protected ControlType controlType;
@@ -413,23 +414,31 @@ public class SmarterWifiService extends Service {
             bluetoothBlocking = false;
             bluetoothEnabled = false;
             bluetoothBlockingDevices.clear();
+            bluetoothConnectedDevices.clear();
         } else if (btstate == BluetoothAdapter.STATE_ON) {
             bluetoothEnabled = true;
         }
 
-        // We can't get a list of connected devices, we have to wait for future states
+        // We can't get a list of connected devices, only watch
     }
 
     public void handleBluetoothDeviceState(BluetoothDevice d, int state) {
         if (state == BluetoothAdapter.STATE_CONNECTED) {
-            Log.d("smarter", "blocking bt on device " + d.getAddress() + " " + d.getName());
-            bluetoothBlockingDevices.put(d.getAddress(), true);
+            SmarterBluetooth sbd = dbSource.getBluetoothBlacklisted(d);
 
-            if (!bluetoothBlocking) {
-                bluetoothBlocking = true;
-                configureWifiState();
+            bluetoothConnectedDevices.put(d.getAddress(), sbd);
+
+            if (sbd.isBlacklisted()) {
+                Log.d("smarter", "blocking bt on device " + d.getAddress() + " " + d.getName());
+                bluetoothBlockingDevices.put(d.getAddress(), sbd);
+
+                if (!bluetoothBlocking) {
+                    bluetoothBlocking = true;
+                    configureWifiState();
+                }
             }
         } else {
+            bluetoothConnectedDevices.remove(d.getAddress());
             bluetoothBlockingDevices.remove(d.getAddress());
 
             if (bluetoothBlockingDevices.size() <= 0) {
@@ -610,7 +619,29 @@ public class SmarterWifiService extends Service {
     public void setBluetoothBlacklist(SmarterBluetooth device, boolean blacklist, boolean enable) {
         dbSource.setBluetoothBlacklisted(device, blacklist, enable);
 
-        configureBluetoothState();
+        if (blacklist) {
+            if (!bluetoothBlockingDevices.containsKey(device.getBtmac())) {
+                if (bluetoothConnectedDevices.containsKey(device.getBtmac())) {
+                    bluetoothBlockingDevices.put(device.getBtmac(), device);
+                    bluetoothBlocking = true;
+
+                    Log.d("smarter", "after adding " + device.getBtName() + " blocking bluetooth");
+
+                    configureWifiState();
+                }
+            }
+        } else {
+            if (bluetoothBlockingDevices.containsKey(device.getBtmac())) {
+                bluetoothBlockingDevices.remove(device.getBtmac());
+
+                if (bluetoothBlockingDevices.size() <= 0) {
+                    Log.d("smarter", "after removing " + device.getBtName() + " nothing blocking in bluetooth");
+                    bluetoothBlocking = false;
+                    configureWifiState();
+                }
+            }
+        }
+
     }
 
     public ArrayList<SmarterSSID> getSsidBlacklist() {
