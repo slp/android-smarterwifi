@@ -1,7 +1,6 @@
 package net.kismetwireless.android.smarterwifimanager;
 
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -21,7 +20,7 @@ import java.util.HashMap;
 /**
  * Created by dragorn on 9/17/13.
  */
-public class FragmentLearned extends Fragment {
+public class FragmentLearned extends SmarterFragment {
     private Context context;
     private View mainView;
 
@@ -182,6 +181,11 @@ public class FragmentLearned extends Fragment {
 
         if (serviceBinder != null)
             serviceBinder.doUnbindService();
+    }
+
+    @Override
+    public int getTitle() {
+        return R.string.tab_learned;
     }
 
 }

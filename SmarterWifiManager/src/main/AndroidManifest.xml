@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.kismetwireless.android.smarterwifimanager"
-    android:versionCode="6"
-    android:versionName="2013.9.6" >
+    android:versionCode="7"
+    android:versionName="2013.9.7" >
 
     <uses-sdk
-        android:minSdkVersion="8"
+        android:minSdkVersion="13"
         android:targetSdkVersion="15" />
 
     <uses-feature android:name="android.hardware.location" android:required="false" />

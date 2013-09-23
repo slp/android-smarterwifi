@@ -1,7 +1,6 @@
 package net.kismetwireless.android.smarterwifimanager;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -17,7 +16,7 @@ import android.widget.TextView;
 /**
  * Created by dragorn on 9/17/13.
  */
-public class FragmentMain extends Fragment {
+public class FragmentMain extends SmarterFragment {
     View mainView;
 
     SmarterWifiServiceBinder serviceBinder;
@@ -190,5 +189,10 @@ public class FragmentMain extends Fragment {
         e.commit();
 
         return true;
+    }
+
+    @Override
+    public int getTitle() {
+        return R.string.tab_main;
     }
 }

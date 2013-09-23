@@ -17,11 +17,11 @@ android {
     buildToolsVersion "17.0.0"
 
     defaultConfig {
-        minSdkVersion 8
+        minSdkVersion   13
         targetSdkVersion 15
     }
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:18.0.0'
+    compile 'com.android.support:support-v13:18.0.0'
 }

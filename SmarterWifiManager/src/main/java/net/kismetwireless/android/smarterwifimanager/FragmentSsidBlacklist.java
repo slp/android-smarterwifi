@@ -1,7 +1,6 @@
 package net.kismetwireless.android.smarterwifimanager;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,7 +17,7 @@ import java.util.ArrayList;
 /**
  * Created by dragorn on 9/17/13.
  */
-public class FragmentSsidBlacklist extends Fragment {
+public class FragmentSsidBlacklist extends SmarterFragment {
     private Context context;
     private View mainView;
 
@@ -194,4 +193,8 @@ public class FragmentSsidBlacklist extends Fragment {
             serviceBinder.doUnbindService();
     }
 
+    @Override
+    public int getTitle() {
+        return R.string.tab_ignore;
+    }
 }
