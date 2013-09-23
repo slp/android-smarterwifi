@@ -25,6 +25,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -74,6 +75,10 @@ public class SmarterWifiService extends Service {
     private NotificationCompat.Builder notificationBuilder;
 
     private long lastTowerMap = 0;
+
+    private boolean bluetoothEnabled = false;
+    private boolean bluetoothBlocking = false;
+    private HashMap<String, Boolean> bluetoothBlockingDevices = new HashMap<String, Boolean>();
 
     public static abstract class SmarterServiceCallback {
         protected ControlType controlType;
@@ -401,6 +406,39 @@ public class SmarterWifiService extends Service {
         triggerCallbackWifiChanged();
     }
 
+    public void configureBluetoothState() {
+        int btstate = btAdapter.getState();
+
+        if (btstate == BluetoothAdapter.STATE_OFF) {
+            bluetoothBlocking = false;
+            bluetoothEnabled = false;
+            bluetoothBlockingDevices.clear();
+        } else if (btstate == BluetoothAdapter.STATE_ON) {
+            bluetoothEnabled = true;
+        }
+
+        // We can't get a list of connected devices, we have to wait for future states
+    }
+
+    public void handleBluetoothDeviceState(BluetoothDevice d, int state) {
+        if (state == BluetoothAdapter.STATE_CONNECTED) {
+            Log.d("smarter", "blocking bt on device " + d.getAddress() + " " + d.getName());
+            bluetoothBlockingDevices.put(d.getAddress(), true);
+
+            if (!bluetoothBlocking) {
+                bluetoothBlocking = true;
+                configureWifiState();
+            }
+        } else {
+            bluetoothBlockingDevices.remove(d.getAddress());
+
+            if (bluetoothBlockingDevices.size() <= 0) {
+                bluetoothBlocking = false;
+                configureWifiState();
+            }
+        }
+    }
+
     // Based on everything we know, should wifi be enabled?
     // WIFI_ON - Turn it on
     // WIFI_OFF - Start a shutdown timer
@@ -430,6 +468,11 @@ public class SmarterWifiService extends Service {
         if (getAirplaneMode()) {
             lastControlReason = ControlType.CONTROL_AIRPLANE;
             return WifiState.WIFI_IGNORE;
+        }
+
+        if (bluetoothBlocking) {
+            lastControlReason = ControlType.CONTROL_BLUETOOTH;
+            return WifiState.WIFI_BLOCKED;
         }
 
         if (curstate == WifiState.WIFI_ON && (currentSsid != null && currentSsid.isBlacklisted())) {
@@ -566,6 +609,8 @@ public class SmarterWifiService extends Service {
 
     public void setBluetoothBlacklist(SmarterBluetooth device, boolean blacklist, boolean enable) {
         dbSource.setBluetoothBlacklisted(device, blacklist, enable);
+
+        configureBluetoothState();
     }
 
     public ArrayList<SmarterSSID> getSsidBlacklist() {
