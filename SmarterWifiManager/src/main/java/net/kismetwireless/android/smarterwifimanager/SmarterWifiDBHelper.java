@@ -2,7 +2,9 @@ package net.kismetwireless.android.smarterwifimanager;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 /**
  * Created by dragorn on 8/30/13.
@@ -35,6 +37,8 @@ public class SmarterWifiDBHelper extends SQLiteOpenHelper {
     public static final String COL_BTBL_NAME = "btname";
     public static final String COL_BTBL_BLACKLIST = "blacklist";
     public static final String COL_BTBL_ENABLE = "enable";
+
+    public static final String TABLE_TIMEFRAME= "timeframe";
 
     public static final String CREATE_SSID_TABLE =
             "CREATE TABLE " + TABLE_SSID + " (" +
@@ -75,7 +79,7 @@ public class SmarterWifiDBHelper extends SQLiteOpenHelper {
                     ");";
 
     public static final String DATABASE_NAME = "smartermap.db";
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 7;
 
     public SmarterWifiDBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -87,6 +91,7 @@ public class SmarterWifiDBHelper extends SQLiteOpenHelper {
         database.execSQL(CREATE_CELL_TABLE);
         database.execSQL(CREATE_SSID_CELL_MAP_TABLE);
         database.execSQL(CREATE_SSID_BLACKLIST_TABLE);
+        database.execSQL(CREATE_BLUETOOTH_BLACKLIST_TABLE);
     }
 
     @Override
@@ -96,10 +101,16 @@ public class SmarterWifiDBHelper extends SQLiteOpenHelper {
             db.execSQL(CREATE_SSID_BLACKLIST_TABLE);
         }
 
-        if (oldVersion < 6) {
-            db.execSQL("DROP TABLE " + TABLE_BT_BLACKLIST);
+        if (oldVersion < 7) {
+            try {
+                db.execSQL("DROP TABLE " + TABLE_BT_BLACKLIST);
+            } catch (SQLiteException e) {
+                Log.e("smarter", "failed to drop old table, soldiering on: " + e);
+            }
+
             db.execSQL(CREATE_BLUETOOTH_BLACKLIST_TABLE);
         }
+
     }
 
 }

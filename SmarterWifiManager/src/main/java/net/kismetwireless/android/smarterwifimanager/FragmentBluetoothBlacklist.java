@@ -1,6 +1,5 @@
 package net.kismetwireless.android.smarterwifimanager;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,7 +16,7 @@ import java.util.ArrayList;
 /**
  * Created by dragorn on 9/17/13.
  */
-public class FragmentBluetoothBlacklist extends Fragment {
+public class FragmentBluetoothBlacklist extends SmarterFragment {
     private Context context;
     private View mainView;
 
@@ -139,6 +138,11 @@ public class FragmentBluetoothBlacklist extends Fragment {
 
         if (serviceBinder != null)
             serviceBinder.doUnbindService();
+    }
+
+    @Override
+    public int getTitle() {
+        return R.string.tab_bluetooth;
     }
 
 }

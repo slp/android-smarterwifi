@@ -3,10 +3,17 @@ package net.kismetwireless.android.smarterwifimanager;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v13.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.view.Menu;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
 
 
 // Main icon color shifts
@@ -16,6 +23,10 @@ public class MainActivity extends Activity {
     Context context;
 
     SmarterWifiServiceBinder serviceBinder;
+
+    SmarterPagerAdapter pagerAdapter;
+
+    ViewPager viewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,29 +41,37 @@ public class MainActivity extends Activity {
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
+        viewPager = (ViewPager) findViewById(R.id.pager);
+
         // Defer UI creation until we've bound to the service
         serviceBinder.doCallAndBindService(new SmarterWifiServiceBinder.BinderCallback() {
             @Override
             public void run(SmarterWifiServiceBinder b) {
-                ActionBar.Tab tabMain = actionBar.newTab().setText(R.string.tab_main);
-                ActionBar.Tab tabIgnore = actionBar.newTab().setText(R.string.tab_ignore);
-                ActionBar.Tab tabLearned = actionBar.newTab().setText(R.string.tab_learned);
-                ActionBar.Tab tabBluetooth = actionBar.newTab().setText(R.string.tab_bluetooth);
+                List<Fragment> fragments = new Vector<Fragment>();
 
-                final FragmentMain fragmentMain = new FragmentMain();
-                final FragmentSsidBlacklist fragmentSsid = new FragmentSsidBlacklist();
-                final FragmentLearned fragmentLearned = new FragmentLearned();
-                final FragmentBluetoothBlacklist fragmentBluetooth = new FragmentBluetoothBlacklist();
+                fragments.add(Fragment.instantiate(context, FragmentMain.class.getName()));
+                fragments.add(Fragment.instantiate(context, FragmentSsidBlacklist.class.getName()));
+                fragments.add(Fragment.instantiate(context, FragmentLearned.class.getName()));
+                fragments.add(Fragment.instantiate(context, FragmentBluetoothBlacklist.class.getName()));
 
-                tabMain.setTabListener(new SmarterTabsListener(fragmentMain));
-                tabIgnore.setTabListener(new SmarterTabsListener(fragmentSsid));
-                tabLearned.setTabListener(new SmarterTabsListener(fragmentLearned));
-                tabBluetooth.setTabListener(new SmarterTabsListener(fragmentBluetooth));
+                pagerAdapter = new SmarterPagerAdapter(getFragmentManager(), fragments);
 
-                actionBar.addTab(tabMain);
-                actionBar.addTab(tabIgnore);
-                actionBar.addTab(tabBluetooth);
-                actionBar.addTab(tabLearned);
+                for (int x = 0; x < pagerAdapter.getCount(); x++) {
+                    SmarterFragment sf = (SmarterFragment) pagerAdapter.getItem(x);
+
+                    ActionBar.Tab t = actionBar.newTab().setText(getString(sf.getTitle()));
+                    t.setTabListener(new SmarterTabsListener(sf));
+                    actionBar.addTab(t);
+                }
+
+                viewPager.setAdapter(pagerAdapter);
+
+                viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+                    @Override
+                    public void onPageSelected(int position) {
+                        getActionBar().setSelectedNavigationItem(position);
+                    }
+                });
             }
 
         });
@@ -84,7 +103,7 @@ public class MainActivity extends Activity {
         return true;
     }
 
-    class SmarterTabsListener implements ActionBar.TabListener {
+    public class SmarterTabsListener implements ActionBar.TabListener {
         public Fragment fragment;
 
         public SmarterTabsListener(Fragment fragment) {
@@ -93,17 +112,40 @@ public class MainActivity extends Activity {
 
         @Override
         public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
-            //do what you want when tab is reselected, I do nothing
+            // ignore
         }
 
         @Override
         public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
-            ft.replace(R.id.fragment_placeholder, fragment);
+            // show tab
+            viewPager.setCurrentItem(tab.getPosition());
         }
 
         @Override
         public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
-            ft.remove(fragment);
+            // hide
         }
     }
+
+    public class SmarterPagerAdapter extends FragmentStatePagerAdapter {
+        private List<Fragment> fragments = new ArrayList<Fragment>();
+
+        public SmarterPagerAdapter(FragmentManager fm, List<Fragment> frags) {
+            super(fm);
+
+            fragments = frags;
+
+        }
+
+        @Override
+        public Fragment getItem(int i) {
+            return fragments.get(i);
+        }
+
+        @Override
+        public int getCount() {
+            return fragments.size();
+        }
+    }
+
 }
