@@ -1,5 +1,6 @@
 package net.kismetwireless.android.smarterwifimanager;
 
+import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -216,5 +217,23 @@ class SmarterWifiServiceBinder {
                 registeredList.remove(cb);
             }
         }
+    }
+
+    public void configureBluetoothState() {
+        if (smarterService == null) {
+            Log.e("smarter", "configure bt state while service null");
+            return;
+        }
+
+        smarterService.configureBluetoothState();
+    }
+
+    public void handleBluetoothDeviceState(BluetoothDevice d, int state) {
+        if (smarterService == null) {
+            Log.e("smarter", "btdevicestate while service null");
+            return;
+        }
+
+        smarterService.handleBluetoothDeviceState(d, state);
     }
 }
