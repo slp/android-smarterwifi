@@ -28,10 +28,6 @@ public class FragmentBluetoothBlacklist extends Fragment {
     private ListView lv;
     private TextView emptyView;
 
-    public FragmentBluetoothBlacklist(SmarterWifiServiceBinder binder) {
-        serviceBinder = binder;
-    }
-
     public void updateBluetoothList() {
         lastBtList = serviceBinder.getBluetoothBlacklist();
 
@@ -63,7 +59,13 @@ public class FragmentBluetoothBlacklist extends Fragment {
         listAdapter = new BluetoothListAdapter(context, R.layout.bluetooth_blacklist_entry);
         lv.setAdapter(listAdapter);
 
-        updateBluetoothList();
+        serviceBinder = new SmarterWifiServiceBinder(context);
+        serviceBinder.doCallAndBindService(new SmarterWifiServiceBinder.BinderCallback() {
+            @Override
+            public void run(SmarterWifiServiceBinder b) {
+                updateBluetoothList();
+            }
+        });
 
         return mainView;
     }
@@ -129,6 +131,14 @@ public class FragmentBluetoothBlacklist extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (serviceBinder != null)
+            serviceBinder.doUnbindService();
     }
 
 }

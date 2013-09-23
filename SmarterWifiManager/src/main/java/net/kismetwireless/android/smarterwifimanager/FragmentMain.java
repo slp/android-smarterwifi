@@ -30,10 +30,6 @@ public class FragmentMain extends Fragment {
 
     SharedPreferences sharedPreferences;
 
-    public FragmentMain(SmarterWifiServiceBinder binder) {
-        serviceBinder = binder;
-    }
-
     private SmarterWifiService.SmarterServiceCallback guiCallback = new SmarterWifiService.SmarterServiceCallback() {
         @Override
         public void wifiStateChanged(final SmarterSSID ssid, final SmarterWifiService.WifiState state, final SmarterWifiService.ControlType type) {
@@ -93,6 +89,8 @@ public class FragmentMain extends Fragment {
 
         context = getActivity().getApplicationContext();
 
+        serviceBinder = new SmarterWifiServiceBinder(context);
+
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 
         mainIcon = (ImageView) mainView.findViewById(R.id.imageWifiStatus);
@@ -102,40 +100,46 @@ public class FragmentMain extends Fragment {
         switchManageWifi = (Switch) mainView.findViewById(R.id.switchManageWifi);
         switchAutoLearn =  (Switch) mainView.findViewById(R.id.switchAutoLearn);
 
-        switchManageWifi.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        // Defer main setup until we've bound
+        serviceBinder.doCallAndBindService(new SmarterWifiServiceBinder.BinderCallback() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b == false) {
-                    switchAutoLearn.setEnabled(false);
+            public void run(SmarterWifiServiceBinder b) {
+                switchManageWifi.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                        if (b == false) {
+                            switchAutoLearn.setEnabled(false);
+                        } else {
+                            switchAutoLearn.setEnabled(true);
+                        }
+
+                        setManageWifi(b);
+                    }
+                });
+
+                serviceBinder.addCallback(guiCallback);
+
+                switchAutoLearn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                        setLearnWifi(b);
+                    }
+                });
+
+                if (sharedPreferences.getBoolean(getString(R.string.pref_enable), true)) {
+                    switchManageWifi.setChecked(true);
                 } else {
-                    switchAutoLearn.setEnabled(true);
+                    switchManageWifi.setChecked(false);
                 }
 
-                setManageWifi(b);
+                if (sharedPreferences.getBoolean(getString(R.string.pref_learn), true)) {
+                    switchAutoLearn.setChecked(true);
+                } else {
+                    switchAutoLearn.setChecked(false);
+                }
+
             }
         });
-
-        serviceBinder.addCallback(guiCallback);
-
-        switchAutoLearn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                setLearnWifi(b);
-            }
-        });
-
-        if (sharedPreferences.getBoolean(getString(R.string.pref_enable), true)) {
-            switchManageWifi.setChecked(true);
-        } else {
-            switchManageWifi.setChecked(false);
-        }
-
-        if (sharedPreferences.getBoolean(getString(R.string.pref_learn), true)) {
-            switchAutoLearn.setChecked(true);
-        } else {
-            switchAutoLearn.setChecked(false);
-        }
-
 
         return mainView;
     }
@@ -154,6 +158,14 @@ public class FragmentMain extends Fragment {
 
         if (serviceBinder != null)
             serviceBinder.addCallback(guiCallback);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (serviceBinder != null)
+            serviceBinder.doUnbindService();
     }
 
     private boolean setManageWifi(boolean b) {

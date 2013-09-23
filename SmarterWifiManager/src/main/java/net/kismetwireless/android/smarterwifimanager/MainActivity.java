@@ -39,10 +39,10 @@ public class MainActivity extends Activity {
                 ActionBar.Tab tabLearned = actionBar.newTab().setText(R.string.tab_learned);
                 ActionBar.Tab tabBluetooth = actionBar.newTab().setText(R.string.tab_bluetooth);
 
-                final FragmentMain fragmentMain = new FragmentMain(b);
-                final FragmentSsidBlacklist fragmentSsid = new FragmentSsidBlacklist(b);
-                final FragmentLearned fragmentLearned = new FragmentLearned(b);
-                final FragmentBluetoothBlacklist fragmentBluetooth = new FragmentBluetoothBlacklist(b);
+                final FragmentMain fragmentMain = new FragmentMain();
+                final FragmentSsidBlacklist fragmentSsid = new FragmentSsidBlacklist();
+                final FragmentLearned fragmentLearned = new FragmentLearned();
+                final FragmentBluetoothBlacklist fragmentBluetooth = new FragmentBluetoothBlacklist();
 
                 tabMain.setTabListener(new SmarterTabsListener(fragmentMain));
                 tabIgnore.setTabListener(new SmarterTabsListener(fragmentSsid));
@@ -67,6 +67,14 @@ public class MainActivity extends Activity {
     @Override
     public void onResume() {
         super.onResume();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (serviceBinder != null)
+            serviceBinder.doUnbindService();
     }
 
     @Override
