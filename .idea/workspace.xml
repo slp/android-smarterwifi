@@ -19,12 +19,8 @@
     </layouts>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5cf4bc51-d75b-40a5-a545-323845e4d986" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SmarterWifiManager/SmarterWifiManager.apk" afterPath="$PROJECT_DIR$/SmarterWifiManager/SmarterWifiManager.apk" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SmarterWifiManager/src/main/AndroidManifest.xml" afterPath="$PROJECT_DIR$/SmarterWifiManager/src/main/AndroidManifest.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/CellLocationCommon.java" afterPath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/CellLocationCommon.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/FragmentLearned.java" afterPath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/FragmentLearned.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterWifiDBHelper.java" afterPath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterWifiDBHelper.java" />
+    <list default="true" id="5cf4bc51-d75b-40a5-a545-323845e4d986" name="Default" comment="Fix problem with tower id calculation, add tethering detection">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/MainActivity.java" afterPath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/MainActivity.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterWifiService.java" afterPath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterWifiService.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
@@ -93,7 +89,7 @@
       <file leaf-file-name="SmarterWifiService.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterWifiService.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="469" column="12" selection-start="15998" selection-end="15998" vertical-scroll-proportion="0.7598499" vertical-offset="6570" max-vertical-offset="10695">
+            <state line="491" column="35" selection-start="16813" selection-end="16813" vertical-scroll-proportion="0.39399624" vertical-offset="7095" max-vertical-offset="10725">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -106,6 +102,23 @@
           <provider selected="true" editor-type-id="text-editor">
             <state line="4" column="32" selection-start="228" selection-end="228" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="900">
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="MainActivity.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/MainActivity.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="75" column="97" selection-start="2872" selection-end="2872" vertical-scroll-proportion="0.0" vertical-offset="645" max-vertical-offset="2535">
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="e#1317#2919#0" expanded="true" />
+                <element signature="e#1498#1508#0" expanded="true" />
+                <element signature="e#2473#2721#0" expanded="true" />
+                <element signature="e#2702#2703#0" expanded="true" />
+                <element signature="e#2907#2908#0" expanded="true" />
+                <element signature="e#4509#4519#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -509,7 +522,6 @@
         <option value="$PROJECT_DIR$/SmarterWifiManager/SmarterWifiManager.iml" />
         <option value="$PROJECT_DIR$/SmarterWifiManager/build.gradle" />
         <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/res/layout/activity_main.xml" />
-        <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/MainActivity.java" />
         <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterFragment.java" />
         <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/FragmentBluetoothBlacklist.java" />
         <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/FragmentMain.java" />
@@ -519,6 +531,7 @@
         <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/CellLocationCommon.java" />
         <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/FragmentLearned.java" />
         <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterWifiService.java" />
+        <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/MainActivity.java" />
       </list>
     </option>
   </component>
@@ -925,6 +938,11 @@
     </configuration>
   </component>
   <component name="ShelveChangesManager" show_recycled="false" />
+  <component name="SliceManager">
+    <option name="analysisUIOptions">
+      <AnalysisUIOptions />
+    </option>
+  </component>
   <component name="SvnConfiguration" maxAnnotateRevisions="500" myUseAcceleration="nothing" myAutoUpdateAfterCommit="false" cleanupOnStartRun="false" SSL_PROTOCOLS="all">
     <option name="USER" value="" />
     <option name="PASSWORD" value="" />
@@ -1032,7 +1050,11 @@
       <created>1379957860758</created>
       <updated>1379957860758</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="Fix problem with tower id calculation, add tethering detection">
+      <created>1379990100111</created>
+      <updated>1379990100111</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -1097,7 +1119,8 @@
     <MESSAGE value="Bluetooth works" />
     <MESSAGE value="Manifest filters, BT admin" />
     <MESSAGE value="Maybe fix upgrade problem w/ database, move UI to viewpager with sliding support, raise minimum api to 13" />
-    <option name="LAST_COMMIT_MESSAGE" value="Maybe fix upgrade problem w/ database, move UI to viewpager with sliding support, raise minimum api to 13" />
+    <MESSAGE value="Fix problem with tower id calculation, add tethering detection" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix problem with tower id calculation, add tethering detection" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -1171,19 +1194,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/MainActivity.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="61" column="88" selection-start="2226" selection-end="2226" vertical-scroll-proportion="0.6100982" vertical-offset="480" max-vertical-offset="2310">
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#1304#2740#0" expanded="true" />
-            <element signature="e#1485#1495#0" expanded="true" />
-            <element signature="e#2728#2729#0" expanded="true" />
-            <element signature="e#4087#4097#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/WifiReceiver.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="54" column="124" selection-start="2277" selection-end="2277" vertical-scroll-proportion="0.6423562" vertical-offset="142" max-vertical-offset="855">
@@ -1228,9 +1238,24 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/MainActivity.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="75" column="97" selection-start="2872" selection-end="2872" vertical-scroll-proportion="0.0" vertical-offset="645" max-vertical-offset="2535">
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#1317#2919#0" expanded="true" />
+            <element signature="e#1498#1508#0" expanded="true" />
+            <element signature="e#2473#2721#0" expanded="true" />
+            <element signature="e#2702#2703#0" expanded="true" />
+            <element signature="e#2907#2908#0" expanded="true" />
+            <element signature="e#4509#4519#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/SmarterWifiService.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="469" column="12" selection-start="15998" selection-end="15998" vertical-scroll-proportion="0.7598499" vertical-offset="6570" max-vertical-offset="10695">
+        <state line="491" column="35" selection-start="16813" selection-end="16813" vertical-scroll-proportion="0.39399624" vertical-offset="7095" max-vertical-offset="10725">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
