@@ -15,7 +15,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Created by dragorn on 9/17/13.
@@ -25,7 +24,6 @@ public class FragmentLearned extends SmarterFragment {
     private View mainView;
 
     private ArrayList<SmarterSSID> lastSsidList = new ArrayList<SmarterSSID>();
-    private HashMap<Long, Integer> lastSsidDbToArraylist = new HashMap<Long, Integer>();
 
     private SmarterWifiServiceBinder serviceBinder;
 
@@ -38,14 +36,8 @@ public class FragmentLearned extends SmarterFragment {
     private void updateTowerList() {
         ArrayList<SmarterSSID> ssids = serviceBinder.getSsidTowerlist();
 
-        for (SmarterSSID s : ssids) {
-            if (!lastSsidDbToArraylist.containsKey(s.getMapDbId())) {
-                lastSsidList.add(s);
-                lastSsidDbToArraylist.put(s.getMapDbId(), lastSsidList.size() - 1);
-            } else {
-                lastSsidList.get(lastSsidDbToArraylist.get(s.getMapDbId())).setNumTowers(s.getNumTowers());
-            }
-        }
+        lastSsidList.clear();
+        lastSsidList.addAll(ssids);
 
         if (lastSsidList.size() <= 0) {
             emptyView.setVisibility(View.VISIBLE);

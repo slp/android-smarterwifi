@@ -24,6 +24,8 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +34,7 @@ import java.util.Set;
 public class SmarterWifiService extends Service {
     public enum ControlType {
         CONTROL_DISABLED, CONTROL_USER, CONTROL_RANGE, CONTROL_TOWERID, CONTROL_GEOFENCE, CONTROL_BLUETOOTH, CONTROL_TIME,
-        CONTROL_SSIDBLACKLIST, CONTROL_AIRPLANE
+        CONTROL_SSIDBLACKLIST, CONTROL_AIRPLANE, CONTROL_TETHER
     }
 
     public enum WifiState {
@@ -331,9 +333,9 @@ public class SmarterWifiService extends Service {
                 currentTowerType = TowerType.TOWER_ENABLE;
             }
 
-            // If we're associated to a wifi, map the tower
-            // TODO add blacklisting of towers, etc, here
-            if (getWifiState() == WifiState.WIFI_ON) {
+            // If we're associated to a wifi, map the tower.
+            // Don't map towers while we're tethered.
+            if (getWifiState() == WifiState.WIFI_ON && !getWifiTethered()) {
                 Log.d("smarter", "New tower, Wi-Fi enabled, learning tower");
                 dbSource.mapTower(getCurrentSsid(), curloc.getTowerId());
                 lastTowerMap = System.currentTimeMillis();
@@ -456,10 +458,17 @@ public class SmarterWifiService extends Service {
     public WifiState getShouldWifiBeEnabled() {
         WifiState curstate = getWifiState();
         SmarterSSID currentSsid = getCurrentSsid();
+        boolean tethered = getWifiTethered();
 
         // We're not looking at all
         if (proctorWifi == false) {
             lastControlReason = ControlType.CONTROL_DISABLED;
+            return WifiState.WIFI_IGNORE;
+        }
+
+        // Tethering overrides almost everything
+        if (tethered) {
+            lastControlReason = ControlType.CONTROL_TETHER;
             return WifiState.WIFI_IGNORE;
         }
 
@@ -594,6 +603,8 @@ public class SmarterWifiService extends Service {
                 return "SSID blacklisted";
             case CONTROL_AIRPLANE:
                 return "Airplane mode";
+            case CONTROL_TETHER:
+                return "Tethering";
         }
 
         return "Unknown";
@@ -674,6 +685,28 @@ public class SmarterWifiService extends Service {
 
     public long getLastTowerMap() {
         return lastTowerMap;
+    }
+
+    public boolean getWifiTethered() {
+        boolean ret = false;
+        Method[] wmMethods = wifiManager.getClass().getDeclaredMethods();
+        for (Method method: wmMethods){
+            if (method.getName().equals("isWifiApEnabled")) {
+                try {
+                    ret = (Boolean) method.invoke(wifiManager);
+                } catch (IllegalArgumentException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
+
+        Log.d("smarter", "tethering: " + ret);
+        return ret;
     }
 
 }

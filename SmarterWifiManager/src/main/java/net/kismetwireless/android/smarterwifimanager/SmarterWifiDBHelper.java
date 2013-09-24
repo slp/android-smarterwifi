@@ -79,7 +79,7 @@ public class SmarterWifiDBHelper extends SQLiteOpenHelper {
                     ");";
 
     public static final String DATABASE_NAME = "smartermap.db";
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 8;
 
     public SmarterWifiDBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -109,6 +109,12 @@ public class SmarterWifiDBHelper extends SQLiteOpenHelper {
             }
 
             db.execSQL(CREATE_BLUETOOTH_BLACKLIST_TABLE);
+        }
+
+        if (oldVersion < 8) {
+            Log.d("smarter", "Purging old cell tower format");
+            db.execSQL("DELETE FROM " + TABLE_SSID_CELL_MAP);
+            db.execSQL("DELETE FROM " + TABLE_CELL);
         }
 
     }
