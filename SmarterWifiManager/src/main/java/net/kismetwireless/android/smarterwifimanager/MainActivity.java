@@ -23,13 +23,12 @@ public class MainActivity extends Activity {
     Context context;
 
     SmarterWifiServiceBinder serviceBinder;
-
     SmarterPagerAdapter pagerAdapter;
-
     ViewPager viewPager;
+    ActionBar actionBar;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -37,7 +36,7 @@ public class MainActivity extends Activity {
 
         serviceBinder = new SmarterWifiServiceBinder(this);
 
-        final ActionBar actionBar = getActionBar();
+        actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
@@ -69,12 +68,25 @@ public class MainActivity extends Activity {
                 viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
                     @Override
                     public void onPageSelected(int position) {
-                        getActionBar().setSelectedNavigationItem(position);
+                        actionBar.setSelectedNavigationItem(position);
                     }
                 });
+
+                if (savedInstanceState != null) {
+                    actionBar.setSelectedNavigationItem(savedInstanceState.getInt("tabposition", 0));
+                }
             }
 
         });
+
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        if (actionBar != null)
+            outState.putInt("tabposition", actionBar.getSelectedTab().getPosition());
 
     }
 

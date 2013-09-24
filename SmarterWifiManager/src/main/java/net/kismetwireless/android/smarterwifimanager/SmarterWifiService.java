@@ -472,7 +472,13 @@ public class SmarterWifiService extends Service {
             return WifiState.WIFI_IGNORE;
         }
 
-        // User requests override everything
+        // Airplane mode causes us to ignore the wifi entirely, do whatever the user sets it as
+        if (getAirplaneMode()) {
+            lastControlReason = ControlType.CONTROL_AIRPLANE;
+            return WifiState.WIFI_IGNORE;
+        }
+
+        // If the user wants spefically to turn it on or off via the SWM UI, do so
         if (userOverrideState == WifiState.WIFI_OFF) {
             lastControlReason = ControlType.CONTROL_USER;
             return WifiState.WIFI_BLOCKED;
@@ -483,11 +489,7 @@ public class SmarterWifiService extends Service {
             return WifiState.WIFI_ON;
         }
 
-        if (getAirplaneMode()) {
-            lastControlReason = ControlType.CONTROL_AIRPLANE;
-            return WifiState.WIFI_IGNORE;
-        }
-
+        // Bluetooth blocks learning
         if (bluetoothBlocking) {
             lastControlReason = ControlType.CONTROL_BLUETOOTH;
             return WifiState.WIFI_BLOCKED;
