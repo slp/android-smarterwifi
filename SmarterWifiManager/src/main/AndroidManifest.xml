@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.kismetwireless.android.smarterwifimanager"
-    android:versionCode="8"
-    android:versionName="2013.9.8" >
+    android:versionCode="9"
+    android:versionName="2013.9.10" >
 
     <uses-sdk
         android:minSdkVersion="13"
-        android:targetSdkVersion="15" />
+        android:targetSdkVersion="16" />
 
     <uses-feature android:name="android.hardware.location" android:required="false" />
     <uses-feature android:name="android.hardware.bluetooth" android:required="false" />
@@ -40,7 +40,6 @@
         <activity
             android:name=".PrefsActivity"
             android:label="@string/prefs_name">
-
         </activity>
 
         <receiver android:name=".WifiReceiver">
