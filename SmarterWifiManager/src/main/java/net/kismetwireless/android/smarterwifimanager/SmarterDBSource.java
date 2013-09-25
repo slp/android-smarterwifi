@@ -6,7 +6,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -36,9 +35,11 @@ public class SmarterDBSource {
 
         if (c.getCount() <= 0) {
             c.close();
+            // Log.d("smarter", "getTowerDb " + towerid + " not found return -1");
             return -1;
         }
 
+        // Log.d("smarter", "gettowerdb " + towerid + " id " + id);
         id = c.getLong(0);
 
         c.close();
@@ -76,6 +77,7 @@ public class SmarterDBSource {
 
     // Update time or create new tower
     public long updateTower(long towerid, long tid) {
+        // Log.d("smarter", "updating tower " + towerid + " local id " + tid);
         if (tid < 0)
             tid = getTowerDbId(towerid);
 
@@ -93,13 +95,14 @@ public class SmarterDBSource {
         dataBase.beginTransaction();
 
         if (tid < 0)
-            dataBase.insert(SmarterWifiDBHelper.TABLE_CELL, null, cv);
+            tid = dataBase.insert(SmarterWifiDBHelper.TABLE_CELL, null, cv);
         else
             dataBase.update(SmarterWifiDBHelper.TABLE_CELL, cv, compare, args);
 
         dataBase.setTransactionSuccessful();
         dataBase.endTransaction();
 
+        // Log.d("smarter", "updatetower returning for " + towerid + " value " + tid);
         return tid;
     }
 
@@ -145,7 +148,7 @@ public class SmarterDBSource {
 
         dataBase.beginTransaction();
         if (sid < 0)
-            dataBase.insert(SmarterWifiDBHelper.TABLE_SSID, null, cv);
+            sid = dataBase.insert(SmarterWifiDBHelper.TABLE_SSID, null, cv);
         else
             dataBase.update(SmarterWifiDBHelper.TABLE_SSID, cv, compare, args);
         dataBase.setTransactionSuccessful();
@@ -205,7 +208,7 @@ public class SmarterDBSource {
         if (e == null)
             return;
 
-        Log.d("smarter", "Blacklisting " + e.getSsid() + " in database: " + b);
+        // Log.d("smarter", "Blacklisting " + e.getSsid() + " in database: " + b);
 
         ContentValues cv = new ContentValues();
         cv.put(SmarterWifiDBHelper.COL_SSIDBL_BLACKLIST, b ? "1" : "0");
@@ -219,7 +222,7 @@ public class SmarterDBSource {
                 dataBase.update(SmarterWifiDBHelper.TABLE_SSID_BLACKLIST, cv, compare, args);
             }
 
-            Log.d("smarter", "Blacklist entry updated in db");
+            // Log.d("smarter", "Blacklist entry updated in db");
         } else {
             cv.put(SmarterWifiDBHelper.COL_SSIDBL_SSID, e.getSsid());
 
@@ -227,7 +230,7 @@ public class SmarterDBSource {
 
             e.setBlacklistDatabaseId(sid);
 
-            Log.d("smarter", "Blacklist entry added to db");
+            // Log.d("smarter", "Blacklist entry added to db");
         }
         dataBase.setTransactionSuccessful();
         dataBase.endTransaction();
@@ -263,7 +266,7 @@ public class SmarterDBSource {
         if (e == null)
             return;
 
-        Log.d("smarter", "Blacklisting bluetooth " + e.getBtmac() + " in database: " + blacklist);
+        // Log.d("smarter", "Blacklisting bluetooth " + e.getBtmac() + " in database: " + blacklist);
 
         ContentValues cv = new ContentValues();
         cv.put(SmarterWifiDBHelper.COL_BTBL_BLACKLIST, blacklist ? "1" : "0");
@@ -278,7 +281,7 @@ public class SmarterDBSource {
                 dataBase.update(SmarterWifiDBHelper.TABLE_BT_BLACKLIST, cv, compare, args);
             }
 
-            Log.d("smarter", "Bluetooth blacklist entry updated in db");
+            // Log.d("smarter", "Bluetooth blacklist entry updated in db");
         } else {
             cv.put(SmarterWifiDBHelper.COL_BTBL_MAC, e.getBtmac());
             cv.put(SmarterWifiDBHelper.COL_BTBL_NAME, e.getBtName());
@@ -287,7 +290,7 @@ public class SmarterDBSource {
 
             e.setBlacklistDatabaseId(sid);
 
-            Log.d("smarter", "Bluetooth blacklist entry added to db");
+            // Log.d("smarter", "Bluetooth blacklist entry added to db");
         }
         dataBase.setTransactionSuccessful();
         dataBase.endTransaction();
@@ -306,6 +309,8 @@ public class SmarterDBSource {
         sid = updateSsid(ssid.getSsid(), sid);
         tid = updateTower(towerid, tid);
 
+        // Log.d("smarter", "got sid " + sid + " tid " + tid);
+
         long mid = getMapId(sid, tid);
 
         ContentValues cv = new ContentValues();
@@ -322,10 +327,10 @@ public class SmarterDBSource {
 
         dataBase.beginTransaction();
         if (mid < 0) {
-            Log.d("smarter", "Update tower/ssid map for " + towerid + " / " + ssid);
+            // Log.d("smarter", "Update tower/ssid map for " + towerid + " / " + ssid);
             dataBase.insert(SmarterWifiDBHelper.TABLE_SSID_CELL_MAP, null, cv);
         } else {
-            Log.d("smarter", "Mapping tower " + towerid + " to ssid " + ssid);
+            // Log.d("smarter", "Mapping tower " + towerid + " to ssid " + ssid);
             dataBase.update(SmarterWifiDBHelper.TABLE_SSID_CELL_MAP, cv, compare, args);
         }
         dataBase.setTransactionSuccessful();
@@ -383,6 +388,7 @@ public class SmarterDBSource {
         ssidc.moveToFirst();
 
         if (ssidc.getCount() <= 0) {
+            // Log.d("smarter", "ssidc < 0 nothing in SSID table?");
             ssidc.close();
             return retlist;
         }
@@ -394,6 +400,8 @@ public class SmarterDBSource {
             s.setSsid(ssidc.getString(1));
 
             s.setNumTowers(getNumTowersInSsid(s.getMapDbId()));
+
+            // Log.d("smarter", "returning tower " + ssidc.getLong(0) + " " + ssidc.getLong(1) + " num " + s.getNumTowers());
 
             if (s.getNumTowers() > 0)
                 retlist.add(s);

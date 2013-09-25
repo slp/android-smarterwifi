@@ -213,9 +213,10 @@ public class SmarterWifiService extends Service {
 
         notificationBuilder.setContentIntent(pIntent);
 
+        updatePreferences();
+
         // Kick an update
         setCurrentTower(new CellLocationCommon((CellLocation) null));
-        updatePreferences();
 
         if (showNotification)
             notificationManager.notify(0, notificationBuilder.build());

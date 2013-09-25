@@ -38,8 +38,10 @@ public class FragmentLearned extends SmarterFragment {
         ArrayList<SmarterSSID> ssids = serviceBinder.getSsidTowerlist();
 
         if (ssids != null) {
+            // Log.d("smarter", "ssid list size" + ssids.size());
             lastSsidList.clear();
             lastSsidList.addAll(ssids);
+            listAdapter.notifyDataSetChanged();
         }
 
         if (lastSsidList.size() <= 0) {
@@ -49,8 +51,6 @@ public class FragmentLearned extends SmarterFragment {
             emptyView.setVisibility(View.GONE);
             lv.setVisibility(View.VISIBLE);
         }
-
-        listAdapter.notifyDataSetChanged();
     }
 
     private Runnable updateTowerRunnable = new Runnable() {
@@ -179,6 +179,7 @@ public class FragmentLearned extends SmarterFragment {
     public void onResume() {
         super.onResume();
 
+        Log.d("smarter", "fragmentlearned onresume");
         updateTowerRunnable.run();
     }
 
