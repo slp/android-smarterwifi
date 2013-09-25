@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="Smarter">
+
+        <ListPreference
+            android:defaultValue="2"
+            android:entries="@array/prefsTimeSeconds"
+            android:entryValues="@array/prefsTimeSecondString"
+            android:key="@string/prefs_item_shutdowntime"
+            android:title="@string/prefs_item_shutdowntime" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@string/prefs_item_notification"
+            android:title="@string/prefs_item_notification"
+            android:summary="@string/prefs_item_notification_explanation"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

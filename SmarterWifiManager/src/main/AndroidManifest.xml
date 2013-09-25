@@ -26,6 +26,7 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+
         <activity
             android:name="net.kismetwireless.android.smarterwifimanager.MainActivity"
             android:label="@string/app_name" >
@@ -34,6 +35,12 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".PrefsActivity"
+            android:label="@string/prefs_name">
+
         </activity>
 
         <receiver android:name=".WifiReceiver">

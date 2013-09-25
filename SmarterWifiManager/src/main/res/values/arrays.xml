@@ -1,0 +1,16 @@
+<resources>
+    <string-array name="prefsTimeSecondString">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+    <string-array name="prefsTimeSeconds">
+        <item>Immediately</item>
+        <item>10 seconds</item>
+        <item>30 seconds</item>
+        <item>One minute</item>
+    </string-array>
+
+</resources>
