@@ -20,9 +20,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5cf4bc51-d75b-40a5-a545-323845e4d986" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SmarterWifiManager/src/main/AndroidManifest.xml" afterPath="$PROJECT_DIR$/SmarterWifiManager/src/main/AndroidManifest.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/FragmentPrefs.java" afterPath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/FragmentPrefs.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/PrefsActivity.java" afterPath="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/PrefsActivity.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SmarterWifiManager/SmarterWifiManager.apk" afterPath="$PROJECT_DIR$/SmarterWifiManager/SmarterWifiManager.apk" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="SmarterWifiManager.iws" />
@@ -1146,12 +1144,16 @@
       <created>1380085455063</created>
       <updated>1380085455063</updated>
     </task>
-    <option name="localTasksCounter" value="29" />
+    <task id="LOCAL-00029" summary="Prefs fixes to provide back arrow, use proper getentry">
+      <created>1380086302811</created>
+      <updated>1380086302811</updated>
+    </task>
+    <option name="localTasksCounter" value="30" />
     <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="2" y="40" width="9742" height="5295" extended-state="0" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -1190,7 +1192,6 @@
     <option name="myTodoPanelSettings">
       <TodoPanelSettings />
     </option>
-    <MESSAGE value="Fix up basic functionality" />
     <MESSAGE value="Finally got proper behavior for learning, enabling.  Disable tracking of basestation id on CDMA/lte" />
     <MESSAGE value="Minimal working UI" />
     <MESSAGE value="More icons, fixed towers disabling, fixed airplane mde" />
@@ -1215,7 +1216,8 @@
     <MESSAGE value="Verbiage tweaks" />
     <MESSAGE value="Handle preferences" />
     <MESSAGE value="Handle database commits, show 'delete learned networks' dialog, update learned list properly now that database is committed" />
-    <option name="LAST_COMMIT_MESSAGE" value="Handle database commits, show 'delete learned networks' dialog, update learned list properly now that database is committed" />
+    <MESSAGE value="Prefs fixes to provide back arrow, use proper getentry" />
+    <option name="LAST_COMMIT_MESSAGE" value="Prefs fixes to provide back arrow, use proper getentry" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
