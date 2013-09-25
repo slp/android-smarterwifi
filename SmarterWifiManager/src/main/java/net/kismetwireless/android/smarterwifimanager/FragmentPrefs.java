@@ -50,8 +50,12 @@ public class FragmentPrefs extends PreferenceFragment implements SharedPreferenc
     }
 
     private void setPrefsSummary() {
-        String s = timeoutPref.getEntry().toString();
+        CharSequence pt = timeoutPref.getEntry();
 
-        timeoutPref.setSummary(s + "\n" + getString(R.string.prefs_item_shutdowntime_explanation));
+        String s = "";
+        if (pt != null)
+            s = pt.toString() + "\n";
+
+        timeoutPref.setSummary(s + getString(R.string.prefs_item_shutdowntime_explanation));
     }
 }
