@@ -6,9 +6,9 @@
     <PreferenceCategory android:title="Smarter">
 
         <ListPreference
-            android:defaultValue="2"
-            android:entries="@array/prefsTimeSeconds"
-            android:entryValues="@array/prefsTimeSecondString"
+            android:defaultValue="0"
+            android:entries="@array/prefsTimeSecondString"
+            android:entryValues="@array/prefsTimeSeconds"
             android:key="@string/prefs_item_shutdowntime"
             android:title="@string/prefs_item_shutdowntime" />
 

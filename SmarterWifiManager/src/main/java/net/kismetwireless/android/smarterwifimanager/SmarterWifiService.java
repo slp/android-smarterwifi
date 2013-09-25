@@ -62,6 +62,7 @@ public class SmarterWifiService extends Service {
 
     private int enableWaitSeconds = 1;
     private int disableWaitSeconds = 30;
+    private boolean showNotification = true;
 
     private WifiState userOverrideState = WifiState.WIFI_IGNORE;
 
@@ -166,7 +167,8 @@ public class SmarterWifiService extends Service {
             notificationBuilder.setContentTitle(wifiText);
             notificationBuilder.setContentText(reasonText);
 
-            notificationManager.notify(0, notificationBuilder.build());
+            if (showNotification)
+                notificationManager.notify(0, notificationBuilder.build());
         }
     };
 
@@ -215,7 +217,8 @@ public class SmarterWifiService extends Service {
         setCurrentTower(new CellLocationCommon((CellLocation) null));
         updatePreferences();
 
-        notificationManager.notify(0, notificationBuilder.build());
+        if (showNotification)
+            notificationManager.notify(0, notificationBuilder.build());
 
         addCallback(notifcationCallback);
 
@@ -241,6 +244,15 @@ public class SmarterWifiService extends Service {
     public void updatePreferences() {
         learnWifi = preferences.getBoolean(getString(R.string.pref_learn), true);
         proctorWifi = preferences.getBoolean(getString(R.string.pref_enable), true);
+
+        disableWaitSeconds = Integer.parseInt(preferences.getString(getString(R.string.prefs_item_shutdowntime), "30"));
+
+        showNotification = preferences.getBoolean(getString(R.string.prefs_item_notification), true);
+
+        if (!showNotification)
+            notificationManager.cancel(0);
+        else
+            notificationManager.notify(0, notificationBuilder.build());
 
         configureWifiState();
     }
