@@ -2,8 +2,14 @@
 <resources>
 
     <string name="app_name">Smarter Wifi Manager</string>
+    <string name="prefs_name">Preferences</string>
+
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
+
+    <string name="prefs_item_shutdowntime">Wi-Fi Shutdown Time</string>
+    <string name="prefs_item_notification">Show notification</string>
+    <string name="prefs_item_notification_explanation">Turning off notifications may impact the background service in low memory conditions, if you notice problems, leave it on.</string>
 
     <string name="tab_main">Smarter</string>
     <string name="tab_ignore">Ignore</string>
