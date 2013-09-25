@@ -1,16 +1,14 @@
 <resources>
-    <string-array name="prefsTimeSecondString">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
+    <string-array name="prefsTimeSeconds">
+        <item>30</item>
+        <item>60</item>
+        <item>160</item>
     </string-array>
 
-    <string-array name="prefsTimeSeconds">
-        <item>Immediately</item>
-        <item>10 seconds</item>
-        <item>30 seconds</item>
-        <item>One minute</item>
+    <string-array name="prefsTimeSecondString">
+        <item>@string/shutdown_time_30s</item>
+        <item>@string/shutdown_time_1m</item>
+        <item>@string/shutdown_time_2m</item>
     </string-array>
 
 </resources>

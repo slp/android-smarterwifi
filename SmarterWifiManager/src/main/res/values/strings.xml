@@ -8,6 +8,7 @@
     <string name="hello_world">Hello world!</string>
 
     <string name="prefs_item_shutdowntime">Wi-Fi Shutdown Time</string>
+    <string name="prefs_item_shutdowntime_explanation">If you find Wi-Fi is disabled while adding a new network, or is otherwise toggled too often, you can increase the timeout before it is turned off.</string>
     <string name="prefs_item_notification">Show notification</string>
     <string name="prefs_item_notification_explanation">Turning off notifications may impact the background service in low memory conditions, if you notice problems, leave it on.</string>
 
@@ -29,5 +30,9 @@
     <string name="delete_dialog_title">Delete known network?</string>
     <string name="delete_learned_message">Deleting a learned network will reset all associations to known towers.  If auto-learning is enabled, the network will begin learning towers again.  To disable auto-learning for a network, set the network to "ignore" in the Ignore tab</string>
     <string name="bluetooth_blacklist_description">Wi-Fi and auto-learning will be disabled while connected to blacklisted Bluetooth devices.</string>
+
+    <string name="shutdown_time_30s">30 seconds</string>
+    <string name="shutdown_time_1m">One minute</string>
+    <string name="shutdown_time_2m">Two minutes</string>
 
 </resources>
