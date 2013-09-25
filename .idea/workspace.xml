@@ -20,7 +20,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5cf4bc51-d75b-40a5-a545-323845e4d986" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SmarterWifiManager/src/main/res/layout/fragment_main.xml" afterPath="$PROJECT_DIR$/SmarterWifiManager/src/main/res/layout/fragment_main.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SmarterWifiManager/src/main/res/values/strings.xml" afterPath="$PROJECT_DIR$/SmarterWifiManager/src/main/res/values/strings.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
@@ -112,7 +111,7 @@
       <file leaf-file-name="strings.xml" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/res/values/strings.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="25" column="25" selection-start="1113" selection-end="1113" vertical-scroll-proportion="0.5193906" vertical-offset="0" max-vertical-offset="722">
+            <state line="30" column="140" selection-start="2195" selection-end="2195" vertical-scroll-proportion="0.6232687" vertical-offset="0" max-vertical-offset="722">
               <folding />
             </state>
           </provider>
@@ -510,8 +509,8 @@
         <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/res/menu/main.xml" />
         <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/java/net/kismetwireless/android/smarterwifimanager/MainActivity.java" />
         <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/assets/html_no_copy/about.html" />
-        <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/res/values/strings.xml" />
         <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/res/layout/fragment_main.xml" />
+        <option value="$PROJECT_DIR$/SmarterWifiManager/src/main/res/values/strings.xml" />
       </list>
     </option>
   </component>
@@ -1068,7 +1067,11 @@
       <created>1380080823364</created>
       <updated>1380080823364</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="autolean != autolearn&#10;">
+      <created>1380081005498</created>
+      <updated>1380081005498</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -1136,7 +1139,8 @@
     <MESSAGE value="Fix problem with tower id calculation, add tethering detection" />
     <MESSAGE value="Minor re-order and comments on blacklist application order, fix tabs losing position on rotate/resume" />
     <MESSAGE value="Preferences fragment, about dialog" />
-    <option name="LAST_COMMIT_MESSAGE" value="Preferences fragment, about dialog" />
+    <MESSAGE value="autolean != autolearn&#10;" />
+    <option name="LAST_COMMIT_MESSAGE" value="autolean != autolearn&#10;" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -1272,7 +1276,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/SmarterWifiManager/src/main/res/values/strings.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="25" column="25" selection-start="1113" selection-end="1113" vertical-scroll-proportion="0.5193906" vertical-offset="0" max-vertical-offset="722">
+        <state line="30" column="140" selection-start="2195" selection-end="2195" vertical-scroll-proportion="0.6232687" vertical-offset="0" max-vertical-offset="722">
           <folding />
         </state>
       </provider>
