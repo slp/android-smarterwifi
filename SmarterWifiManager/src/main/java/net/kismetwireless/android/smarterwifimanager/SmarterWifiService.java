@@ -247,6 +247,9 @@ public class SmarterWifiService extends Service {
 
         disableWaitSeconds = Integer.parseInt(preferences.getString(getString(R.string.prefs_item_shutdowntime), "30"));
 
+        if (disableWaitSeconds < 30)
+            disableWaitSeconds = 30;
+
         showNotification = preferences.getBoolean(getString(R.string.prefs_item_notification), true);
 
         if (!showNotification)
