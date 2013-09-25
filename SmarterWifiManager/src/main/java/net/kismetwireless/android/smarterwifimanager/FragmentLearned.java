@@ -1,5 +1,6 @@
 package net.kismetwireless.android.smarterwifimanager;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -36,8 +37,10 @@ public class FragmentLearned extends SmarterFragment {
     private void updateTowerList() {
         ArrayList<SmarterSSID> ssids = serviceBinder.getSsidTowerlist();
 
-        lastSsidList.clear();
-        lastSsidList.addAll(ssids);
+        if (ssids != null) {
+            lastSsidList.clear();
+            lastSsidList.addAll(ssids);
+        }
 
         if (lastSsidList.size() <= 0) {
             emptyView.setVisibility(View.VISIBLE);
@@ -79,7 +82,17 @@ public class FragmentLearned extends SmarterFragment {
         serviceBinder.doCallAndBindService(new SmarterWifiServiceBinder.BinderCallback() {
             @Override
             public void run(SmarterWifiServiceBinder b) {
-                updateTowerRunnable.run();
+                Activity a = getActivity();
+
+                if (a == null)
+                    return;
+
+                a.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateTowerRunnable.run();
+                    }
+                });
             }
         });
 
@@ -158,11 +171,15 @@ public class FragmentLearned extends SmarterFragment {
     @Override
     public void onPause() {
         super.onPause();
+
+        timeHandler.removeCallbacks(updateTowerRunnable);
     }
 
     @Override
     public void onResume() {
         super.onResume();
+
+        updateTowerRunnable.run();
     }
 
     @Override
