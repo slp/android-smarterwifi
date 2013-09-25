@@ -31,6 +31,11 @@
     <string name="delete_learned_message">Deleting a learned network will reset all associations to known towers.  If auto-learning is enabled, the network will begin learning towers again.  To disable auto-learning for a network, set the network to "ignore" in the Ignore tab</string>
     <string name="bluetooth_blacklist_description">Wi-Fi and auto-learning will be disabled while connected to blacklisted Bluetooth devices.</string>
 
+    <string name="ignoring_dialog_network">Ignoring network</string>
+    <string name="ignoring_dialog_description">Ignoring a network will not automatically delete the learned locations.  You can delete them now or via the Learning tab, or you can leave them if you wish to continue enabling Wi-Fi based on known positions, but do not want to learn additional new locations.</string>
+    <string name="ignoring_dialog_leave">Leave</string>
+    <string name="ignoring_dialog_delete">Delete</string>
+
     <string name="shutdown_time_30s">30 seconds</string>
     <string name="shutdown_time_1m">One minute</string>
     <string name="shutdown_time_2m">Two minutes</string>

@@ -35,6 +35,9 @@ class SmarterWifiServiceBinder {
 
             isBound = true;
 
+            if (onBindCb != null)
+                onBindCb.run(SmarterWifiServiceBinder.this);
+
             synchronized (this) {
                 if (pendingList.size() > 0) {
                     for (SmarterWifiService.SmarterServiceCallback cb : pendingList) {
@@ -46,8 +49,6 @@ class SmarterWifiServiceBinder {
                 pendingList.clear();
             }
 
-            if (onBindCb != null)
-                onBindCb.run(SmarterWifiServiceBinder.this);
         }
 
         @Override

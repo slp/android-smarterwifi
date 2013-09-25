@@ -90,10 +90,15 @@ public class SmarterDBSource {
         String compare = SmarterWifiDBHelper.COL_CELL_ID + " = ?";
         String args[] = {Long.toString(towerid)};
 
+        dataBase.beginTransaction();
+
         if (tid < 0)
             dataBase.insert(SmarterWifiDBHelper.TABLE_CELL, null, cv);
         else
             dataBase.update(SmarterWifiDBHelper.TABLE_CELL, cv, compare, args);
+
+        dataBase.setTransactionSuccessful();
+        dataBase.endTransaction();
 
         return tid;
     }
@@ -138,10 +143,13 @@ public class SmarterDBSource {
         String compare = SmarterWifiDBHelper.COL_SSID_ID + "=?";
         String args[] = {Long.toString(sid)};
 
+        dataBase.beginTransaction();
         if (sid < 0)
             dataBase.insert(SmarterWifiDBHelper.TABLE_SSID, null, cv);
         else
             dataBase.update(SmarterWifiDBHelper.TABLE_SSID, cv, compare, args);
+        dataBase.setTransactionSuccessful();
+        dataBase.endTransaction();
 
         return sid;
     }
@@ -202,6 +210,7 @@ public class SmarterDBSource {
         ContentValues cv = new ContentValues();
         cv.put(SmarterWifiDBHelper.COL_SSIDBL_BLACKLIST, b ? "1" : "0");
 
+        dataBase.beginTransaction();
         if (e.getBlacklistDatabaseId() >= 0) {
             if (e.getBlacklistDatabaseId() >= 0) {
                 String compare = SmarterWifiDBHelper.COL_SSIDBL_ID + "=?";
@@ -220,6 +229,8 @@ public class SmarterDBSource {
 
             Log.d("smarter", "Blacklist entry added to db");
         }
+        dataBase.setTransactionSuccessful();
+        dataBase.endTransaction();
 
         e.setBlacklisted(b);
     }
@@ -258,6 +269,7 @@ public class SmarterDBSource {
         cv.put(SmarterWifiDBHelper.COL_BTBL_BLACKLIST, blacklist ? "1" : "0");
         cv.put(SmarterWifiDBHelper.COL_BTBL_ENABLE, enable ? "1" : "0");
 
+        dataBase.beginTransaction();
         if (e.getBlacklistDatabaseId() >= 0) {
             if (e.getBlacklistDatabaseId() >= 0) {
                 String compare = SmarterWifiDBHelper.COL_BTBL_ID + "=?";
@@ -277,6 +289,8 @@ public class SmarterDBSource {
 
             Log.d("smarter", "Bluetooth blacklist entry added to db");
         }
+        dataBase.setTransactionSuccessful();
+        dataBase.endTransaction();
 
         e.setBlacklisted(blacklist);
         e.setEnabled(enable);
@@ -306,6 +320,7 @@ public class SmarterDBSource {
         String compare = SmarterWifiDBHelper.COL_SCMAP_SSIDID + "=? AND " + SmarterWifiDBHelper.COL_SCMAP_CELLID + "=?";
         String[] args = {Long.toString(sid), Long.toString(tid)};
 
+        dataBase.beginTransaction();
         if (mid < 0) {
             Log.d("smarter", "Update tower/ssid map for " + towerid + " / " + ssid);
             dataBase.insert(SmarterWifiDBHelper.TABLE_SSID_CELL_MAP, null, cv);
@@ -313,7 +328,32 @@ public class SmarterDBSource {
             Log.d("smarter", "Mapping tower " + towerid + " to ssid " + ssid);
             dataBase.update(SmarterWifiDBHelper.TABLE_SSID_CELL_MAP, cv, compare, args);
         }
+        dataBase.setTransactionSuccessful();
+        dataBase.endTransaction();
 
+    }
+
+    public SmarterSSID getMappedSsidFromBlacklist(SmarterSSID bl) {
+        String[] cols = {SmarterWifiDBHelper.COL_SSID_ID, SmarterWifiDBHelper.COL_SSID_SSID};
+
+        String compare = SmarterWifiDBHelper.COL_SSID_SSID + "=?";
+        String[] args = {bl.getSsid()};
+
+        Cursor ssidc = dataBase.query(SmarterWifiDBHelper.TABLE_SSID, cols, compare, args, null, null, null);
+
+        ssidc.moveToFirst();
+
+        if (ssidc.getCount() <= 0) {
+            ssidc.close();
+            return null;
+        }
+
+        SmarterSSID s = new SmarterSSID();
+
+        s.setMapDbId(ssidc.getLong(0));
+        s.setSsid(ssidc.getString(1));
+
+        return s;
     }
 
     public int getNumTowersInSsid(long ssidid) {
@@ -367,7 +407,13 @@ public class SmarterDBSource {
     }
 
     public void deleteSsidTowerMap(SmarterSSID ssid) {
-        if (ssid.getMapDbId() < 0)
+        if (ssid.getMapDbId() < 0) {
+            if (!ssid.getDisplaySsid().isEmpty()) {
+                ssid = getMappedSsidFromBlacklist(ssid);
+            }
+        }
+
+        if (ssid == null)
             return;
 
         String compare = SmarterWifiDBHelper.COL_SCMAP_SSIDID + "=?";
