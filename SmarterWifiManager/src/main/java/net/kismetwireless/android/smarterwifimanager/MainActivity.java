@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v13.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.WebView;
@@ -95,9 +96,11 @@ public class MainActivity extends Activity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        if (actionBar != null)
+        try {
             outState.putInt("tabposition", actionBar.getSelectedTab().getPosition());
-
+        } catch (NullPointerException npe) {
+            Log.d("smarter", "tried to save sate but got a null in getSelectedTab(): " + npe);
+        }
     }
 
     @Override
