@@ -31,8 +31,8 @@ public class FragmentMain extends SmarterFragment {
 
     private SmarterWifiService.SmarterServiceCallback guiCallback = new SmarterWifiService.SmarterServiceCallback() {
         @Override
-        public void wifiStateChanged(final SmarterSSID ssid, final SmarterWifiService.WifiState state, final SmarterWifiService.ControlType type) {
-            super.wifiStateChanged(ssid, state, type);
+        public void wifiStateChanged(final SmarterSSID ssid, final SmarterWifiService.WifiState state, final SmarterWifiService.WifiState controlstate, final SmarterWifiService.ControlType type) {
+            super.wifiStateChanged(ssid, state, controlstate, type);
 
             Activity ma = getActivity();
 

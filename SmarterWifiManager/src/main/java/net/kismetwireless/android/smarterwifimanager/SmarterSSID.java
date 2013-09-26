@@ -46,7 +46,12 @@ public class SmarterSSID {
     }
 
     public String getDisplaySsid() {
-        return ssid.substring(1, ssid.length() - 1);
+        if (ssid.length() > 1) {
+           if (ssid.charAt(0) == '\"' && ssid.charAt(ssid.length() - 1) == '\"')
+               return ssid.substring(1, ssid.length() - 1);
+        }
+
+        return ssid;
     }
 
     public void setNumTowers(int nt) {

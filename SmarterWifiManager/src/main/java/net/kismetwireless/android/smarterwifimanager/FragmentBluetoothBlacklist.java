@@ -1,5 +1,6 @@
 package net.kismetwireless.android.smarterwifimanager;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,10 +29,13 @@ public class FragmentBluetoothBlacklist extends SmarterFragment {
     private TextView emptyView;
 
     public void updateBluetoothList() {
-        lastBtList = serviceBinder.getBluetoothBlacklist();
+        ArrayList<SmarterBluetooth> bt = serviceBinder.getBluetoothBlacklist();
+
+        lastBtList.clear();
+        lastBtList.addAll(bt);
 
         if (listAdapter != null) {
-            listAdapter.addAll(lastBtList);
+            listAdapter.notifyDataSetChanged();
 
             if (lastBtList.size() == 0) {
                 lv.setVisibility(View.GONE);
@@ -42,6 +46,24 @@ public class FragmentBluetoothBlacklist extends SmarterFragment {
             }
         }
     }
+
+    private SmarterWifiService.SmarterServiceCallback callback = new SmarterWifiService.SmarterServiceCallback() {
+        @Override
+        public void bluetoothStateChanged(final SmarterWifiService.BluetoothState state) {
+            super.bluetoothStateChanged(state);
+
+            Activity ma = getActivity();
+
+            if (ma != null) {
+                ma.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateBluetoothList();
+                    }
+                });
+            }
+        }
+    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -55,16 +77,12 @@ public class FragmentBluetoothBlacklist extends SmarterFragment {
         lv = (ListView) mainView.findViewById(R.id.bluetoothListView);
         emptyView = (TextView) mainView.findViewById(R.id.textViewNoBluetooth);
 
-        listAdapter = new BluetoothListAdapter(context, R.layout.bluetooth_blacklist_entry);
+        listAdapter = new BluetoothListAdapter(context, R.layout.bluetooth_blacklist_entry, lastBtList);
         lv.setAdapter(listAdapter);
 
         serviceBinder = new SmarterWifiServiceBinder(context);
-        serviceBinder.doCallAndBindService(new SmarterWifiServiceBinder.BinderCallback() {
-            @Override
-            public void run(SmarterWifiServiceBinder b) {
-                updateBluetoothList();
-            }
-        });
+        serviceBinder.addCallback(callback);
+        serviceBinder.doBindService();
 
         return mainView;
     }
@@ -72,11 +90,10 @@ public class FragmentBluetoothBlacklist extends SmarterFragment {
     public class BluetoothListAdapter extends ArrayAdapter<SmarterBluetooth> {
         private int layoutResourceId;
 
-        public BluetoothListAdapter(Context context, int textViewResourceId) {
-            super(context, textViewResourceId);
+        public BluetoothListAdapter(Context context, int textViewResourceId, ArrayList<SmarterBluetooth> items) {
+            super(context, textViewResourceId, items);
             layoutResourceId = textViewResourceId;
         }
-
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
@@ -125,11 +142,17 @@ public class FragmentBluetoothBlacklist extends SmarterFragment {
     @Override
     public void onPause() {
         super.onPause();
+
+        if (serviceBinder != null)
+            serviceBinder.removeCallback(callback);
     }
 
     @Override
     public void onResume() {
         super.onResume();
+
+        if (serviceBinder != null)
+            serviceBinder.addCallback(callback);
     }
 
     @Override

@@ -32,6 +32,9 @@ import java.util.List;
 import java.util.Set;
 
 public class SmarterWifiService extends Service {
+    // Unique combinations:
+    // WIFISTATE IGNORE + CONTROL RANGE - no valid towers no other conditions
+
     public enum ControlType {
         CONTROL_DISABLED, CONTROL_USER, CONTROL_RANGE, CONTROL_TOWERID, CONTROL_GEOFENCE, CONTROL_BLUETOOTH, CONTROL_TIME,
         CONTROL_SSIDBLACKLIST, CONTROL_AIRPLANE, CONTROL_TETHER
@@ -42,8 +45,12 @@ public class SmarterWifiService extends Service {
         WIFI_BLOCKED, WIFI_ON, WIFI_OFF, WIFI_IDLE, WIFI_IGNORE
     }
 
+    public enum BluetoothState {
+        BLUETOOTH_BLOCKED, BLUETOOTH_ON, BLUETOOTH_OFF, BLUETOOTH_IDLE, BLUETOOTH_IGNORE
+    }
+
     public enum TowerType {
-        TOWER_UNKNOWN, TOWER_BLOCK, TOWER_ENABLE
+        TOWER_UNKNOWN, TOWER_BLOCK, TOWER_ENABLE, TOWER_INVALID
     }
 
     private boolean shutdown = false;
@@ -86,20 +93,28 @@ public class SmarterWifiService extends Service {
 
     public static abstract class SmarterServiceCallback {
         protected ControlType controlType;
-        protected WifiState wifiState;
+        protected WifiState wifiState, controlState;
         protected SmarterSSID lastSsid;
         protected TowerType towerType;
+        protected BluetoothState lastBtState;
 
-        public void wifiStateChanged(SmarterSSID ssid, WifiState state, ControlType type) {
+        public void wifiStateChanged(SmarterSSID ssid, WifiState state, WifiState controlstate, ControlType type) {
             lastSsid = ssid;
             wifiState = state;
             controlType = type;
+            controlState = controlstate;
 
             return;
         }
 
         public void towerStateChanged(long towerid, TowerType type) {
             towerType = type;
+
+            return;
+        }
+
+        public void bluetoothStateChanged(BluetoothState state) {
+            lastBtState = state;
 
             return;
         }
@@ -122,8 +137,8 @@ public class SmarterWifiService extends Service {
         ControlType lastControl = ControlType.CONTROL_DISABLED;
 
         @Override
-        public void wifiStateChanged(SmarterSSID ssid, WifiState state, ControlType type) {
-            super.wifiStateChanged(ssid, state, type);
+        public void wifiStateChanged(SmarterSSID ssid, WifiState state, WifiState controlstate, ControlType type) {
+            super.wifiStateChanged(ssid, state, controlstate, type);
 
             if (state == lastState && type == lastControl)
                 return;
@@ -151,17 +166,28 @@ public class SmarterWifiService extends Service {
                 case WIFI_OFF:
                     wifiIconId = R.drawable.custom_wifi_inactive;
                     wifiText = "Wi-Fi turned off";
+
+                    if (lastControlReason == ControlType.CONTROL_RANGE) {
+                        reasonText = "Not in a known location";
+                    }
+
                     break;
                 case WIFI_IGNORE:
                     wifiIconId = R.drawable.custom_wifi_enabled;
                     wifiText = "Wi-Fi management disabled";
+
+                    if (lastControlReason == ControlType.CONTROL_RANGE) {
+                        reasonText = "No cell signal";
+                    }
+
                     break;
 
                 default:
                     wifiIconId = R.drawable.custom_wifi_inactive;
             }
 
-            reasonText = SmarterWifiService.controlTypeToText(lastControlReason);
+            if (reasonText.isEmpty())
+                reasonText = SmarterWifiService.controlTypeToText(lastControlReason);
 
             notificationBuilder.setSmallIcon(wifiIconId);
             notificationBuilder.setContentTitle(wifiText);
@@ -340,9 +366,14 @@ public class SmarterWifiService extends Service {
 
         currentCellLocation = curloc;
 
-        currentTowerType = TowerType.TOWER_UNKNOWN;
+        if (curloc.getTowerId() < 0)
+            currentTowerType = TowerType.TOWER_INVALID;
+        else
+            currentTowerType = TowerType.TOWER_UNKNOWN;
 
         if (curloc.getTowerId() > 0 && learnWifi) {
+            SmarterSSID ssid = getCurrentSsid();
+
             // If we know this tower already, set type to enable
             if (dbSource.queryTowerMapped(curloc.getTowerId())) {
                 Log.d("smarter", "Found known tower");
@@ -352,10 +383,14 @@ public class SmarterWifiService extends Service {
             // If we're associated to a wifi, map the tower.
             // Don't map towers while we're tethered.
             if (getWifiState() == WifiState.WIFI_ON && !getWifiTethered()) {
-                Log.d("smarter", "New tower, Wi-Fi enabled, learning tower");
-                dbSource.mapTower(getCurrentSsid(), curloc.getTowerId());
-                lastTowerMap = System.currentTimeMillis();
-                currentTowerType = TowerType.TOWER_ENABLE;
+                if (ssid != null && ssid.isBlacklisted()) {
+                    // We don't learn anything based on this ssid
+                } else {
+                    Log.d("smarter", "New tower, Wi-Fi enabled, learning tower");
+                    dbSource.mapTower(getCurrentSsid(), curloc.getTowerId());
+                    lastTowerMap = System.currentTimeMillis();
+                    currentTowerType = TowerType.TOWER_ENABLE;
+                }
             }
 
             triggerCallbackTowerChanged();
@@ -374,7 +409,8 @@ public class SmarterWifiService extends Service {
 
         // Call our CBs immediately for setup
         cb.towerStateChanged(currentCellLocation.getTowerId(), currentTowerType);
-        cb.wifiStateChanged(getCurrentSsid(), getWifiState(), lastControlReason);
+        cb.wifiStateChanged(getCurrentSsid(), getWifiState(), getShouldWifiBeEnabled(), lastControlReason);
+        cb.bluetoothStateChanged(getBluetoothState());
 
     }
 
@@ -395,7 +431,15 @@ public class SmarterWifiService extends Service {
     public void triggerCallbackWifiChanged() {
         synchronized (callbackList) {
             for (SmarterServiceCallback cb: callbackList) {
-                cb.wifiStateChanged(getCurrentSsid(), getWifiState(), lastControlReason);
+                cb.wifiStateChanged(getCurrentSsid(), getWifiState(), getShouldWifiBeEnabled(), lastControlReason);
+            }
+        }
+    }
+
+    public void triggerCallbackBluetoothChanged() {
+        synchronized (callbackList) {
+            for (SmarterServiceCallback cb: callbackList) {
+                cb.bluetoothStateChanged(getBluetoothState());
             }
         }
     }
@@ -437,6 +481,8 @@ public class SmarterWifiService extends Service {
             bluetoothEnabled = true;
         }
 
+        triggerCallbackBluetoothChanged();
+
         // We can't get a list of connected devices, only watch
     }
 
@@ -473,7 +519,7 @@ public class SmarterWifiService extends Service {
     // WIFI_IDLE - Do nothing
     public WifiState getShouldWifiBeEnabled() {
         WifiState curstate = getWifiState();
-        SmarterSSID currentSsid = getCurrentSsid();
+        SmarterSSID ssid = getCurrentSsid();
         boolean tethered = getWifiTethered();
 
         // We're not looking at all
@@ -511,12 +557,17 @@ public class SmarterWifiService extends Service {
             return WifiState.WIFI_BLOCKED;
         }
 
-        if (curstate == WifiState.WIFI_ON && (currentSsid != null && currentSsid.isBlacklisted())) {
+        if (curstate == WifiState.WIFI_ON && (ssid != null && ssid.isBlacklisted())) {
             lastControlReason = ControlType.CONTROL_SSIDBLACKLIST;
             return WifiState.WIFI_IGNORE;
         }
 
         if (learnWifi) {
+            if (currentTowerType == TowerType.TOWER_INVALID) {
+                lastControlReason = ControlType.CONTROL_RANGE;
+                return WifiState.WIFI_IGNORE;
+            }
+
             if (currentTowerType == TowerType.TOWER_BLOCK) {
                 lastControlReason = ControlType.CONTROL_TOWERID;
                 return WifiState.WIFI_BLOCKED;
@@ -544,6 +595,18 @@ public class SmarterWifiService extends Service {
         }
 
         return WifiState.WIFI_IGNORE;
+    }
+
+    public BluetoothState getBluetoothState() {
+        if (btAdapter == null)
+            return BluetoothState.BLUETOOTH_OFF;
+
+        int s =  btAdapter.getState();
+
+        if (s == BluetoothAdapter.STATE_ON)
+            return BluetoothState.BLUETOOTH_ON;
+
+        return BluetoothState.BLUETOOTH_OFF;
     }
 
     public WifiState getWifiState() {
@@ -690,6 +753,7 @@ public class SmarterWifiService extends Service {
     public void setSsidBlacklist(SmarterSSID ssid, boolean blacklisted) {
         Log.d("smarter", "service backend setting ssid " + ssid.getSsid() + " blacklist " + blacklisted);
         dbSource.setSsidBlacklisted(ssid, blacklisted);
+        handleCellLocation(null);
         configureWifiState();
     }
 
@@ -699,6 +763,8 @@ public class SmarterWifiService extends Service {
 
     public void deleteSsidTowerMap(SmarterSSID ssid) {
         dbSource.deleteSsidTowerMap(ssid);
+
+        handleCellLocation(null);
     }
 
     public long getLastTowerMap() {

@@ -33,10 +33,13 @@ public class FragmentSsidBlacklist extends SmarterFragment {
     private SmarterWifiService.WifiState wifiState = SmarterWifiService.WifiState.WIFI_IGNORE;
 
     public void updateSsidList() {
-        lastSsidList = serviceBinder.getSsidBlacklist();
+        ArrayList<SmarterSSID> list = serviceBinder.getSsidBlacklist();
+
+        lastSsidList.clear();
+        lastSsidList.addAll(list);
 
         if (listAdapter != null) {
-            listAdapter.addAll(lastSsidList);
+            listAdapter.notifyDataSetChanged();
 
             if (lastSsidList.size() == 0) {
                 lv.setVisibility(View.GONE);
@@ -50,8 +53,9 @@ public class FragmentSsidBlacklist extends SmarterFragment {
 
     private SmarterWifiService.SmarterServiceCallback callback = new SmarterWifiService.SmarterServiceCallback() {
         @Override
-        public void wifiStateChanged(final SmarterSSID ssid, final SmarterWifiService.WifiState state, final SmarterWifiService.ControlType type) {
-            super.wifiStateChanged(ssid, state, type);
+        public void wifiStateChanged(final SmarterSSID ssid, final SmarterWifiService.WifiState state,
+                                     final SmarterWifiService.WifiState controlstate, final SmarterWifiService.ControlType type) {
+            super.wifiStateChanged(ssid, state, controlstate, type);
 
             Activity ma = getActivity();
 
@@ -59,21 +63,7 @@ public class FragmentSsidBlacklist extends SmarterFragment {
                 ma.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if ((state == SmarterWifiService.WifiState.WIFI_ON || state == SmarterWifiService.WifiState.WIFI_IDLE) &&
-                                (wifiState == SmarterWifiService.WifiState.WIFI_OFF || wifiState == SmarterWifiService.WifiState.WIFI_BLOCKED)) {
-
-                            lastSsidList = serviceBinder.getSsidBlacklist();
-                            listAdapter.addAll(lastSsidList);
-
-                            if (lastSsidList.size() == 0) {
-                                lv.setVisibility(View.GONE);
-                                emptyView.setVisibility(View.VISIBLE);
-                            } else {
-                                lv.setVisibility(View.VISIBLE);
-                                emptyView.setVisibility(View.GONE);
-                            }
-
-                        }
+                            updateSsidList();
                     }
                 });
             }
@@ -93,18 +83,13 @@ public class FragmentSsidBlacklist extends SmarterFragment {
         lv = (ListView) mainView.findViewById(R.id.ssidBlacklistListview);
         emptyView = (TextView) mainView.findViewById(R.id.textViewNoWifi);
 
-        listAdapter = new SsidListAdapter(context, R.layout.ssid_blacklist_entry);
+        listAdapter = new SsidListAdapter(context, R.layout.ssid_blacklist_entry, lastSsidList);
         lv.setAdapter(listAdapter);
 
         serviceBinder = new SmarterWifiServiceBinder(context);
+        serviceBinder.addCallback(callback);
 
-        serviceBinder.doCallAndBindService(new SmarterWifiServiceBinder.BinderCallback() {
-            @Override
-            public void run(SmarterWifiServiceBinder b) {
-                serviceBinder.addCallback(callback);
-                updateSsidList();
-            }
-        });
+        serviceBinder.doBindService();
 
         return mainView;
     }
@@ -112,8 +97,8 @@ public class FragmentSsidBlacklist extends SmarterFragment {
     public class SsidListAdapter extends ArrayAdapter<SmarterSSID> {
         private int layoutResourceId;
 
-        public SsidListAdapter(Context context, int textViewResourceId) {
-            super(context, textViewResourceId);
+        public SsidListAdapter(Context context, int textViewResourceId, ArrayList<SmarterSSID> items) {
+            super(context, textViewResourceId, items);
             layoutResourceId = textViewResourceId;
         }
 
