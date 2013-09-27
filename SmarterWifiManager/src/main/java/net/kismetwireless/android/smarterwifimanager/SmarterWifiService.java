@@ -98,7 +98,8 @@ public class SmarterWifiService extends Service {
         protected TowerType towerType;
         protected BluetoothState lastBtState;
 
-        public void wifiStateChanged(SmarterSSID ssid, WifiState state, WifiState controlstate, ControlType type) {
+        public void wifiStateChanged(final SmarterSSID ssid, final WifiState state,
+                                     final WifiState controlstate, final ControlType type) {
             lastSsid = ssid;
             wifiState = state;
             controlType = type;
@@ -107,13 +108,13 @@ public class SmarterWifiService extends Service {
             return;
         }
 
-        public void towerStateChanged(long towerid, TowerType type) {
+        public void towerStateChanged(final long towerid, final TowerType type) {
             towerType = type;
 
             return;
         }
 
-        public void bluetoothStateChanged(BluetoothState state) {
+        public void bluetoothStateChanged(final BluetoothState state) {
             lastBtState = state;
 
             return;
@@ -132,83 +133,15 @@ public class SmarterWifiService extends Service {
     private ServiceBinder serviceBinder = new ServiceBinder();
     private Context context;
 
-    private SmarterServiceCallback notifcationCallback = new SmarterServiceCallback() {
-        WifiState lastState = WifiState.WIFI_IDLE;
-        ControlType lastControl = ControlType.CONTROL_DISABLED;
-
-        @Override
-        public void wifiStateChanged(SmarterSSID ssid, WifiState state, WifiState controlstate, ControlType type) {
-            super.wifiStateChanged(ssid, state, controlstate, type);
-
-            if (state == lastState && type == lastControl)
-                return;
-
-            lastState = state;
-            lastControl = type;
-
-            int wifiIconId = R.drawable.custom_wifi_inactive;
-            String wifiText = "";
-            String reasonText = "";
-
-            switch (state) {
-                case WIFI_IDLE:
-                    wifiIconId = R.drawable.custom_wifi_inactive;
-                    wifiText = "Wi-Fi idle / disconnected";
-                    break;
-                case WIFI_BLOCKED:
-                    wifiIconId = R.drawable.custom_wifi_disabled_tower;
-                    wifiText = "Wi-Fi ";
-                    break;
-                case WIFI_ON:
-                    wifiIconId = R.drawable.custom_wifi_enabled;
-                    wifiText = "Wi-Fi enabled";
-                    break;
-                case WIFI_OFF:
-                    wifiIconId = R.drawable.custom_wifi_inactive;
-                    wifiText = "Wi-Fi turned off";
-
-                    if (lastControlReason == ControlType.CONTROL_RANGE) {
-                        reasonText = "Not in a known location";
-                    } else if (lastControlReason == ControlType.CONTROL_BLUETOOTH) {
-                        wifiIconId = R.drawable.custom_wifi_disabled_bluetooth;
-                    }
-
-                    break;
-                case WIFI_IGNORE:
-                    wifiIconId = R.drawable.custom_wifi_enabled;
-                    wifiText = "Wi-Fi management disabled";
-
-                    if (lastControlReason == ControlType.CONTROL_RANGE) {
-                        reasonText = "No cell signal";
-                    }
-
-                    break;
-
-                default:
-                    wifiIconId = R.drawable.custom_wifi_inactive;
-            }
-
-            if (reasonText.isEmpty())
-                reasonText = SmarterWifiService.controlTypeToText(lastControlReason);
-
-            notificationBuilder.setSmallIcon(wifiIconId);
-            notificationBuilder.setContentTitle(wifiText);
-            notificationBuilder.setContentText(reasonText);
-
-            if (showNotification)
-                notificationManager.notify(0, notificationBuilder.build());
-        }
-    };
-
     @Override
     public void onCreate() {
         super.onCreate();
 
-        context = this;
+        context = this.getApplicationContext();
 
         preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
-        wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+        wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 
         try {
             dbSource = new SmarterDBSource(context);
@@ -217,16 +150,15 @@ public class SmarterWifiService extends Service {
         }
 
         // Default network state
-        connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         phoneListener = new SmarterPhoneListener();
 
-        telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-        telephonyManager.listen(phoneListener, PhoneStateListener.LISTEN_CELL_LOCATION);
+        telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
 
         btAdapter = BluetoothAdapter.getDefaultAdapter();
 
-        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
         notificationBuilder = new NotificationCompat.Builder(context);
 
@@ -243,15 +175,82 @@ public class SmarterWifiService extends Service {
 
         updatePreferences();
 
+        telephonyManager.listen(phoneListener, PhoneStateListener.LISTEN_CELL_LOCATION);
+
         // Kick an update
         configureWifiState();
-        // setCurrentTower(new CellLocationCommon((CellLocation) null));
 
         if (showNotification)
             notificationManager.notify(0, notificationBuilder.build());
 
-        addCallback(notifcationCallback);
 
+        addCallback(new SmarterServiceCallback() {
+            WifiState lastState = WifiState.WIFI_IDLE;
+            ControlType lastControl = ControlType.CONTROL_DISABLED;
+
+            @Override
+            public void wifiStateChanged(SmarterSSID ssid, WifiState state, WifiState controlstate, ControlType type) {
+                super.wifiStateChanged(ssid, state, controlstate, type);
+
+                if (state == lastState && type == lastControl)
+                    return;
+
+                lastState = state;
+                lastControl = type;
+
+                int wifiIconId = R.drawable.custom_wifi_inactive;
+                String wifiText = "";
+                String reasonText = "";
+
+                switch (state) {
+                    case WIFI_IDLE:
+                        wifiIconId = R.drawable.custom_wifi_inactive;
+                        wifiText = "Wi-Fi idle / disconnected";
+                        break;
+                    case WIFI_BLOCKED:
+                        wifiIconId = R.drawable.custom_wifi_disabled_tower;
+                        wifiText = "Wi-Fi ";
+                        break;
+                    case WIFI_ON:
+                        wifiIconId = R.drawable.custom_wifi_enabled;
+                        wifiText = "Wi-Fi enabled";
+                        break;
+                    case WIFI_OFF:
+                        wifiIconId = R.drawable.custom_wifi_inactive;
+                        wifiText = "Wi-Fi turned off";
+
+                        if (type == ControlType.CONTROL_RANGE) {
+                            reasonText = "Not in a known location";
+                        } else if (lastControlReason == ControlType.CONTROL_BLUETOOTH) {
+                            wifiIconId = R.drawable.custom_wifi_disabled_bluetooth;
+                        }
+
+                        break;
+                    case WIFI_IGNORE:
+                        wifiIconId = R.drawable.custom_wifi_enabled;
+                        wifiText = "Wi-Fi management disabled";
+
+                        if (lastControlReason == ControlType.CONTROL_RANGE) {
+                            reasonText = "No cell signal";
+                        }
+
+                        break;
+
+                    default:
+                        wifiIconId = R.drawable.custom_wifi_inactive;
+                }
+
+                if (reasonText.isEmpty())
+                    reasonText = SmarterWifiService.controlTypeToText(type);
+
+                notificationBuilder.setSmallIcon(wifiIconId);
+                notificationBuilder.setContentTitle(wifiText);
+                notificationBuilder.setContentText(reasonText);
+
+                if (showNotification)
+                    notificationManager.notify(0, notificationBuilder.build());
+            }
+        });
     }
 
     @Override
@@ -407,18 +406,32 @@ public class SmarterWifiService extends Service {
     }
 
     public void addCallback(SmarterServiceCallback cb) {
-        synchronized (callbackList) {
-            callbackList.add(cb);
-        }
+        try {
+            if (cb == null) {
+                Log.e("smarter", "Got a null callback?");
+                return;
+            }
 
-        // Call our CBs immediately for setup
-        cb.towerStateChanged(currentCellLocation.getTowerId(), currentTowerType);
-        cb.wifiStateChanged(getCurrentSsid(), getWifiState(), getShouldWifiBeEnabled(), lastControlReason);
-        cb.bluetoothStateChanged(getBluetoothState());
+            synchronized (callbackList) {
+                callbackList.add(cb);
+            }
+
+            // Call our CBs immediately for setup
+            cb.towerStateChanged(currentCellLocation.getTowerId(), currentTowerType);
+            cb.wifiStateChanged(getCurrentSsid(), getWifiState(), getShouldWifiBeEnabled(), lastControlReason);
+            cb.bluetoothStateChanged(getBluetoothState());
+        } catch (NullPointerException npe) {
+            Log.e("smarter", "Got NPE in addcallback, caught, but not sure what happened");
+        }
 
     }
 
     public void removeCallback(SmarterServiceCallback cb) {
+        if (cb == null) {
+            Log.e("smarter", "Got a null callback?");
+            return;
+        }
+
         synchronized (callbackList) {
             callbackList.remove(cb);
         }
