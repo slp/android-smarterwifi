@@ -18,6 +18,12 @@
             android:title="@string/prefs_item_notification"
             android:summary="@string/prefs_item_notification_explanation"/>
 
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="start_boot"
+            android:title="@string/prefs_item_boot"
+            android:summary="@string/prefs_item_boot_explanation"/>
+
     </PreferenceCategory>
 
 </PreferenceScreen>

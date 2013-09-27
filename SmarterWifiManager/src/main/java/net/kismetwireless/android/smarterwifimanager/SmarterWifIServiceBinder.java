@@ -1,5 +1,6 @@
 package net.kismetwireless.android.smarterwifimanager;
 
+import android.app.ActivityManager;
 import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
 import android.content.Context;
@@ -23,6 +24,16 @@ class SmarterWifiServiceBinder {
         public void run(SmarterWifiServiceBinder binder) {
             return;
         }
+    }
+
+    public static boolean isServiceRunning(Context c) {
+        ActivityManager manager = (ActivityManager) c.getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (SmarterWifiService.class.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private ServiceConnection serviceConnection = new ServiceConnection() {
@@ -89,13 +100,22 @@ class SmarterWifiServiceBinder {
         doBindService();
     }
 
+    public void doStartService() {
+        Intent svc = new Intent(context.getApplicationContext(), SmarterWifiService.class);
+        context.getApplicationContext().startService(svc);
+    }
+
+    void doBindServiceWithoutStart() {
+        if (isBound)
+            return;
+    }
+
     void doBindService() {
         if (isBound)
             return;
 
         // Might as well always try to start
-        Intent svc = new Intent(context.getApplicationContext(), SmarterWifiService.class);
-        context.getApplicationContext().startService(svc);
+        doStartService();
 
         // We want to bind in the application context
         context.getApplicationContext().bindService(new Intent(context, SmarterWifiService.class),

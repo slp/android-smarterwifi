@@ -31,7 +31,8 @@ public class FragmentMain extends SmarterFragment {
 
     private SmarterWifiService.SmarterServiceCallback guiCallback = new SmarterWifiService.SmarterServiceCallback() {
         @Override
-        public void wifiStateChanged(final SmarterSSID ssid, final SmarterWifiService.WifiState state, final SmarterWifiService.WifiState controlstate, final SmarterWifiService.ControlType type) {
+        public void wifiStateChanged(final SmarterSSID ssid, final SmarterWifiService.WifiState state,
+                                     final SmarterWifiService.WifiState controlstate, final SmarterWifiService.ControlType type) {
             super.wifiStateChanged(ssid, state, controlstate, type);
 
             Activity ma = getActivity();
@@ -44,6 +45,7 @@ public class FragmentMain extends SmarterFragment {
                 public void run() {
                     int wifiIconId = R.drawable.custom_wifi_inactive;
                     String wifiText = "";
+                    String reasonText = "";
 
                     switch (state) {
                         case WIFI_IDLE:
@@ -52,7 +54,7 @@ public class FragmentMain extends SmarterFragment {
                             break;
                         case WIFI_BLOCKED:
                             wifiIconId = R.drawable.custom_wifi_disabled_tower;
-                            wifiText = "Wi-Fi disabled by location";
+                            wifiText = "Wi-Fi ";
                             break;
                         case WIFI_ON:
                             wifiIconId = R.drawable.custom_wifi_enabled;
@@ -61,19 +63,34 @@ public class FragmentMain extends SmarterFragment {
                         case WIFI_OFF:
                             wifiIconId = R.drawable.custom_wifi_inactive;
                             wifiText = "Wi-Fi turned off";
+
+                            if (type == SmarterWifiService.ControlType.CONTROL_RANGE) {
+                                reasonText = "Not in a known location";
+                            } else if (type == SmarterWifiService.ControlType.CONTROL_BLUETOOTH) {
+                                wifiIconId = R.drawable.custom_wifi_disabled_bluetooth;
+                            }
+
                             break;
                         case WIFI_IGNORE:
                             wifiIconId = R.drawable.custom_wifi_enabled;
                             wifiText = "Wi-Fi management disabled";
+
+                            if (type == SmarterWifiService.ControlType.CONTROL_RANGE) {
+                                reasonText = "No cell signal";
+                            }
+
                             break;
 
                         default:
                             wifiIconId = R.drawable.custom_wifi_inactive;
                     }
 
+                    if (reasonText.isEmpty())
+                        reasonText = SmarterWifiService.controlTypeToText(type);
+
                     mainIcon.setImageResource(wifiIconId);
                     headlineText.setText(wifiText);
-                    smallText.setText(SmarterWifiService.controlTypeToText(controlType));
+                    smallText.setText(reasonText);
                 }
             });
         }
@@ -103,6 +120,9 @@ public class FragmentMain extends SmarterFragment {
         serviceBinder.doCallAndBindService(new SmarterWifiServiceBinder.BinderCallback() {
             @Override
             public void run(SmarterWifiServiceBinder b) {
+                if (!isAdded())
+                    return;
+
                 switchManageWifi.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton compoundButton, boolean b) {

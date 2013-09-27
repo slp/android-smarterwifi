@@ -82,6 +82,9 @@ public class FragmentLearned extends SmarterFragment {
         serviceBinder.doCallAndBindService(new SmarterWifiServiceBinder.BinderCallback() {
             @Override
             public void run(SmarterWifiServiceBinder b) {
+                if (!isAdded())
+                    return;
+
                 Activity a = getActivity();
 
                 if (a == null)
@@ -179,7 +182,7 @@ public class FragmentLearned extends SmarterFragment {
     public void onResume() {
         super.onResume();
 
-        Log.d("smarter", "fragmentlearned onresume");
+        // Log.d("smarter", "fragmentlearned onresume");
         updateTowerRunnable.run();
     }
 

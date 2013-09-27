@@ -169,6 +169,8 @@ public class SmarterWifiService extends Service {
 
                     if (lastControlReason == ControlType.CONTROL_RANGE) {
                         reasonText = "Not in a known location";
+                    } else if (lastControlReason == ControlType.CONTROL_BLUETOOTH) {
+                        wifiIconId = R.drawable.custom_wifi_disabled_bluetooth;
                     }
 
                     break;
@@ -242,7 +244,8 @@ public class SmarterWifiService extends Service {
         updatePreferences();
 
         // Kick an update
-        setCurrentTower(new CellLocationCommon((CellLocation) null));
+        configureWifiState();
+        // setCurrentTower(new CellLocationCommon((CellLocation) null));
 
         if (showNotification)
             notificationManager.notify(0, notificationBuilder.build());
@@ -349,6 +352,7 @@ public class SmarterWifiService extends Service {
         }
 
         setCurrentTower(new CellLocationCommon(location));
+        configureWifiState();
     }
 
     private class SmarterPhoneListener extends PhoneStateListener {
@@ -382,7 +386,7 @@ public class SmarterWifiService extends Service {
 
             // If we're associated to a wifi, map the tower.
             // Don't map towers while we're tethered.
-            if (getWifiState() == WifiState.WIFI_ON && !getWifiTethered()) {
+            if (getWifiState() == WifiState.WIFI_ON && !getWifiTethered() && currentTowerType != TowerType.TOWER_ENABLE) {
                 if (ssid != null && ssid.isBlacklisted()) {
                     // We don't learn anything based on this ssid
                 } else {
@@ -394,7 +398,7 @@ public class SmarterWifiService extends Service {
             }
 
             triggerCallbackTowerChanged();
-            configureWifiState();
+            // configureWifiState();
 
             return;
         }
@@ -447,6 +451,12 @@ public class SmarterWifiService extends Service {
     public void configureWifiState() {
         WifiState curstate = getWifiState();
         WifiState targetstate = getShouldWifiBeEnabled();
+
+        // If we're on, we probably just turned on - probe the tower so we start learning
+        if (curstate == WifiState.WIFI_ON && targetstate == WifiState.WIFI_ON) {
+            // Directly call setcurrenttower to get the current tower; handleCellLocation would loop us
+            setCurrentTower(null);
+        }
 
         if (curstate == WifiState.WIFI_ON || curstate == WifiState.WIFI_IDLE) {
             if (targetstate == WifiState.WIFI_BLOCKED) {
@@ -789,7 +799,7 @@ public class SmarterWifiService extends Service {
 
         }
 
-        Log.d("smarter", "tethering: " + ret);
+        // Log.d("smarter", "tethering: " + ret);
         return ret;
     }
 
