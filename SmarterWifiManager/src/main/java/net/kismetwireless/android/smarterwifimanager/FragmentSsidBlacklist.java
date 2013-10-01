@@ -75,7 +75,7 @@ public class FragmentSsidBlacklist extends SmarterFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
-        if (mainView == null)
+        //if (mainView == null)
             mainView = inflater.inflate(R.layout.fragment_ssidblacklist, container, false);
 
         context = getActivity().getApplicationContext();

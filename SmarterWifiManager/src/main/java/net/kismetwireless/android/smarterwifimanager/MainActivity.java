@@ -1,23 +1,25 @@
 package net.kismetwireless.android.smarterwifimanager;
 
 import android.app.ActionBar;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v13.app.FragmentStatePagerAdapter;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
+import com.doomonafireball.betterpickers.timepicker.TimePickerBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +29,7 @@ import java.util.Vector;
 // Main icon color shifts
 // 00e8d5    b8b8b8    a40000
 
-public class MainActivity extends Activity {
+public class MainActivity extends FragmentActivity {
     Context context;
 
     private static int PREFS_REQ = 1;
@@ -64,7 +66,7 @@ public class MainActivity extends Activity {
                 fragments.add(Fragment.instantiate(context, FragmentLearned.class.getName()));
                 fragments.add(Fragment.instantiate(context, FragmentBluetoothBlacklist.class.getName()));
 
-                pagerAdapter = new SmarterPagerAdapter(getFragmentManager(), fragments);
+                pagerAdapter = new SmarterPagerAdapter(getSupportFragmentManager(), fragments);
 
                 for (int x = 0; x < pagerAdapter.getCount(); x++) {
                     SmarterFragment sf = (SmarterFragment) pagerAdapter.getItem(x);
@@ -140,7 +142,41 @@ public class MainActivity extends Activity {
             return true;
         }
 
+        if (item.getItemId() == R.id.action_timetest) {
+            showTimeTest();
+            return true;
+        }
+
         return true;
+    }
+
+    private void showTimeTest() {
+        /*
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+        LayoutInflater inflater = getLayoutInflater();
+
+        View v = inflater.inflate(R.layout.time_dialog, null);
+        */
+
+        TimePickerBuilder tpb = new TimePickerBuilder();
+        tpb.setFragmentManager(getSupportFragmentManager());
+        tpb.setStyleResId(R.style.BetterPickersDialogFragment);
+
+        tpb.show();
+
+        /*
+        builder.setView(v);
+        builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+
+        builder.create().show();
+        */
+
     }
 
     public class SmarterTabsListener implements ActionBar.TabListener {
@@ -174,7 +210,6 @@ public class MainActivity extends Activity {
             super(fm);
 
             fragments = frags;
-
         }
 
         @Override

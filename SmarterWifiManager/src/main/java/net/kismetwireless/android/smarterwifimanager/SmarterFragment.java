@@ -1,6 +1,6 @@
 package net.kismetwireless.android.smarterwifimanager;
 
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 
 /**
  * Created by dragorn on 9/23/13.
