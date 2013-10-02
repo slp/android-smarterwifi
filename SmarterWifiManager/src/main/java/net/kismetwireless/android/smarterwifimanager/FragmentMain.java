@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
-import android.widget.Switch;
 import android.widget.TextView;
 
 /**
@@ -25,7 +24,7 @@ public class FragmentMain extends SmarterFragment {
     ImageView mainIcon;
     TextView headlineText, smallText;
 
-    Switch switchManageWifi, switchAutoLearn;
+    CompoundButton switchManageWifi, switchAutoLearn;
 
     SharedPreferences sharedPreferences;
 
@@ -113,8 +112,8 @@ public class FragmentMain extends SmarterFragment {
         headlineText = (TextView) mainView.findViewById(R.id.textViewMain);
         smallText = (TextView) mainView.findViewById(R.id.textViewMinor);
 
-        switchManageWifi = (Switch) mainView.findViewById(R.id.switchManageWifi);
-        switchAutoLearn =  (Switch) mainView.findViewById(R.id.switchAutoLearn);
+        switchManageWifi = (CompoundButton) mainView.findViewById(R.id.switchManageWifi);
+        switchAutoLearn =  (CompoundButton) mainView.findViewById(R.id.switchAutoLearn);
 
         // Defer main setup until we've bound
         serviceBinder.doCallAndBindService(new SmarterWifiServiceBinder.BinderCallback() {

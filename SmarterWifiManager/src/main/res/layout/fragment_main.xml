@@ -63,17 +63,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
 
-        <Switch
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Manage Wifi"
-            android:id="@+id/switchManageWifi"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="5dp"
-            android:checked="false"
-            android:layout_marginRight="10dp" />
+        <include layout="@layout/main_switch_manage" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -97,15 +87,7 @@
             android:layout_marginBottom="10dp"
             android:id="@+id/view" />
 
-        <Switch
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Auto-Learn Locations"
-            android:id="@+id/switchAutoLearn"
-            android:checked="false"
-            android:layout_below="@+id/view"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="10dp" />
+        <include layout="@layout/main_switch_learn" />
 
         <TextView
             android:layout_width="wrap_content"
