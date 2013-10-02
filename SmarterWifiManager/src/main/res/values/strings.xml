@@ -3,7 +3,10 @@
 
     <string name="app_name">Smarter Wi-Fi Manager</string>
     <string name="prefs_name">Preferences</string>
+
     <string name="action_settings">Settings</string>
+    <string name="action_add_timerange">Add time range</string>
+
     <string name="hello_world">Hello world!</string>
     <string name="prefs_item_shutdowntime">Wi-Fi Shutdown Time</string>
     <string name="prefs_item_shutdowntime_explanation">If you find Wi-Fi is disabled while adding a new network, or is otherwise toggled too often, you can increase the timeout before it is turned off.</string>
