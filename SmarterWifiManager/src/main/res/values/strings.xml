@@ -3,57 +3,47 @@
 
     <string name="app_name">Smarter Wi-Fi Manager</string>
     <string name="prefs_name">Preferences</string>
-
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
-
     <string name="prefs_item_shutdowntime">Wi-Fi Shutdown Time</string>
     <string name="prefs_item_shutdowntime_explanation">If you find Wi-Fi is disabled while adding a new network, or is otherwise toggled too often, you can increase the timeout before it is turned off.</string>
     <string name="prefs_item_notification">Show notification</string>
     <string name="prefs_item_notification_explanation">Turning off notifications may impact the background service in low memory conditions, if you notice problems, leave it on.</string>
-
     <string name="prefs_item_boot">Automatically start</string>
     <string name="prefs_item_boot_explanation">Automatically start Smarter Wi-Fi Manager service on boot or Wi-Fi and cell tower changes.</string>
-
     <string name="tab_main">Smarter</string>
     <string name="tab_ignore">Ignore</string>
     <string name="tab_learned">Learned</string>
     <string name="tab_bluetooth">Bluetooth</string>
     <string name="tab_time">Time</string>
-
     <string name="pref_enable">enable_system</string>
     <string name="pref_learn">enable_learning</string>
-
     <string name="service_desc">Smarter Wi-Fi Service</string>
-
     <string name="manage_wifi_explanation">Control Wi-Fi radio based on auto-learned locations and other criteria</string>
     <string name="autolearn_wifi_description">Automatically learn when to enable Wi-Fi based on cell tower identities.  To begin learning in a new location, enable Wi-Fi normally.</string>
     <string name="ssid_blacklist_desc">While connected to an ignored SSID, automatic location learning will be disabled.  It will be re-enabled when you leave the blocked network.</string>
     <string name="learned_wifi_description">Cell tower identifiers are mapped to Wi-Fi network names in auto-learn mode.  If a network is turning on at inappropriate times, removing its entry will reset that networks state.</string>
-
     <string name="delete_dialog_title">Delete known network?</string>
     <string name="delete_learned_message">Deleting a learned network will reset all associations to known towers.  If auto-learning is enabled, the network will begin learning towers again.  To disable auto-learning for a network, set the network to "ignore" in the Ignore tab</string>
     <string name="bluetooth_blacklist_description">Wi-Fi and auto-learning will be disabled while connected to blacklisted Bluetooth devices.</string>
-
     <string name="ignoring_dialog_network">Ignoring network</string>
     <string name="ignoring_dialog_description">Ignoring a network will not automatically delete the learned locations.  You can delete them now or via the Learning tab, or you can leave them if you wish to continue enabling Wi-Fi based on known positions, but do not want to learn additional new locations.</string>
     <string name="ignoring_dialog_leave">Leave</string>
     <string name="ignoring_dialog_delete">Delete</string>
-
     <string name="shutdown_time_30s">30 seconds</string>
     <string name="shutdown_time_1m">One minute</string>
-    <string name="shutdown_time_2m">Two minutes</string><string name="time_range_desc">Fixed time ranges override other control methods and allow enabling or disabling radios within a time period.</string>
-
+    <string name="shutdown_time_2m">Two minutes</string>
+    <string name="time_range_desc">Fixed time ranges override other control methods and allow enabling or disabling radios within a time period.</string>
     <string name="drawer_open">Open navigation drawer</string>
-    <string name="drawer_close">Close navigation drawer</string>
-
+        <string name="drawer_close">Close navigation drawer</string>
     <string name="nav_ignore">Ignore networks</string>
     <string name="nav_ignore_sub">Disable learning on specific networks</string>
-
     <string name="nav_bluetooth">Bluetooth</string>
     <string name="nav_bluetooth_sub">Disable Wi-Fi when connected to specific Bluetooth devices</string>
-
     <string name="nav_time">Time ranges</string>
     <string name="nav_time_sub">Enable or disable Wi-Fi and Bluetooth at specific times</string>
+    <string name="title_activity_ssid_blacklist">Ignore Networks</string>
+    <string name="title_activity_bluetooth_blacklist">Bluetooth</string>
+    <string name="title_activity_timerange">Time Ranges</string>
 
 </resources>

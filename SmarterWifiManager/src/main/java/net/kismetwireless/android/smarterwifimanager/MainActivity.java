@@ -24,11 +24,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-
-import com.doomonafireball.betterpickers.timepicker.TimePickerBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +52,7 @@ public class MainActivity extends FragmentActivity {
     private DrawerLayout drawerLayout;
     private ListView drawerList;
     private ActionBarDrawerToggle drawerToggle;
+    private DualDrawerListAdapter listAdapter;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -70,12 +70,10 @@ public class MainActivity extends FragmentActivity {
         drawerContent.add(new Integer[] {R.string.nav_bluetooth, R.string.nav_bluetooth_sub});
         drawerContent.add(new Integer[] {R.string.nav_time, R.string.nav_time_sub});
 
-        /*
-        drawerList.setAdapter(new ArrayAdapter<String>(this,
-                R.layout.drawer_list_item, drawerTitles));
-                */
-        drawerList.setAdapter(new DualDrawerListAdapter(this, R.layout.drawer_list_item, drawerContent));
-        // mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+        listAdapter = new DualDrawerListAdapter(this, R.layout.drawer_list_item, drawerContent);
+
+        drawerList.setAdapter(listAdapter);
+        drawerList.setOnItemClickListener(new DrawerItemClickListener());
 
 
         actionBar = getActionBar();
@@ -111,10 +109,10 @@ public class MainActivity extends FragmentActivity {
                 List<Fragment> fragments = new Vector<Fragment>();
 
                 fragments.add(Fragment.instantiate(context, FragmentMain.class.getName()));
-                fragments.add(Fragment.instantiate(context, FragmentSsidBlacklist.class.getName()));
+                // fragments.add(Fragment.instantiate(context, FragmentSsidBlacklist.class.getName()));
                 fragments.add(Fragment.instantiate(context, FragmentLearned.class.getName()));
-                fragments.add(Fragment.instantiate(context, FragmentBluetoothBlacklist.class.getName()));
-                fragments.add(Fragment.instantiate(context, FragmentTimeRange.class.getName()));
+                // fragments.add(Fragment.instantiate(context, FragmentBluetoothBlacklist.class.getName()));
+                // fragments.add(Fragment.instantiate(context, FragmentTimeRange.class.getName()));
 
                 pagerAdapter = new SmarterPagerAdapter(getSupportFragmentManager(), fragments);
 
@@ -210,41 +208,7 @@ public class MainActivity extends FragmentActivity {
             return true;
         }
 
-        if (item.getItemId() == R.id.action_timetest) {
-            showTimeTest();
-            return true;
-        }
-
         return true;
-    }
-
-    private void showTimeTest() {
-        /*
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-
-        LayoutInflater inflater = getLayoutInflater();
-
-        View v = inflater.inflate(R.layout.time_dialog, null);
-        */
-
-        TimePickerBuilder tpb = new TimePickerBuilder();
-        tpb.setFragmentManager(getSupportFragmentManager());
-        tpb.setStyleResId(R.style.BetterPickersDialogFragment);
-
-        tpb.show();
-
-        /*
-        builder.setView(v);
-        builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-
-            }
-        });
-
-        builder.create().show();
-        */
-
     }
 
     public class SmarterTabsListener implements ActionBar.TabListener {
@@ -325,6 +289,25 @@ public class MainActivity extends FragmentActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == PREFS_REQ) {
             serviceBinder.doUpdatePreferences();
+        }
+    }
+
+    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView parent, View view, int position, long id) {
+            Integer[] item = listAdapter.getItem(position);
+
+            switch (item[0]) {
+                case R.string.nav_ignore:
+                    startActivity(new Intent(MainActivity.this, SsidBlacklistActivity.class));
+                    break;
+                case R.string.nav_bluetooth:
+                    startActivity(new Intent(MainActivity.this, BluetoothBlacklistActivity.class));
+                    break;
+                case R.string.nav_time:
+                    startActivity(new Intent(MainActivity.this, TimeRangeActivity.class));
+                    break;
+            }
         }
     }
 
