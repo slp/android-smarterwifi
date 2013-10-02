@@ -1,8 +1,8 @@
 package net.kismetwireless.android.smarterwifimanager;
 
-import android.app.ActionBar;
+import android.support.v7.app.ActionBar;
 import android.app.AlertDialog;
-import android.app.FragmentTransaction;
+import android.support.v4.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,11 +11,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -26,6 +26,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -37,7 +38,7 @@ import java.util.Vector;
 // Main icon color shifts
 // 00e8d5    b8b8b8    a40000
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends ActionBarActivity {
     Context context;
 
     private static int PREFS_REQ = 1;
@@ -66,9 +67,9 @@ public class MainActivity extends FragmentActivity {
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerList = (ListView) findViewById(R.id.left_drawer);
 
-        drawerContent.add(new Integer[] {R.string.nav_ignore, R.string.nav_ignore_sub});
-        drawerContent.add(new Integer[] {R.string.nav_bluetooth, R.string.nav_bluetooth_sub});
-        drawerContent.add(new Integer[] {R.string.nav_time, R.string.nav_time_sub});
+        drawerContent.add(new Integer[] {R.string.nav_ignore, R.drawable.ic_action_bad});
+        drawerContent.add(new Integer[] {R.string.nav_bluetooth, R.drawable.ic_action_bluetooth_connected});
+        drawerContent.add(new Integer[] {R.string.nav_time, R.drawable.ic_action_time});
 
         listAdapter = new DualDrawerListAdapter(this, R.layout.drawer_list_item, drawerContent);
 
@@ -76,7 +77,7 @@ public class MainActivity extends FragmentActivity {
         drawerList.setOnItemClickListener(new DrawerItemClickListener());
 
 
-        actionBar = getActionBar();
+        actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         // actionBar.setDisplayHomeAsUpEnabled(false);
@@ -300,12 +301,15 @@ public class MainActivity extends FragmentActivity {
             switch (item[0]) {
                 case R.string.nav_ignore:
                     startActivity(new Intent(MainActivity.this, SsidBlacklistActivity.class));
+                    drawerLayout.closeDrawer(drawerList);
                     break;
                 case R.string.nav_bluetooth:
                     startActivity(new Intent(MainActivity.this, BluetoothBlacklistActivity.class));
+                    drawerLayout.closeDrawer(drawerList);
                     break;
                 case R.string.nav_time:
                     startActivity(new Intent(MainActivity.this, TimeRangeActivity.class));
+                    drawerLayout.closeDrawer(drawerList);
                     break;
             }
         }
@@ -336,10 +340,10 @@ public class MainActivity extends FragmentActivity {
                 }
 
                 TextView text1 = (TextView) v.findViewById(R.id.text1);
-                TextView text2 = (TextView) v.findViewById(R.id.text2);
+                ImageView img1 = (ImageView) v.findViewById(R.id.image1);
 
                 text1.setText(getString(entry[0]));
-                text2.setText(getString(entry[1]));
+                img1.setImageResource(entry[1]);
 
                 return v;
             } catch (Exception ex) {
