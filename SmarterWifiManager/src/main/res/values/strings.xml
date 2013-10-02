@@ -19,6 +19,7 @@
     <string name="tab_ignore">Ignore</string>
     <string name="tab_learned">Learned</string>
     <string name="tab_bluetooth">Bluetooth</string>
+    <string name="tab_time">Time</string>
 
     <string name="pref_enable">enable_system</string>
     <string name="pref_learn">enable_learning</string>
@@ -41,6 +42,6 @@
 
     <string name="shutdown_time_30s">30 seconds</string>
     <string name="shutdown_time_1m">One minute</string>
-    <string name="shutdown_time_2m">Two minutes</string>
+    <string name="shutdown_time_2m">Two minutes</string><string name="time_range_desc">Fixed time ranges override other control methods and allow enabling or disabling radios within a time period.</string>
 
 </resources>

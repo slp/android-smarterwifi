@@ -65,6 +65,7 @@ public class MainActivity extends FragmentActivity {
                 fragments.add(Fragment.instantiate(context, FragmentSsidBlacklist.class.getName()));
                 fragments.add(Fragment.instantiate(context, FragmentLearned.class.getName()));
                 fragments.add(Fragment.instantiate(context, FragmentBluetoothBlacklist.class.getName()));
+                fragments.add(Fragment.instantiate(context, FragmentTimeRange.class.getName()));
 
                 pagerAdapter = new SmarterPagerAdapter(getSupportFragmentManager(), fragments);
 
