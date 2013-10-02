@@ -24,19 +24,20 @@
 
     <ListView
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="fill_parent"
         android:id="@+id/timeRangeListView"
         android:layout_gravity="center"
         android:layout_marginTop="10dp"
-        android:layout_marginRight="15dp"
-        android:layout_marginLeft="15dp" />
+        android:layout_marginRight="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_weight="1" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Wireless turned off"
-        android:id="@+id/textViewNoWifi"
+        android:text="No time ranges configured"
+        android:id="@+id/textViewNoTime"
         android:visibility="gone"
         android:layout_margin="15dp" />
 
