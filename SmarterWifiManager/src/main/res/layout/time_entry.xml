@@ -291,7 +291,7 @@
             android:id="@+id/expandView">
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingLeft="5dp"
                 android:paddingTop="2dp"
@@ -299,7 +299,8 @@
                 android:paddingBottom="2dp"
                 android:clickable="true"
                 android:background="?android:attr/selectableItemBackground"
-                android:id="@+id/deleteContainer">
+                android:id="@+id/deleteContainer"
+                android:layout_weight="2">
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -307,17 +308,18 @@
                     android:id="@+id/timeRangeDelete"
                     android:src="@drawable/content_discard"
                     android:layout_gravity="center"
-                    android:layout_marginRight="6dp" />
+                    android:layout_marginRight="3dp" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:text="@string/timerange_delete_text"
                     android:id="@+id/timeRangeDeleteText"
                     android:layout_gravity="center"
-                    android:visibility="gone"
-                    android:layout_marginRight="3dp" />
+                    android:visibility="visible"
+                    android:layout_marginRight="6dp"
+                    android:layout_weight="1" />
 
                 <View
                     android:layout_width="1px"
@@ -334,15 +336,17 @@
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="Mon, Tue, Wed, Thu, Fri, Sat, Sun"
                 android:id="@+id/daysRepeatCollapse"
-                android:layout_weight="1"
-                android:layout_gravity="center" />
+                android:layout_weight="0.5"
+                android:layout_gravity="center"
+                android:visibility="gone" />
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/collapseIcon"
                 android:src="@drawable/navigation_expand"
-                android:layout_gravity="center_horizontal|bottom" />
+                android:layout_gravity="center_horizontal|bottom"
+                android:paddingRight="4dp" />
 
         </LinearLayout>
 
