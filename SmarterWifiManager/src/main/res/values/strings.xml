@@ -55,6 +55,11 @@
     <string name="timerange_control_on">on</string>
     <string name="timerange_control_off">off</string>
 
+    <string name="timerange_dialog_delete_title">Delete time range?</string>
+    <string name="timerange_dialog_delete_cancel">Cancel</string>
+    <string name="timerange_dialog_delete_ok">Delete</string>
+    <string name="timerange_dialog_delete_text">Are you sure you would like to delete this time range?</string>
+
     <string name="range_mon">Mon</string>
     <string name="range_tue">Tue</string>
     <string name="range_wed">Wed</string>

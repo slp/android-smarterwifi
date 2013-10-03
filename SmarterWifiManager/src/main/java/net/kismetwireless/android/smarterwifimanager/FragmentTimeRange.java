@@ -1,6 +1,8 @@
 package net.kismetwireless.android.smarterwifimanager;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -494,6 +496,35 @@ public class FragmentTimeRange extends SmarterFragment {
                         item.setCollapsed(!item.getCollapsed());
 
                         collapseView(collapseIcon, collapsedMain, expandedMain, expandView, item.getCollapsed(), item);
+                    }
+                });
+
+                deleteContainerView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+                        builder.setTitle(R.string.timerange_dialog_delete_title);
+                        builder.setMessage(R.string.timerange_dialog_delete_text);
+
+                        builder.setNegativeButton(R.string.timerange_dialog_delete_cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+
+                            }
+                        });
+
+                        builder.setPositiveButton(R.string.timerange_dialog_delete_ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                // serviceBinder.deleteSsidTowerMap(entry);
+
+                                lastTimeList.remove(item);
+                                listAdapter.notifyDataSetChanged();
+                            }
+                        });
+
+                        builder.create().show();
                     }
                 });
 

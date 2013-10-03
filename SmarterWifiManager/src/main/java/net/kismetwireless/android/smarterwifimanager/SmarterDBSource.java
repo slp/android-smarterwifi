@@ -430,4 +430,93 @@ public class SmarterDBSource {
         dataBase.delete(SmarterWifiDBHelper.TABLE_SSID_CELL_MAP, compare, args);
     }
 
+    public ArrayList<SmarterTimeRange> getTimeRangeList() {
+        ArrayList<SmarterTimeRange> retlist = new ArrayList<SmarterTimeRange>();
+
+        String[] cols = {SmarterWifiDBHelper.COL_TIMERANGE_ID, SmarterWifiDBHelper.COL_TIMERANGE_ENABLED,
+            SmarterWifiDBHelper.COL_TIMERANGE_START_HR, SmarterWifiDBHelper.COL_TIMERANGE_START_MIN,
+            SmarterWifiDBHelper.COL_TIMERANGE_END_HR, SmarterWifiDBHelper.COL_TIMERANGE_END_MIN,
+            SmarterWifiDBHelper.COL_TIMERANGE_REPEAT, SmarterWifiDBHelper.COL_TIMERANGE_CONTROL_WIFI,
+            SmarterWifiDBHelper.COL_TIMERANGE_ENABLE_WIFI, SmarterWifiDBHelper.COL_TIMERANGE_CONTROL_BT,
+            SmarterWifiDBHelper.COL_TIMERANGE_ENABLE_BT};
+
+        Cursor rangec = dataBase.query(SmarterWifiDBHelper.TABLE_TIMERANGE, cols, null, null, null, null, null);
+
+        rangec.moveToFirst();
+
+        if (rangec.getCount() <= 0) {
+            rangec.close();
+            return retlist;
+        }
+
+        while (!rangec.isAfterLast()) {
+            SmarterTimeRange r = new SmarterTimeRange();
+
+            r.setDbId(rangec.getLong(0));
+            r.setEnabled(rangec.getInt(1) != 0);
+            r.setStartTime(rangec.getInt(2), rangec.getInt(3));
+            r.setEndTime(rangec.getInt(4), rangec.getInt(5));
+            r.setDays(rangec.getInt(6));
+            r.setWifiControlled(rangec.getInt(7) != 0);
+            r.setWifiEnabled(rangec.getInt(8) != 0);
+            r.setBluetoothControlled(rangec.getInt(9) != 0);
+            r.setBluetoothEnabled(rangec.getInt(10) != 0);
+
+            retlist.add(r);
+
+            rangec.moveToNext();
+        }
+
+        rangec.close();
+
+        return retlist;
+    }
+
+    public void deleteTimeRange(SmarterTimeRange range) {
+        if (range == null)
+            return;
+
+        if (range.getDbId() < 0)
+            return;
+
+        String compare = SmarterWifiDBHelper.COL_TIMERANGE_ID + "=?";
+        String[] args = {Long.toString(range.getDbId())};
+
+        dataBase.delete(SmarterWifiDBHelper.TABLE_TIMERANGE, compare, args);
+    }
+
+    public long updateTimeRange(SmarterTimeRange range) {
+        if (range == null)
+            return -1;
+
+        long rid = range.getDbId();
+
+        ContentValues cv = new ContentValues();
+
+        cv.put(SmarterWifiDBHelper.COL_TIMERANGE_START_HR, range.getStartHour());
+        cv.put(SmarterWifiDBHelper.COL_TIMERANGE_START_MIN, range.getStartMinute());
+        cv.put(SmarterWifiDBHelper.COL_TIMERANGE_END_HR, range.getEndHour());
+        cv.put(SmarterWifiDBHelper.COL_TIMERANGE_END_MIN, range.getEndMinute());
+        cv.put(SmarterWifiDBHelper.COL_TIMERANGE_REPEAT, range.getDays());
+        cv.put(SmarterWifiDBHelper.COL_TIMERANGE_CONTROL_WIFI, range.getWifiControlled());
+        cv.put(SmarterWifiDBHelper.COL_TIMERANGE_ENABLE_WIFI, range.getWifiEnabled());
+        cv.put(SmarterWifiDBHelper.COL_TIMERANGE_CONTROL_BT, range.getBluetoothControlled());
+        cv.put(SmarterWifiDBHelper.COL_TIMERANGE_ENABLE_BT, range.getBluetoothEnabled());
+
+        String compare = SmarterWifiDBHelper.COL_TIMERANGE_ID + "=?";
+        String[] args = {Long.toString(rid)};
+
+        dataBase.beginTransaction();
+        if (rid < 0) {
+            rid = dataBase.insert(SmarterWifiDBHelper.TABLE_TIMERANGE, null, cv);
+            range.setDbId(rid);
+        } else {
+            dataBase.update(SmarterWifiDBHelper.TABLE_TIMERANGE, cv, compare, args);
+        }
+        dataBase.setTransactionSuccessful();
+        dataBase.endTransaction();
+
+        return rid;
+    }
+
 }

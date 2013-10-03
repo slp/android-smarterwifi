@@ -30,7 +30,7 @@ public class SmarterTimeRange {
     // Is this alarm enabled
     private boolean enabled = true;
 
-    private long dbid;
+    private long dbid = -1;
 
     public SmarterTimeRange() {
         dbid = -1;

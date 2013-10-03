@@ -38,7 +38,18 @@ public class SmarterWifiDBHelper extends SQLiteOpenHelper {
     public static final String COL_BTBL_BLACKLIST = "blacklist";
     public static final String COL_BTBL_ENABLE = "enable";
 
-    public static final String TABLE_TIMEFRAME= "timeframe";
+    public static final String TABLE_TIMERANGE = "timerange";
+    public static final String COL_TIMERANGE_ID = "_id";
+    public static final String COL_TIMERANGE_ENABLED = "enabled";
+    public static final String COL_TIMERANGE_START_HR = "starthr";
+    public static final String COL_TIMERANGE_START_MIN = "startmin";
+    public static final String COL_TIMERANGE_END_HR = "endhr";
+    public static final String COL_TIMERANGE_END_MIN = "endmin";
+    public static final String COL_TIMERANGE_REPEAT = "repeat";
+    public static final String COL_TIMERANGE_CONTROL_WIFI = "controlwifi";
+    public static final String COL_TIMERANGE_ENABLE_WIFI = "enablewifi";
+    public static final String COL_TIMERANGE_CONTROL_BT = "controlbt";
+    public static final String COL_TIMERANGE_ENABLE_BT = "enablebt";
 
     public static final String CREATE_SSID_TABLE =
             "CREATE TABLE " + TABLE_SSID + " (" +
@@ -78,8 +89,23 @@ public class SmarterWifiDBHelper extends SQLiteOpenHelper {
                     COL_BTBL_ENABLE + " int" +
                     ");";
 
+    public static final String CREATE_TIMERANGE_TABLE =
+            "CREATE TABLE " + TABLE_TIMERANGE + " (" +
+                    COL_TIMERANGE_ID + " integer primary key autoincrement, " +
+                    COL_TIMERANGE_ENABLED + " int, " +
+                    COL_TIMERANGE_START_HR + " int, " +
+                    COL_TIMERANGE_START_MIN + " int, " +
+                    COL_TIMERANGE_END_HR + " int, " +
+                    COL_TIMERANGE_END_MIN + " int, " +
+                    COL_TIMERANGE_REPEAT + " int, " +
+                    COL_TIMERANGE_CONTROL_WIFI + " int, " +
+                    COL_TIMERANGE_ENABLE_WIFI + " int, " +
+                    COL_TIMERANGE_CONTROL_BT + " int, " +
+                    COL_TIMERANGE_ENABLE_BT + " int" +
+                    ");";
+
     public static final String DATABASE_NAME = "smartermap.db";
-    private static final int DATABASE_VERSION = 8;
+    private static final int DATABASE_VERSION = 9;
 
     public SmarterWifiDBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -92,6 +118,7 @@ public class SmarterWifiDBHelper extends SQLiteOpenHelper {
         database.execSQL(CREATE_SSID_CELL_MAP_TABLE);
         database.execSQL(CREATE_SSID_BLACKLIST_TABLE);
         database.execSQL(CREATE_BLUETOOTH_BLACKLIST_TABLE);
+        database.execSQL(CREATE_TIMERANGE_TABLE);
     }
 
     @Override
@@ -115,6 +142,11 @@ public class SmarterWifiDBHelper extends SQLiteOpenHelper {
             Log.d("smarter", "Purging old cell tower format");
             db.execSQL("DELETE FROM " + TABLE_SSID_CELL_MAP);
             db.execSQL("DELETE FROM " + TABLE_CELL);
+        }
+
+        if (oldVersion < 9) {
+            Log.d("smarter", "creating new timerange table");
+            db.execSQL(CREATE_TIMERANGE_TABLE);
         }
 
     }
