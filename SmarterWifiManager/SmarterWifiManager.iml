@@ -70,9 +70,9 @@
     <orderEntry type="jdk" jdkName="Android API 16 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="nineoldandroids" exported="" />
+    <orderEntry type="library" exported="" name="support-v4-18.0.0" level="project" />
     <orderEntry type="library" exported="" name="ComAndroidSupportAppcompatV71800.aar" level="project" />
     <orderEntry type="module" module-name="betterpickers" exported="" />
-    <orderEntry type="library" exported="" name="support-v4-18.0.0" level="project" />
   </component>
 </module>
 

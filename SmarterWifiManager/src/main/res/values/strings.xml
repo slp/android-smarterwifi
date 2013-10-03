@@ -47,4 +47,20 @@
     <string name="title_activity_bluetooth_blacklist">Bluetooth</string>
     <string name="title_activity_timerange">Time Ranges</string>
 
+    <string name="timerange_delete_text">Delete Time Range</string>
+    <string name="timerange_no_effect">Time range has no effect</string>
+    <string name="timerange_disabled_text">Time range disabled</string>
+    <string name="timerange_control_wifi">Wi-Fi</string>
+    <string name="timerange_control_bluetooth">Bluetooth</string>
+    <string name="timerange_control_on">on</string>
+    <string name="timerange_control_off">off</string>
+
+    <string name="range_mon">Mon</string>
+    <string name="range_tue">Tue</string>
+    <string name="range_wed">Wed</string>
+    <string name="range_thu">Thu</string>
+    <string name="range_fri">Fri</string>
+    <string name="range_sat">Sat</string>
+    <string name="range_sun">Sun</string>
+
 </resources>

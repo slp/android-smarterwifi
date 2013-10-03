@@ -6,14 +6,26 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 
 public class BluetoothBlacklistActivity extends ActionBarActivity {
+    FragmentBluetoothBlacklist bluetoothFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_bluetoothblacklist);
+        setContentView(R.layout.activity_singlefragment);
 
         ActionBar actionbar = getSupportActionBar();
         actionbar.setDisplayHomeAsUpEnabled(true);
+
+        if (findViewById(R.id.fragment_container) != null) {
+            if (savedInstanceState != null) {
+                return;
+            }
+
+            bluetoothFragment = new FragmentBluetoothBlacklist();
+            bluetoothFragment.setArguments(getIntent().getExtras());
+
+            getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, bluetoothFragment).commit();
+        }
     }
 
 

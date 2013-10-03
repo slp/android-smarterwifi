@@ -60,7 +60,7 @@
                 android:layout_gravity="center_horizontal|top"
                 android:textStyle="bold" />
 
-                </LinearLayout>
+            </LinearLayout>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -116,6 +116,12 @@
 
                 </LinearLayout>
 
+            <Switch
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:id="@+id/timeRangeToggle"
+                android:checked="false" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -130,7 +136,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="Wi-Fi disabled, Bluetooth disabled"
-                android:id="@+id/textView7" />
+                android:id="@+id/rangeSummaryText" />
         </LinearLayout>
 
         <LinearLayout
@@ -284,19 +290,49 @@
             android:clickable="true"
             android:id="@+id/expandView">
 
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="5dp"
+                android:paddingTop="2dp"
+                android:paddingRight="8dp"
+                android:paddingBottom="2dp"
+                android:clickable="true"
+                android:background="?android:attr/selectableItemBackground"
+                android:id="@+id/deleteContainer">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/timeRangeDelete"
+                    android:src="@drawable/content_discard"
+                    android:layout_gravity="center" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="@string/timerange_delete_text"
+                    android:id="@+id/timeRangeDeleteText"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
+            </LinearLayout>
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="Mon, Tue, Wed, Thu, Fri, Sat, Sun"
                 android:id="@+id/daysRepeatCollapse"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:layout_gravity="center" />
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/collapseIcon"
-                android:src="@drawable/navigation_expand" />
+                android:src="@drawable/navigation_expand"
+                android:layout_gravity="center_horizontal|bottom" />
 
         </LinearLayout>
 

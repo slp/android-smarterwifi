@@ -1,5 +1,6 @@
 package net.kismetwireless.android.smarterwifimanager;
 
+import android.content.Context;
 import android.util.Log;
 
 import java.util.Calendar;
@@ -24,7 +25,10 @@ public class SmarterTimeRange {
     private boolean controlWifi, controlBluetooth;
     private boolean wifiOn, bluetoothOn;
 
+    // Hide the UI collapse state in here
     private boolean collapsed = true;
+    // Is this alarm enabled
+    private boolean enabled = true;
 
     private long dbid;
 
@@ -33,7 +37,8 @@ public class SmarterTimeRange {
     }
 
     public SmarterTimeRange(int starthour, int startminute, int endhour, int endminute, int days,
-                            boolean controlwifi, boolean controlbt, boolean wifion, boolean bton, long id) {
+                            boolean controlwifi, boolean controlbt, boolean wifion, boolean bton,
+                            boolean enabled, long id) {
         startHour = starthour;
         startMinute = startminute;
         endHour = endhour;
@@ -43,6 +48,7 @@ public class SmarterTimeRange {
         controlBluetooth = controlbt;
         wifiOn = wifion;
         bluetoothOn = bton;
+        this.enabled = enabled;
         dbid = id;
     }
 
@@ -155,6 +161,14 @@ public class SmarterTimeRange {
         bluetoothOn = en;
     }
 
+    public boolean getEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean e) {
+        enabled = e;
+    }
+
     static public int getHuman12Hour(int hour) {
         // 12am
         if (hour == 0)
@@ -176,6 +190,46 @@ public class SmarterTimeRange {
             return true;
 
         return false;
+    }
+
+    static public String getHumanDayText(Context c, int repeat) {
+        StringBuilder sb = new StringBuilder();
+
+        if ((repeat & REPEAT_MON) != 0) {
+            sb.append(c.getString(R.string.range_mon));
+        }
+        if ((repeat & REPEAT_TUE) != 0) {
+            if (sb.length() > 0)
+                sb.append(", ");
+            sb.append(c.getString(R.string.range_tue));
+        }
+        if ((repeat & REPEAT_WED) != 0) {
+            if (sb.length() > 0)
+                sb.append(", ");
+            sb.append(c.getString(R.string.range_wed));
+        }
+        if ((repeat & REPEAT_THU) != 0) {
+            if (sb.length() > 0)
+                sb.append(", ");
+            sb.append(c.getString(R.string.range_thu));
+        }
+        if ((repeat & REPEAT_FRI) != 0) {
+            if (sb.length() > 0)
+                sb.append(", ");
+            sb.append(c.getString(R.string.range_fri));
+        }
+        if ((repeat & REPEAT_SAT) != 0) {
+            if (sb.length() > 0)
+                sb.append(", ");
+            sb.append(c.getString(R.string.range_sat));
+        }
+        if ((repeat & REPEAT_SUN) != 0) {
+            if (sb.length() > 0)
+                sb.append(", ");
+            sb.append(c.getString(R.string.range_sun));
+        }
+
+        return sb.toString();
     }
 
 }

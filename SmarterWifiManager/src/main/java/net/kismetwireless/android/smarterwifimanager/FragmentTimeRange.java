@@ -14,7 +14,6 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import com.doomonafireball.betterpickers.timepicker.TimePickerBuilder;
@@ -47,13 +46,17 @@ public class FragmentTimeRange extends SmarterFragment {
         lv = (ListView) mainView.findViewById(R.id.timeRangeListView);
         // emptyView = (TextView) mainView.findViewById(R.id.textViewNoWifi);
 
-        lastTimeList.add(new SmarterTimeRange());
-        lastTimeList.add(new SmarterTimeRange());
-
         listAdapter = new TimeListAdapter(context, R.layout.time_entry, lastTimeList);
         lv.setAdapter(listAdapter);
 
         return mainView;
+    }
+
+    public void addTimeRange() {
+        lastTimeList.add(new SmarterTimeRange());
+
+        if (listAdapter != null)
+            listAdapter.notifyDataSetChanged();
     }
 
     public class TimeListAdapter extends ArrayAdapter<SmarterTimeRange> {
@@ -64,18 +67,61 @@ public class FragmentTimeRange extends SmarterFragment {
             layoutResourceId = textViewResourceId;
         }
 
+        // Ugly call so we can pass finals
         private void collapseView(ImageView collapseIcon, LinearLayout collapsedMain,
-                                  LinearLayout expandedMain, TextView daysRepeatView, boolean collapse,
-                                  SmarterTimeRange item) {
+                                  LinearLayout expandedMain, LinearLayout collapseView,
+                                  boolean collapse, SmarterTimeRange item) {
+
+            // Extract from the main views
+            TextView daysRepeatView = (TextView) collapseView.findViewById(R.id.daysRepeatCollapse);
+            TextView deleteExpandView = (TextView) collapseView.findViewById(R.id.timeRangeDeleteText);
+
+            TextView summaryView = (TextView) collapsedMain.findViewById(R.id.rangeSummaryText);
+
+            if (!item.getEnabled()) {
+                summaryView.setText(R.string.timerange_disabled_text);
+            } else {
+                if (!item.getBluetoothControlled() && !item.getWifiControlled()) {
+                    summaryView.setText(context.getString(R.string.timerange_no_effect));
+                } else {
+                    StringBuilder sb = new StringBuilder();
+
+                    if (item.getWifiControlled()) {
+                        sb.append(context.getString(R.string.timerange_control_wifi));
+                        sb.append(" ");
+                        if (item.getWifiEnabled())
+                            sb.append(context.getString(R.string.timerange_control_on));
+                        else
+                            sb.append(context.getString(R.string.timerange_control_off));
+                    }
+
+                    if (item.getBluetoothControlled()) {
+                        if (sb.length() > 0)
+                            sb.append(", ");
+
+                        sb.append(context.getString(R.string.timerange_control_bluetooth));
+                        sb.append(" ");
+                        if (item.getBluetoothEnabled())
+                            sb.append(context.getString(R.string.timerange_control_on));
+                        else
+                            sb.append(context.getString(R.string.timerange_control_off));
+                    }
+
+                    summaryView.setText(sb.toString());
+                }
+            }
+
             if (collapse) {
                 collapseIcon.setImageResource(R.drawable.navigation_expand);
                 collapsedMain.setVisibility(View.VISIBLE);
                 expandedMain.setVisibility(View.GONE);
-                daysRepeatView.setText("Mon, Tue, Wed, Thu, Fri, Sat");
+                deleteExpandView.setVisibility(View.GONE);
+                daysRepeatView.setText(SmarterTimeRange.getHumanDayText(context, item.getDays()));
             } else {
                 collapseIcon.setImageResource(R.drawable.navigation_collapse);
                 collapsedMain.setVisibility(View.GONE);
                 expandedMain.setVisibility(View.VISIBLE);
+                deleteExpandView.setVisibility(View.VISIBLE);
                 daysRepeatView.setText("");
             }
         }
@@ -97,20 +143,19 @@ public class FragmentTimeRange extends SmarterFragment {
 
                 final LinearLayout timeStartContainer, timeEndContainer, expandView;
                 final CheckBox wifiCb, bluetoothCb;
-                final Switch wifiSwitch, bluetoothSwitch;
+                final CompoundButton wifiSwitch, bluetoothSwitch, enableSwitch;
 
                 final TextView startHours, startMinutes, startAmPm, endHours, endMinutes, endAmPm;
 
                 final ImageView collapseIcon;
-                final LinearLayout collapsedMain, expandedMain;
-                final TextView daysRepeatView;
+                final LinearLayout collapsedMain, expandedMain, deleteContainerView;
 
                 final TextView repMon, repTue, repWed, repThu, repFri, repSat, repSun;
 
                 collapseIcon = (ImageView) v.findViewById(R.id.collapseIcon);
                 collapsedMain = (LinearLayout) v.findViewById(R.id.collapsedMainLayout);
                 expandedMain = (LinearLayout) v.findViewById(R.id.expandedMainLayout);
-                daysRepeatView = (TextView) v.findViewById(R.id.daysRepeatCollapse);
+                deleteContainerView = (LinearLayout) v.findViewById(R.id.deleteContainer);
 
                 timeStartContainer = (LinearLayout) v.findViewById(R.id.timeLayoutStart);
                 timeEndContainer = (LinearLayout) v.findViewById(R.id.timeLayoutEnd);
@@ -125,10 +170,12 @@ public class FragmentTimeRange extends SmarterFragment {
                 endAmPm = (TextView) v.findViewById(R.id.timeEnd12hr);
 
                 wifiCb = (CheckBox) v.findViewById(R.id.wifiCheckbox);
-                wifiSwitch = (Switch) v.findViewById(R.id.wifiSwitch);
+                wifiSwitch = (CompoundButton) v.findViewById(R.id.wifiSwitch);
 
                 bluetoothCb = (CheckBox) v.findViewById(R.id.bluetoothCheckbox);
-                bluetoothSwitch = (Switch) v.findViewById(R.id.bluetoothSwitch);
+                bluetoothSwitch = (CompoundButton) v.findViewById(R.id.bluetoothSwitch);
+
+                enableSwitch = (CompoundButton) v.findViewById(R.id.timeRangeToggle);
 
                 repMon = (TextView) v.findViewById(R.id.dayMon);
                 repTue = (TextView) v.findViewById(R.id.dayTue);
@@ -359,12 +406,50 @@ public class FragmentTimeRange extends SmarterFragment {
                 bluetoothSwitch.setChecked(item.getBluetoothEnabled());
                 bluetoothSwitch.setVisibility(item.getBluetoothControlled() ? View.VISIBLE : View.GONE);
 
-                collapseView(collapseIcon, collapsedMain, expandedMain, daysRepeatView, item.getCollapsed(), item);
+                enableSwitch.setChecked(item.getEnabled());
+
+                collapseView(collapseIcon, collapsedMain, expandedMain, expandView, item.getCollapsed(), item);
+
+                enableSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                        item.setEnabled(b);
+
+                        // Disable and open, close
+                        if (!b) {
+                            timeStartContainer.setClickable(false);
+                            timeEndContainer.setClickable(false);
+                            timeStartContainer.setEnabled(false);
+                            timeEndContainer.setEnabled(false);
+
+                            if (!item.getCollapsed()) {
+                                item.setCollapsed(true);
+                                collapseView(collapseIcon, collapsedMain, expandedMain, expandView, item.getCollapsed(), item);
+                            }
+                        }
+
+                        // Enable and closed, open
+                        if (b) {
+                            timeStartContainer.setClickable(true);
+                            timeEndContainer.setClickable(true);
+                            timeStartContainer.setEnabled(true);
+                            timeEndContainer.setEnabled(true);
+
+                            if (item.getCollapsed()) {
+                                item.setCollapsed(false);
+                                collapseView(collapseIcon, collapsedMain, expandedMain, expandView, item.getCollapsed(), item);
+                            }
+                        }
+
+                        listAdapter.notifyDataSetChanged();
+                    }
+                });
 
                 // Start and end time launch time pickers
                 timeStartContainer.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        item.setCollapsed(false);
                         TimePickerBuilder tpb = new TimePickerBuilder();
                         tpb.setFragmentManager(activity.getSupportFragmentManager());
                         tpb.setStyleResId(R.style.BetterPickersDialogFragment);
@@ -376,12 +461,14 @@ public class FragmentTimeRange extends SmarterFragment {
                             }
                         });
                         tpb.show();
+                        listAdapter.notifyDataSetChanged();
                     }
                 });
 
                 timeEndContainer.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        item.setCollapsed(false);
                         TimePickerBuilder tpb = new TimePickerBuilder();
                         tpb.setFragmentManager(activity.getSupportFragmentManager());
                         tpb.setStyleResId(R.style.BetterPickersDialogFragment);
@@ -393,17 +480,23 @@ public class FragmentTimeRange extends SmarterFragment {
                             }
                         });
                         tpb.show();
+                        listAdapter.notifyDataSetChanged();
                     }
                 });
 
                 expandView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        // We can't expand if we're not enabled
+                        if (!item.getEnabled())
+                            return;
+
                         item.setCollapsed(!item.getCollapsed());
 
-                        collapseView(collapseIcon, collapsedMain, expandedMain, daysRepeatView, item.getCollapsed(), item);
+                        collapseView(collapseIcon, collapsedMain, expandedMain, expandView, item.getCollapsed(), item);
                     }
                 });
+
 
                 return v;
             } catch (Exception ex) {
