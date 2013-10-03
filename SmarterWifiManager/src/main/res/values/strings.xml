@@ -49,6 +49,7 @@
 
     <string name="timerange_delete_text">Delete Time Range</string>
     <string name="timerange_no_effect">Time range has no effect</string>
+    <string name="timerange_no_days">Time does not occur on any days</string>
     <string name="timerange_disabled_text">Time range disabled</string>
     <string name="timerange_control_wifi">Wi-Fi</string>
     <string name="timerange_control_bluetooth">Bluetooth</string>

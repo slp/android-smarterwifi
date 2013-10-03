@@ -22,8 +22,14 @@ public class SmarterTimeRange {
     private int endHour, endMinute;
     private int days;
 
+    private int oldStartHour, oldStartMinute, oldEndHour, oldEndMinute, oldDays;
+
     private boolean controlWifi, controlBluetooth;
     private boolean wifiOn, bluetoothOn;
+
+    private boolean oldControlWifi, oldControlBluetooth, oldWifiOn, oldBluetoothOn;
+
+    private boolean dirty = false;
 
     // Hide the UI collapse state in here
     private boolean collapsed = true;
@@ -39,16 +45,18 @@ public class SmarterTimeRange {
     public SmarterTimeRange(int starthour, int startminute, int endhour, int endminute, int days,
                             boolean controlwifi, boolean controlbt, boolean wifion, boolean bton,
                             boolean enabled, long id) {
-        startHour = starthour;
-        startMinute = startminute;
-        endHour = endhour;
-        endMinute = endminute;
-        this.days = days;
-        controlWifi = controlwifi;
-        controlBluetooth = controlbt;
-        wifiOn = wifion;
-        bluetoothOn = bton;
+        oldStartHour = startHour = starthour;
+        oldStartMinute = startMinute = startminute;
+        oldEndHour = endHour = endhour;
+        oldEndMinute = endMinute = endminute;
+        this.oldDays = this.days = days;
+        oldControlWifi = controlWifi = controlwifi;
+        oldControlBluetooth = controlBluetooth = controlbt;
+        oldWifiOn = wifiOn = wifion;
+        oldBluetoothOn = bluetoothOn = bton;
+
         this.enabled = enabled;
+
         dbid = id;
     }
 
@@ -96,15 +104,26 @@ public class SmarterTimeRange {
     }
 
     public void setDays(int repeats) {
+        oldDays = days;
+        dirty = true;
+
         days = repeats;
     }
 
     public void setStartTime(int starthour, int startminute) {
+        oldStartHour = startHour;
+        oldStartMinute = startMinute;
+        dirty = true;
+
         startHour = starthour;
         startMinute = startminute;
     }
 
     public void setEndTime(int endhour, int endminute) {
+        oldEndHour = endHour;
+        oldEndMinute = endMinute;
+        dirty = true;
+
         endHour = endhour;
         endMinute = endminute;
     }
@@ -126,6 +145,9 @@ public class SmarterTimeRange {
     }
 
     public void setWifiControlled(boolean control) {
+        oldControlWifi = controlWifi;
+        dirty = true;
+
         controlWifi = control;
     }
 
@@ -134,6 +156,9 @@ public class SmarterTimeRange {
     }
 
     public void setBluetoothControlled(boolean control) {
+        oldControlBluetooth = controlBluetooth;
+        dirty = true;
+
         controlBluetooth = control;
     }
 
@@ -142,6 +167,9 @@ public class SmarterTimeRange {
     }
 
     public void setWifiEnabled(boolean en) {
+        oldWifiOn = wifiOn;
+        dirty = true;
+
         wifiOn = en;
     }
 
@@ -158,6 +186,9 @@ public class SmarterTimeRange {
     }
 
     public void setBluetoothEnabled(boolean en) {
+        oldBluetoothOn = bluetoothOn;
+        dirty = true;
+
         bluetoothOn = en;
     }
 
@@ -167,6 +198,31 @@ public class SmarterTimeRange {
 
     public void setEnabled(boolean e) {
         enabled = e;
+    }
+
+    public boolean getDirty() {
+        return dirty;
+    }
+
+    public boolean getRevertable() {
+        if (dirty && dbid >= 0)
+            return true;
+
+        return false;
+    }
+
+    public void revertChanges() {
+        startHour = oldStartHour;
+        startMinute = oldStartMinute;
+        endHour = oldEndHour;
+        endMinute = oldEndMinute;
+        days = oldDays;
+        controlWifi = oldControlWifi;
+        wifiOn = oldWifiOn;
+        controlBluetooth = oldControlBluetooth;
+        bluetoothOn = oldBluetoothOn;
+
+        dirty = false;
     }
 
     static public int getHuman12Hour(int hour) {
