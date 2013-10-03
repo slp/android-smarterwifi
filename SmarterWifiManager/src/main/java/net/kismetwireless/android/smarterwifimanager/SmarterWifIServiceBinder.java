@@ -219,6 +219,33 @@ class SmarterWifiServiceBinder {
         return smarterService.getLastTowerMap();
     }
 
+    public ArrayList<SmarterTimeRange> getTimeRangeList() {
+        if (smarterService == null) {
+            Log.e("smarter", "service null getting timeranges");
+            return null;
+        }
+
+        return smarterService.getTimeRangeList();
+    }
+
+    public void deleteTimeRange(SmarterTimeRange r) {
+        if (smarterService == null) {
+            Log.e("smarter", "service null deleting timerange");
+            return;
+        }
+
+        smarterService.deleteTimeRange(r);
+    }
+
+    public long updateTimeRange(SmarterTimeRange r) {
+        if (smarterService == null) {
+            Log.e("smarter", "service null updating timerange");
+            return -1;
+        }
+
+        return smarterService.updateTimeRange(r);
+    }
+
     public void addCallback(SmarterWifiService.SmarterServiceCallback cb) {
         synchronized (this) {
             if (smarterService == null) {
@@ -257,4 +284,5 @@ class SmarterWifiServiceBinder {
 
         smarterService.handleBluetoothDeviceState(d, state);
     }
+
 }

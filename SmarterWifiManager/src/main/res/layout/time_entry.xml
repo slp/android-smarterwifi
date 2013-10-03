@@ -276,7 +276,7 @@
 
         <View
             android:layout_width="fill_parent"
-            android:layout_height="1dp"
+            android:layout_height="1px"
             android:background="@android:color/darker_gray"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
@@ -306,7 +306,8 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/timeRangeDelete"
                     android:src="@drawable/content_discard"
-                    android:layout_gravity="center" />
+                    android:layout_gravity="center"
+                    android:layout_marginRight="6dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -315,7 +316,16 @@
                     android:text="@string/timerange_delete_text"
                     android:id="@+id/timeRangeDeleteText"
                     android:layout_gravity="center"
-                    android:visibility="gone" />
+                    android:visibility="gone"
+                    android:layout_marginRight="3dp" />
+
+                <View
+                    android:layout_width="1px"
+                    android:layout_height="fill_parent"
+                    android:background="@android:color/darker_gray"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp" />
             </LinearLayout>
 
             <TextView

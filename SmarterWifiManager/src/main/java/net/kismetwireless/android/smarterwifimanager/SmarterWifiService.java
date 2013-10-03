@@ -816,4 +816,16 @@ public class SmarterWifiService extends Service {
         return ret;
     }
 
+    public ArrayList<SmarterTimeRange> getTimeRangeList() {
+        return dbSource.getTimeRangeList();
+    }
+
+    public void deleteTimeRange(SmarterTimeRange r) {
+        dbSource.deleteTimeRange(r);
+    }
+
+    public long updateTimeRange(SmarterTimeRange r) {
+        return dbSource.updateTimeRange(r);
+    }
+
 }
