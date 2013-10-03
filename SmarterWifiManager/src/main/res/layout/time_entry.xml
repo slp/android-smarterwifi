@@ -335,8 +335,6 @@
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:background="?android:attr/selectableItemBackground"
-            android:clickable="true"
             android:id="@+id/expandView">
 
             <LinearLayout
@@ -345,7 +343,8 @@
                 android:paddingRight="8dp"
                 android:id="@+id/deleteContainer"
                 android:layout_weight="2"
-                android:layout_marginRight="25dp">
+                android:layout_marginRight="5dp"
+                android:layout_marginLeft="5dp">
 
                 <ImageView
                     android:layout_width="0dp"
@@ -398,24 +397,7 @@
                     android:paddingTop="2dp"
                     android:paddingBottom="2dp" />
 
-                <View
-                    android:layout_width="1px"
-                    android:layout_height="fill_parent"
-                    android:background="@android:color/darker_gray"
-                    android:layout_marginRight="5dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginBottom="5dp" />
-
-
             </LinearLayout>
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/collapseIcon"
-                android:src="@drawable/navigation_collapse"
-                android:layout_gravity="center_horizontal|bottom"
-                android:paddingRight="4dp" />
 
         </LinearLayout>
 

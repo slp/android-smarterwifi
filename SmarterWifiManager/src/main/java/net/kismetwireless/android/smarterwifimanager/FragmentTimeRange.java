@@ -3,7 +3,6 @@ package net.kismetwireless.android.smarterwifimanager;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -37,6 +36,7 @@ public class FragmentTimeRange extends SmarterFragment {
 
     private TimeListAdapter listAdapter;
     private ListView lv;
+    private TextView emptyView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -48,7 +48,7 @@ public class FragmentTimeRange extends SmarterFragment {
         context = activity.getApplicationContext();
 
         lv = (ListView) mainView.findViewById(R.id.timeRangeListView);
-        // emptyView = (TextView) mainView.findViewById(R.id.textViewNoWifi);
+        emptyView = (TextView) mainView.findViewById(R.id.textViewNoTime);
 
         listAdapter = new TimeListAdapter(context, R.layout.time_entry, lastTimeList);
         lv.setAdapter(listAdapter);
@@ -134,12 +134,9 @@ public class FragmentTimeRange extends SmarterFragment {
         }
 
         private void toggleImageViewEnable(ImageView v, boolean b) {
-            /* Leave them enabled so that we trap the click and don't fall through to the
-                layout behind it; handle being disabled in the callbacks for undo and save */
-            /*
+            // If we dont' leave the background view clickable, we can use this to disable the buttons
             v.setEnabled(b);
             v.setClickable(b);
-            */
 
             if (b) {
                 AlphaAnimation alpha = new AlphaAnimation(1.0F, 1.0F);
@@ -147,6 +144,7 @@ public class FragmentTimeRange extends SmarterFragment {
                 alpha.setFillAfter(true);
                 v.startAnimation(alpha);
 
+                /* We don't need this if we dont' use the whole background row as a clickable collapse; leave for reference
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB) {
                     TypedArray a = context.obtainStyledAttributes(new int[] { android.R.attr.selectableItemBackground });
                     int resource = a.getResourceId(0, 0);
@@ -154,12 +152,13 @@ public class FragmentTimeRange extends SmarterFragment {
 
                     v.setBackground(context.getResources().getDrawable(resource));
                 }
+                */
             } else {
                 AlphaAnimation alpha = new AlphaAnimation(0.5F, 0.5F);
                 alpha.setDuration(0);
                 alpha.setFillAfter(true);
                 v.startAnimation(alpha);
-                v.setBackground(null);
+                // v.setBackground(null);
             }
         }
 
@@ -569,6 +568,7 @@ public class FragmentTimeRange extends SmarterFragment {
                     }
                 });
 
+                /*
                 expandView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -581,6 +581,7 @@ public class FragmentTimeRange extends SmarterFragment {
                         collapseView(collapsedMain, expandedMain, expandView, collapseView, item.getCollapsed(), item);
                     }
                 });
+                */
 
                 collapseView.setOnClickListener(new View.OnClickListener() {
                     @Override

@@ -14,15 +14,15 @@ public class TimeRangeActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_singlefragment);
 
-        if (findViewById(R.id.fragment_container) != null) {
-            if (savedInstanceState != null) {
-                return;
+        if (savedInstanceState != null) {
+            timeFragment = (FragmentTimeRange) getSupportFragmentManager().findFragmentByTag("timefragment");
+        } else  if (findViewById(R.id.fragment_container) != null) {
+            if (timeFragment == null) {
+                timeFragment = new FragmentTimeRange();
+                timeFragment.setArguments(getIntent().getExtras());
             }
 
-            timeFragment = new FragmentTimeRange();
-            timeFragment.setArguments(getIntent().getExtras());
-
-            getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, timeFragment).commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, timeFragment, "timefragment").commit();
         }
 
         ActionBar actionbar = getSupportActionBar();
