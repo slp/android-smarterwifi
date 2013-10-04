@@ -16,15 +16,13 @@ public class BluetoothBlacklistActivity extends ActionBarActivity {
         ActionBar actionbar = getSupportActionBar();
         actionbar.setDisplayHomeAsUpEnabled(true);
 
-        if (findViewById(R.id.fragment_container) != null) {
-            if (savedInstanceState != null) {
-                return;
-            }
-
+        if (savedInstanceState != null) {
+            bluetoothFragment = (FragmentBluetoothBlacklist) getSupportFragmentManager().findFragmentByTag("btfragment");
+        } else if (findViewById(R.id.fragment_container) != null) {
             bluetoothFragment = new FragmentBluetoothBlacklist();
             bluetoothFragment.setArguments(getIntent().getExtras());
 
-            getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, bluetoothFragment).commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, bluetoothFragment, "btfragment").commit();
         }
     }
 

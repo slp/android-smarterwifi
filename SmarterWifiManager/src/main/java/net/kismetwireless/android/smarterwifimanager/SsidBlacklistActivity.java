@@ -16,15 +16,13 @@ public class SsidBlacklistActivity extends ActionBarActivity {
         ActionBar actionbar = getSupportActionBar();
         actionbar.setDisplayHomeAsUpEnabled(true);
 
-        if (findViewById(R.id.fragment_container) != null) {
-            if (savedInstanceState != null) {
-                return;
-            }
-
+        if (savedInstanceState != null) {
+            ssidFragment = (FragmentSsidBlacklist) getSupportFragmentManager().findFragmentByTag("ssidfragment");
+        } else if (findViewById(R.id.fragment_container) != null) {
             ssidFragment = new FragmentSsidBlacklist();
             ssidFragment.setArguments(getIntent().getExtras());
 
-            getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, ssidFragment).commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, ssidFragment, "ssidfragment").commit();
         }
     }
 
