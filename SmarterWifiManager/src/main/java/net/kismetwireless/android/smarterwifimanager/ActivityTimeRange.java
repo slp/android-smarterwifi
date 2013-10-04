@@ -6,7 +6,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class TimeRangeActivity extends ActionBarActivity {
+public class ActivityTimeRange extends ActionBarActivity {
     FragmentTimeRange timeFragment;
 
     @Override

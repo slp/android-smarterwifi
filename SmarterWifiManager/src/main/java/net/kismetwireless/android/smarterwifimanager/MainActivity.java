@@ -200,7 +200,7 @@ public class MainActivity extends ActionBarActivity {
         }
 
         if (item.getItemId() == R.id.action_settings) {
-            startActivityForResult(new Intent(MainActivity.this, PrefsActivity.class), PREFS_REQ);
+            startActivityForResult(new Intent(MainActivity.this, ActivityPrefs.class), PREFS_REQ);
             return true;
         }
 
@@ -300,15 +300,15 @@ public class MainActivity extends ActionBarActivity {
 
             switch (item[0]) {
                 case R.string.nav_ignore:
-                    startActivity(new Intent(MainActivity.this, SsidBlacklistActivity.class));
+                    startActivity(new Intent(MainActivity.this, ActivitySsidBlacklist.class));
                     drawerLayout.closeDrawer(drawerList);
                     break;
                 case R.string.nav_bluetooth:
-                    startActivity(new Intent(MainActivity.this, BluetoothBlacklistActivity.class));
+                    startActivity(new Intent(MainActivity.this, ActivityBluetoothBlacklist.class));
                     drawerLayout.closeDrawer(drawerList);
                     break;
                 case R.string.nav_time:
-                    startActivity(new Intent(MainActivity.this, TimeRangeActivity.class));
+                    startActivity(new Intent(MainActivity.this, ActivityTimeRange.class));
                     drawerLayout.closeDrawer(drawerList);
                     break;
             }

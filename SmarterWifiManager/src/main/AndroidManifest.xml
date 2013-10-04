@@ -44,7 +44,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="net.kismetwireless.android.smarterwifimanager.PrefsActivity"
+            android:name=".ActivityPrefs"
             android:label="@string/prefs_name" >
         </activity>
 
@@ -67,7 +67,7 @@
             android:description="@string/service_desc" />
 
         <activity
-            android:name="net.kismetwireless.android.smarterwifimanager.SsidBlacklistActivity"
+            android:name=".ActivitySsidBlacklist"
             android:label="@string/title_activity_ssid_blacklist"
             android:parentActivityName=".MainActivity" >
             <meta-data
@@ -76,7 +76,7 @@
         </activity>
 
         <activity
-            android:name="net.kismetwireless.android.smarterwifimanager.BluetoothBlacklistActivity"
+            android:name=".ActivityBluetoothBlacklist"
             android:label="@string/title_activity_bluetooth_blacklist"
             android:parentActivityName=".MainActivity" >
             <meta-data
@@ -85,7 +85,7 @@
         </activity>
 
         <activity
-            android:name="net.kismetwireless.android.smarterwifimanager.TimeRangeActivity"
+            android:name=".ActivityTimeRange"
             android:label="@string/title_activity_timerange"
             android:parentActivityName=".MainActivity" >
             <meta-data

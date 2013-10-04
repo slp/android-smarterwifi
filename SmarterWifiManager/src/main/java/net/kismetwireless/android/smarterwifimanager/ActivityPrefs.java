@@ -8,7 +8,7 @@ import android.view.MenuItem;
 /**
  * Created by dragorn on 9/24/13.
  */
-public class PrefsActivity extends Activity {
+public class ActivityPrefs extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

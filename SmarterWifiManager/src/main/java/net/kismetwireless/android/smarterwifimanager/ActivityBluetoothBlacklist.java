@@ -5,7 +5,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 
-public class BluetoothBlacklistActivity extends ActionBarActivity {
+public class ActivityBluetoothBlacklist extends ActionBarActivity {
     FragmentBluetoothBlacklist bluetoothFragment;
 
     @Override

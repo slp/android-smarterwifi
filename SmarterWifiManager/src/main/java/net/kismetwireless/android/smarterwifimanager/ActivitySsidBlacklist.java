@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 
-public class SsidBlacklistActivity extends ActionBarActivity {
+public class ActivitySsidBlacklist extends ActionBarActivity {
     FragmentSsidBlacklist ssidFragment;
 
     @Override
