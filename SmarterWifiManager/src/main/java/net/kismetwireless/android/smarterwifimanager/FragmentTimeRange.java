@@ -39,6 +39,28 @@ public class FragmentTimeRange extends SmarterFragment {
     private TextView emptyView;
 
     @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (savedInstanceState != null) {
+            Log.d("smarter", "oac - loading saved timelist");
+            lastTimeList = savedInstanceState.getParcelableArrayList("timelist");
+
+            if (lv != null) {
+                listAdapter = new TimeListAdapter(context, R.layout.time_entry, lastTimeList);
+                lv.setAdapter(listAdapter);
+            }
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putParcelableArrayList("timelist", lastTimeList);
+    }
+
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
@@ -50,6 +72,7 @@ public class FragmentTimeRange extends SmarterFragment {
         lv = (ListView) mainView.findViewById(R.id.timeRangeListView);
         emptyView = (TextView) mainView.findViewById(R.id.textViewNoTime);
 
+        Log.d("smarter", "ocv - creating list adapter");
         listAdapter = new TimeListAdapter(context, R.layout.time_entry, lastTimeList);
         lv.setAdapter(listAdapter);
 

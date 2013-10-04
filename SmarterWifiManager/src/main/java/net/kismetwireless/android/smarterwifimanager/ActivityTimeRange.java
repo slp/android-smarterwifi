@@ -15,7 +15,8 @@ public class ActivityTimeRange extends ActionBarActivity {
         setContentView(R.layout.activity_singlefragment);
 
         if (savedInstanceState != null) {
-            timeFragment = (FragmentTimeRange) getSupportFragmentManager().findFragmentByTag("timefragment");
+            // t imeFragment = (FragmentTimeRange) getSupportFragmentManager().findFragmentByTag("timefragment");
+            timeFragment = (FragmentTimeRange) getSupportFragmentManager().getFragment(savedInstanceState, "timecontent");
         } else  if (findViewById(R.id.fragment_container) != null) {
             if (timeFragment == null) {
                 timeFragment = new FragmentTimeRange();
@@ -28,6 +29,14 @@ public class ActivityTimeRange extends ActionBarActivity {
         ActionBar actionbar = getSupportActionBar();
         actionbar.setDisplayHomeAsUpEnabled(true);
     }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        getSupportFragmentManager().putFragment(outState, "timecontent", timeFragment);
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

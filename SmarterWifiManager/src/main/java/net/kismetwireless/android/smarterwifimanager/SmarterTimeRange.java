@@ -1,6 +1,8 @@
 package net.kismetwireless.android.smarterwifimanager;
 
 import android.content.Context;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
 import java.util.Calendar;
@@ -8,8 +10,10 @@ import java.util.GregorianCalendar;
 
 /**
  * Created by dragorn on 10/1/13.
+ *
+ * This has to be parcelable because we can keep un-saved changes in fragments
  */
-public class SmarterTimeRange {
+public class SmarterTimeRange implements Parcelable {
     public static int REPEAT_MON = (1 << Calendar.MONDAY);
     public static int REPEAT_TUE = (1 << Calendar.TUESDAY);
     public static int REPEAT_WED = (1 << Calendar.WEDNESDAY);
@@ -287,5 +291,72 @@ public class SmarterTimeRange {
 
         return sb.toString();
     }
+
+    public SmarterTimeRange(Parcel source) {
+        enabled = (source.readInt() == 1);
+        collapsed = (source.readInt() == 1);
+
+        startHour = source.readInt();
+        startMinute = source.readInt();
+        endHour = source.readInt();
+        endMinute = source.readInt();
+        days = source.readInt();
+        controlWifi = (source.readInt() == 1);
+        wifiOn = (source.readInt() == 1);
+        controlBluetooth = (source.readInt() == 1);
+        bluetoothOn = (source.readInt() == 1);
+        dbid = source.readLong();
+
+        oldStartHour = source.readInt();
+        oldStartMinute = source.readInt();
+        oldEndHour = source.readInt();
+        oldEndMinute = source.readInt();
+        oldDays = source.readInt();
+        oldControlWifi = (source.readInt() == 1);
+        oldWifiOn = (source.readInt() == 1);
+        oldControlBluetooth = (source.readInt() == 1);
+        oldBluetoothOn = (source.readInt() == 1);
+
+    }
+
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(enabled ? 1 : 0);
+        dest.writeInt(collapsed ? 1 : 0);
+
+        dest.writeInt(startHour);
+        dest.writeInt(startMinute);
+        dest.writeInt(endHour);
+        dest.writeInt(endMinute);
+        dest.writeInt(days);
+        dest.writeInt(controlWifi ? 1 : 0);
+        dest.writeInt(wifiOn ? 1 : 0);
+        dest.writeInt(controlBluetooth ? 1 : 0);
+        dest.writeInt(bluetoothOn ? 1 : 0);
+        dest.writeLong(dbid);
+
+        dest.writeInt(oldStartHour);
+        dest.writeInt(oldStartMinute);
+        dest.writeInt(oldEndHour);
+        dest.writeInt(oldEndMinute);
+        dest.writeInt(oldDays);
+        dest.writeInt(oldControlWifi ? 1 : 0);
+        dest.writeInt(oldWifiOn ? 1 : 0);
+        dest.writeInt(oldControlBluetooth ? 1 : 0);
+        dest.writeInt(oldBluetoothOn ? 1 : 0);
+    }
+
+    public int describeContents() {
+        return hashCode();
+    }
+
+    public class MyCreator implements Parcelable.Creator<SmarterTimeRange> {
+        public SmarterTimeRange createFromParcel(Parcel source) {
+            return new SmarterTimeRange(source);
+        }
+        public SmarterTimeRange[] newArray(int size) {
+            return new SmarterTimeRange[size];
+        }
+    }
+
 
 }
