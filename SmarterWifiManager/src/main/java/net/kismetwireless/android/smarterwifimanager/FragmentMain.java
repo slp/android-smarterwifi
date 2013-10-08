@@ -48,30 +48,42 @@ public class FragmentMain extends SmarterFragment {
 
                     switch (state) {
                         case WIFI_IDLE:
-                            wifiIconId = R.drawable.custom_wifi_inactive;
+                            wifiIconId = R.drawable.ic_launcher_notification_idle;
+                            //wifiIconId = R.drawable.custom_wifi_inactive;
                             wifiText = "Wi-Fi idle / disconnected";
                             break;
                         case WIFI_BLOCKED:
-                            wifiIconId = R.drawable.custom_wifi_disabled_tower;
+                            wifiIconId = R.drawable.ic_launcher_notification_cell;
+                            //wifiIconId = R.drawable.custom_wifi_disabled_tower;
                             wifiText = "Wi-Fi ";
                             break;
                         case WIFI_ON:
-                            wifiIconId = R.drawable.custom_wifi_enabled;
+                            // wifiIconId = R.drawable.custom_wifi_enabled;
                             wifiText = "Wi-Fi enabled";
+                            if (type == SmarterWifiService.ControlType.CONTROL_RANGE) {
+                                wifiIconId = R.drawable.ic_launcher_notification_cell;
+                            } else if (type == SmarterWifiService.ControlType.CONTROL_BLUETOOTH) {
+                                wifiIconId = R.drawable.ic_launcher_notification_bluetooth;
+                            } else {
+                                wifiIconId = R.drawable.ic_launcher_notification_idle;
+                            }
                             break;
                         case WIFI_OFF:
-                            wifiIconId = R.drawable.custom_wifi_inactive;
+                            wifiIconId = R.drawable.ic_launcher_notification_disabled;
+                            // wifiIconId = R.drawable.custom_wifi_inactive;
                             wifiText = "Wi-Fi turned off";
 
                             if (type == SmarterWifiService.ControlType.CONTROL_RANGE) {
                                 reasonText = "Not in a known location";
                             } else if (type == SmarterWifiService.ControlType.CONTROL_BLUETOOTH) {
-                                wifiIconId = R.drawable.custom_wifi_disabled_bluetooth;
+                                // wifiIconId = R.drawable.custom_wifi_disabled_bluetooth;
+                                wifiIconId = R.drawable.ic_launcher_notification_bluetooth;
                             }
 
                             break;
                         case WIFI_IGNORE:
-                            wifiIconId = R.drawable.custom_wifi_enabled;
+                            // wifiIconId = R.drawable.custom_wifi_enabled;
+                            wifiIconId = R.drawable.ic_launcher_notification_idle;
                             wifiText = "Wi-Fi management disabled";
 
                             if (type == SmarterWifiService.ControlType.CONTROL_RANGE) {
@@ -81,7 +93,8 @@ public class FragmentMain extends SmarterFragment {
                             break;
 
                         default:
-                            wifiIconId = R.drawable.custom_wifi_inactive;
+                            wifiIconId = R.drawable.ic_launcher_notification_idle;
+                            // wifiIconId = R.drawable.custom_wifi_inactive;
                     }
 
                     if (reasonText.isEmpty())

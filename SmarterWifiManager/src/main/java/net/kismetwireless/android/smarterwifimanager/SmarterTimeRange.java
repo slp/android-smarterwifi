@@ -386,14 +386,14 @@ public class SmarterTimeRange implements Parcelable {
         return hashCode();
     }
 
-    public class MyCreator implements Parcelable.Creator<SmarterTimeRange> {
+    public static final Parcelable.Creator<SmarterTimeRange> CREATOR = new Creator<SmarterTimeRange>() {
         public SmarterTimeRange createFromParcel(Parcel source) {
             return new SmarterTimeRange(source);
         }
         public SmarterTimeRange[] newArray(int size) {
             return new SmarterTimeRange[size];
         }
-    }
+    };
 
     // returns if time range is valid, and the resource id of why not or -1
     public int getRangeValid() {

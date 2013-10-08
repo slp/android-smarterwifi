@@ -43,6 +43,18 @@
     <string name="nav_bluetooth">Bluetooth</string>
     <string name="nav_time">Time ranges</string>
 
+    <string name="explanation_autolearned">Previously learned location</string>
+    <string name="explanation_wifi_idle">Wi-Fi enabled but not connected</string>
+    <string name="explanation_wifi_blocked">Wi-Fi blocked</string>
+    <string name="explanation_wifi_enabled">Wi-Fi enabled</string>
+    <string name="explanation_wifi_enabled_cell">In previously learned location</string>
+    <string name="explanation_wifi_disabled">Wi-Fi disabled</string>
+    <string name="explanation_wifi_disabled_cell">In unknown location</string>
+    <string name="explanation_wifi_disabled_bluetooth">Connected to blacklisted Bluetooth device</string>
+    <string name="explanation_wifi_management_disabled">Wi-Fi management disabled</string>
+    <string name="explanation_wifi_management_disabled_user">Management turned off</string>
+    <string name="explanation_wifi_management_disabled_cell">No cell towers in range</string>
+
     <string name="title_activity_ssid_blacklist">Ignored Networks</string>
     <string name="title_activity_bluetooth_blacklist">Bluetooth</string>
     <string name="title_activity_timerange">Time Ranges</string>

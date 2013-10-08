@@ -199,53 +199,91 @@ public class SmarterWifiService extends Service {
                 lastControl = type;
 
                 int wifiIconId = R.drawable.custom_wifi_inactive;
+                int wifiTextResource = -1;
+                int reasonTextResource = -1;
                 String wifiText = "";
                 String reasonText = "";
 
                 switch (state) {
                     case WIFI_IDLE:
-                        wifiIconId = R.drawable.custom_wifi_inactive;
-                        wifiText = "Wi-Fi idle / disconnected";
+                        wifiIconId = R.drawable.ic_launcher_notification_idle;
+                        //wifiIconId = R.drawable.custom_wifi_inactive;
+                        // wifiText = "Wi-Fi idle / disconnected";
+                        wifiTextResource = R.string.explanation_wifi_idle;
                         break;
                     case WIFI_BLOCKED:
-                        wifiIconId = R.drawable.custom_wifi_disabled_tower;
-                        wifiText = "Wi-Fi ";
+                        wifiIconId = R.drawable.ic_launcher_notification_cell;
+                        //wifiIconId = R.drawable.custom_wifi_disabled_tower;
+                        // wifiText = "Wi-Fi ";
+                        wifiTextResource = R.string.explanation_wifi_blocked;
                         break;
                     case WIFI_ON:
-                        wifiIconId = R.drawable.custom_wifi_enabled;
-                        wifiText = "Wi-Fi enabled";
-                        break;
-                    case WIFI_OFF:
-                        wifiIconId = R.drawable.custom_wifi_inactive;
-                        wifiText = "Wi-Fi turned off";
+                        // wifiIconId = R.drawable.custom_wifi_enabled;
+                        // wifiText = "Wi-Fi enabled";
+                        wifiTextResource = R.string.explanation_wifi_enabled;
 
                         if (type == ControlType.CONTROL_RANGE) {
-                            reasonText = "Not in a known location";
-                        } else if (lastControlReason == ControlType.CONTROL_BLUETOOTH) {
-                            wifiIconId = R.drawable.custom_wifi_disabled_bluetooth;
+                            wifiIconId = R.drawable.ic_launcher_notification_cell;
+                            reasonTextResource = R.string.explanation_wifi_enabled_cell;
+                        } else {
+                            wifiIconId = R.drawable.ic_launcher_notification_idle;
+                        }
+                        break;
+                    case WIFI_OFF:
+                        wifiIconId = R.drawable.ic_launcher_notification_disabled;
+                        // wifiIconId = R.drawable.custom_wifi_inactive;
+                        // wifiText = "Wi-Fi turned off";
+                        wifiTextResource = R.string.explanation_wifi_disabled;
+
+                        if (type == ControlType.CONTROL_RANGE) {
+                            // reasonText = "Not in a known location";
+                            reasonTextResource = R.string.explanation_wifi_disabled_cell;
+                        } else if (type == ControlType.CONTROL_BLUETOOTH) {
+                            // wifiIconId = R.drawable.custom_wifi_disabled_bluetooth;
+                            wifiIconId = R.drawable.ic_launcher_notification_bluetooth;
+                            reasonTextResource = R.string.explanation_wifi_disabled_bluetooth;
                         }
 
                         break;
                     case WIFI_IGNORE:
-                        wifiIconId = R.drawable.custom_wifi_enabled;
-                        wifiText = "Wi-Fi management disabled";
+                        // wifiIconId = R.drawable.custom_wifi_enabled;
+                        wifiIconId = R.drawable.ic_launcher_notification_idle;
+                        // wifiText = "Wi-Fi management disabled";
+                        wifiTextResource = R.string.explanation_wifi_management_disabled;
 
-                        if (lastControlReason == ControlType.CONTROL_RANGE) {
-                            reasonText = "No cell signal";
+                        if (type == ControlType.CONTROL_RANGE) {
+                            // reasonText = "No cell signal";
+                            reasonTextResource = R.string.explanation_wifi_management_disabled_cell;
+                        } else if (type == ControlType.CONTROL_USER) {
+                            reasonTextResource = R.string.explanation_wifi_management_disabled_user;
                         }
 
                         break;
 
                     default:
-                        wifiIconId = R.drawable.custom_wifi_inactive;
+                        wifiIconId = R.drawable.ic_launcher_notification_idle;
+                        // wifiIconId = R.drawable.custom_wifi_inactive;
                 }
 
                 if (reasonText.isEmpty())
                     reasonText = SmarterWifiService.controlTypeToText(type);
 
                 notificationBuilder.setSmallIcon(wifiIconId);
-                notificationBuilder.setContentTitle(wifiText);
-                notificationBuilder.setContentText(reasonText);
+
+                if (wifiTextResource > 0) {
+                    notificationBuilder.setContentTitle(getString(wifiTextResource));
+                } else {
+                    notificationBuilder.setContentTitle("");
+                }
+
+                if (reasonTextResource > 0) {
+                    notificationBuilder.setContentText(getString(reasonTextResource));
+                } else {
+                    notificationBuilder.setContentText("");
+                }
+
+                // notificationBuilder.setContentTitle(wifiText);
+                // notificationBuilder.setContentText(reasonText);
 
                 if (showNotification)
                     notificationManager.notify(0, notificationBuilder.build());
