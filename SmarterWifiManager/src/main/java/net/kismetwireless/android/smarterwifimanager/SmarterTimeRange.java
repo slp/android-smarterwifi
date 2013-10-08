@@ -3,7 +3,6 @@ package net.kismetwireless.android.smarterwifimanager;
 import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -60,6 +59,7 @@ public class SmarterTimeRange implements Parcelable {
         oldBluetoothOn = bluetoothOn = bton;
 
         this.enabled = enabled;
+        dirty = false;
 
         dbid = id;
     }
@@ -82,7 +82,7 @@ public class SmarterTimeRange implements Parcelable {
         if (mn < startMinute || mn > endMinute)
             return false;
 
-        Log.d("smarter", "Day valid, hr " + hr + " falls within " + startHour + "," + endHour + " and mn " + mn + " within " + startMinute + "," + endHour);
+        // Log.d("smarter", "Day valid, hr " + hr + " falls within " + startHour + "," + endHour + " and mn " + mn + " within " + startMinute + "," + endHour);
 
         return true;
     }
@@ -108,25 +108,34 @@ public class SmarterTimeRange implements Parcelable {
     }
 
     public void setDays(int repeats) {
+        if (days != repeats)
+            dirty = true;
+        // Log.d("smarter", "setdays " + dirty);
+
         oldDays = days;
-        dirty = true;
 
         days = repeats;
     }
 
     public void setStartTime(int starthour, int startminute) {
+        if (startHour != starthour || startMinute != startminute)
+            dirty = true;
+        //Log.d("smarter", "setstarttime " + dirty);
+
         oldStartHour = startHour;
         oldStartMinute = startMinute;
-        dirty = true;
 
         startHour = starthour;
         startMinute = startminute;
     }
 
     public void setEndTime(int endhour, int endminute) {
+        if (endHour != endhour || endMinute != endminute)
+            dirty = true;
+        //Log.d("smarter", "setendtime " + dirty);
+
         oldEndHour = endHour;
         oldEndMinute = endMinute;
-        dirty = true;
 
         endHour = endhour;
         endMinute = endminute;
@@ -149,8 +158,11 @@ public class SmarterTimeRange implements Parcelable {
     }
 
     public void setWifiControlled(boolean control) {
+        if (controlWifi != control)
+            dirty = true;
+        //Log.d("smarter", "setwificontrolled " + dirty);
+
         oldControlWifi = controlWifi;
-        dirty = true;
 
         controlWifi = control;
     }
@@ -160,8 +172,11 @@ public class SmarterTimeRange implements Parcelable {
     }
 
     public void setBluetoothControlled(boolean control) {
+        if (controlBluetooth != control)
+            dirty = true;
+        //Log.d("smarter", "setbtcontrolled " + dirty);
+
         oldControlBluetooth = controlBluetooth;
-        dirty = true;
 
         controlBluetooth = control;
     }
@@ -171,8 +186,12 @@ public class SmarterTimeRange implements Parcelable {
     }
 
     public void setWifiEnabled(boolean en) {
+        if (wifiOn != en)
+            dirty = true;
+
+        //Log.d("smarter", "setwifienabled " + dirty);
+
         oldWifiOn = wifiOn;
-        dirty = true;
 
         wifiOn = en;
     }
@@ -190,8 +209,12 @@ public class SmarterTimeRange implements Parcelable {
     }
 
     public void setBluetoothEnabled(boolean en) {
+        if (bluetoothOn != en)
+            dirty = true;
+
+        //Log.d("smarter", "setbtenabled " + dirty);
+
         oldBluetoothOn = bluetoothOn;
-        dirty = true;
 
         bluetoothOn = en;
     }
@@ -225,6 +248,20 @@ public class SmarterTimeRange implements Parcelable {
         wifiOn = oldWifiOn;
         controlBluetooth = oldControlBluetooth;
         bluetoothOn = oldBluetoothOn;
+
+        dirty = false;
+    }
+
+    public void applyChanges() {
+        oldStartHour = startHour;
+        oldStartMinute = startMinute;
+        oldEndHour = endHour;
+        oldEndMinute = endMinute;
+        oldDays = days;
+        oldControlWifi = controlWifi;
+        oldWifiOn = wifiOn;
+        oldControlBluetooth = controlBluetooth;
+        oldBluetoothOn = bluetoothOn;
 
         dirty = false;
     }
@@ -356,6 +393,20 @@ public class SmarterTimeRange implements Parcelable {
         public SmarterTimeRange[] newArray(int size) {
             return new SmarterTimeRange[size];
         }
+    }
+
+    // returns if time range is valid, and the resource id of why not or -1
+    public int getRangeValid() {
+        if (!controlWifi && !controlBluetooth)
+            return R.string.range_fail_nocontrol;
+
+        if (days == 0)
+            return R.string.range_fail_nodays;
+
+        if (startHour == endHour && startMinute == endMinute)
+            return R.string.range_fail_notime;
+
+        return -1;
     }
 
 

@@ -137,6 +137,22 @@
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="Wi-Fi disabled, Bluetooth disabled"
                 android:id="@+id/rangeSummaryText" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Medium Text"
+                android:id="@+id/errorView1"
+                android:background="@android:color/holo_red_dark"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp" />
         </LinearLayout>
 
         <LinearLayout
@@ -161,7 +177,7 @@
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:text="Mon"
+                        android:text="@string/range_mon"
                         android:id="@+id/dayMon"
                         android:layout_gravity="center"
                         android:clickable="true"
@@ -173,7 +189,7 @@
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:text="Tue"
+                        android:text="@string/range_tue"
                         android:id="@+id/dayTue"
                         android:layout_gravity="center"
                         android:clickable="true"
@@ -185,7 +201,7 @@
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:text="Wed"
+                        android:text="@string/range_wed"
                         android:id="@+id/dayWed"
                         android:layout_gravity="center"
                         android:clickable="true"
@@ -197,7 +213,7 @@
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:text="Thu"
+                        android:text="@string/range_thu"
                         android:id="@+id/dayThu"
                         android:layout_gravity="center"
                         android:clickable="true"
@@ -209,7 +225,7 @@
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:text="Fri"
+                        android:text="@string/range_fri"
                         android:id="@+id/dayFri"
                         android:layout_gravity="center"
                         android:clickable="true"
@@ -221,7 +237,7 @@
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:text="Sat"
+                        android:text="@string/range_sat"
                         android:id="@+id/daySat"
                         android:layout_gravity="center"
                         android:clickable="true"
@@ -233,7 +249,7 @@
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:text="Sun"
+                        android:text="@string/range_sun"
                         android:id="@+id/daySun"
                         android:layout_gravity="center"
                         android:clickable="true"
@@ -246,14 +262,14 @@
             <CheckBox
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Control Wi-Fi"
+                android:text="@string/timerange_controlbutton_wifi"
                 android:id="@+id/wifiCheckbox"
                 android:checked="false" />
 
             <Switch
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Wi-Fi"
+                android:text="@string/timerange_control_wifi"
                 android:id="@+id/wifiSwitch"
                 android:layout_gravity="right|center_vertical"
                 android:checked="false" />
@@ -261,17 +277,33 @@
             <CheckBox
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Control Bluetooth"
+                android:text="@string/timerange_controlbutton_bt"
                 android:id="@+id/bluetoothCheckbox"
                 android:checked="false" />
 
             <Switch
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Bluetooth"
+                android:text="@string/timerange_control_bluetooth"
                 android:id="@+id/bluetoothSwitch"
                 android:layout_gravity="right|center_vertical"
                 android:checked="false" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Medium Text"
+                android:id="@+id/errorView2"
+                android:background="@android:color/holo_red_dark"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp" />
         </LinearLayout>
 
         <View

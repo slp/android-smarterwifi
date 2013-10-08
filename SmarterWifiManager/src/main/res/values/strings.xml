@@ -36,7 +36,7 @@
     <string name="shutdown_time_30s">30 seconds</string>
     <string name="shutdown_time_1m">One minute</string>
     <string name="shutdown_time_2m">Two minutes</string>
-    <string name="time_range_desc">Fixed time ranges override other control methods and allow enabling or disabling radios within a time period.</string>
+    <string name="time_range_desc">Fixed time ranges override other control methods and allow enabling or disabling radios within a time period. NOTE NOT CURRENTLY ENABLED / UI DEMO</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     <string name="nav_ignore">Ignored networks</string>
@@ -56,6 +56,9 @@
     <string name="timerange_control_on">on</string>
     <string name="timerange_control_off">off</string>
 
+    <string name="timerange_controlbutton_wifi">Control Wi-Fi</string>
+    <string name="timerange_controlbutton_bt">Control Bluetooth</string>
+
     <string name="timerange_dialog_delete_title">Delete time range?</string>
     <string name="timerange_dialog_delete_cancel">Cancel</string>
     <string name="timerange_dialog_delete_ok">Delete</string>
@@ -68,5 +71,9 @@
     <string name="range_fri">Fri</string>
     <string name="range_sat">Sat</string>
     <string name="range_sun">Sun</string>
+
+    <string name="range_fail_nodays">No days selected</string>
+    <string name="range_fail_notime">No time set</string>
+    <string name="range_fail_nocontrol">No effect on Wi-Fi or Bluetooth</string>
 
 </resources>

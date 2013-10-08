@@ -462,6 +462,8 @@ public class SmarterDBSource {
             r.setBluetoothControlled(rangec.getInt(9) != 0);
             r.setBluetoothEnabled(rangec.getInt(10) != 0);
 
+            r.applyChanges();
+
             retlist.add(r);
 
             rangec.moveToNext();
@@ -493,6 +495,7 @@ public class SmarterDBSource {
 
         ContentValues cv = new ContentValues();
 
+        cv.put(SmarterWifiDBHelper.COL_TIMERANGE_ENABLED, range.getEnabled());
         cv.put(SmarterWifiDBHelper.COL_TIMERANGE_START_HR, range.getStartHour());
         cv.put(SmarterWifiDBHelper.COL_TIMERANGE_START_MIN, range.getStartMinute());
         cv.put(SmarterWifiDBHelper.COL_TIMERANGE_END_HR, range.getEndHour());
@@ -517,6 +520,32 @@ public class SmarterDBSource {
         dataBase.endTransaction();
 
         return rid;
+    }
+
+    public long updateTimeRangeEnabled(SmarterTimeRange range) {
+        if (range == null)
+            return -1;
+
+        // If we don't exist in the db, insert us
+        if (range.getDbId() < 0) {
+            return updateTimeRange(range);
+        }
+
+        // Otherwise toggle us
+        ContentValues cv = new ContentValues();
+
+        cv.put(SmarterWifiDBHelper.COL_TIMERANGE_ENABLED, range.getEnabled());
+
+        String compare = SmarterWifiDBHelper.COL_TIMERANGE_ID + "=?";
+        String[] args = {Long.toString(range.getDbId())};
+
+        dataBase.beginTransaction();
+        dataBase.update(SmarterWifiDBHelper.TABLE_TIMERANGE, cv, compare, args);
+
+        dataBase.setTransactionSuccessful();
+        dataBase.endTransaction();
+
+        return range.getDbId();
     }
 
 }

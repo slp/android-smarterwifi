@@ -246,6 +246,15 @@ class SmarterWifiServiceBinder {
         return smarterService.updateTimeRange(r);
     }
 
+    public long updateTimeRangeEnabled(SmarterTimeRange r) {
+        if (smarterService == null) {
+            Log.e("smarter", "service null updating timerangeenabled");
+            return -1;
+        }
+
+        return smarterService.updateTimeRangeEnabled(r);
+    }
+
     public void addCallback(SmarterWifiService.SmarterServiceCallback cb) {
         synchronized (this) {
             if (smarterService == null) {

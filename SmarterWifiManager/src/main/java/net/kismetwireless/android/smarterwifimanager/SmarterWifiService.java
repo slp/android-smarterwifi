@@ -828,4 +828,8 @@ public class SmarterWifiService extends Service {
         return dbSource.updateTimeRange(r);
     }
 
+    public long updateTimeRangeEnabled(SmarterTimeRange r) {
+        return dbSource.updateTimeRangeEnabled(r);
+    }
+
 }

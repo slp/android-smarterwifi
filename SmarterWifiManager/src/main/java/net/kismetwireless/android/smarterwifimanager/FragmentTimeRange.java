@@ -1,5 +1,6 @@
 package net.kismetwireless.android.smarterwifimanager;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -38,9 +39,17 @@ public class FragmentTimeRange extends SmarterFragment {
     private ListView lv;
     private TextView emptyView;
 
+    SmarterWifiServiceBinder serviceBinder;
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        context = getActivity().getApplicationContext();
+
+        serviceBinder = new SmarterWifiServiceBinder(context);
+        serviceBinder.doBindService();
+
         if (savedInstanceState != null) {
             Log.d("smarter", "oac - loading saved timelist");
             lastTimeList = savedInstanceState.getParcelableArrayList("timelist");
@@ -49,6 +58,26 @@ public class FragmentTimeRange extends SmarterFragment {
                 listAdapter = new TimeListAdapter(context, R.layout.time_entry, lastTimeList);
                 lv.setAdapter(listAdapter);
             }
+        } else {
+            serviceBinder.doCallAndBindService(new SmarterWifiServiceBinder.BinderCallback() {
+                @Override
+                public void run(SmarterWifiServiceBinder b) {
+                    if (!isAdded())
+                        return;
+
+                    Activity a = getActivity();
+
+                    if (a == null)
+                        return;
+
+                    a.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateTimeList();
+                        }
+                    });
+                }
+            });
         }
     }
 
@@ -84,6 +113,16 @@ public class FragmentTimeRange extends SmarterFragment {
 
         if (listAdapter != null)
             listAdapter.notifyDataSetChanged();
+
+        if (emptyView != null && lv != null) {
+            if (lastTimeList.size() <= 0) {
+                emptyView.setVisibility(View.VISIBLE);
+                lv.setVisibility(View.GONE);
+            } else {
+                emptyView.setVisibility(View.GONE);
+                lv.setVisibility(View.VISIBLE);
+            }
+        }
     }
 
     public class TimeListAdapter extends ArrayAdapter<SmarterTimeRange> {
@@ -201,10 +240,18 @@ public class FragmentTimeRange extends SmarterFragment {
             builder.setPositiveButton(R.string.timerange_dialog_delete_ok, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    // serviceBinder.deleteSsidTowerMap(entry);
+                    serviceBinder.deleteTimeRange(item);
 
                     lastTimeList.remove(item);
                     listAdapter.notifyDataSetChanged();
+
+                    if (lastTimeList.size() <= 0) {
+                        emptyView.setVisibility(View.VISIBLE);
+                        lv.setVisibility(View.GONE);
+                    } else {
+                        emptyView.setVisibility(View.GONE);
+                        lv.setVisibility(View.VISIBLE);
+                    }
                 }
             });
 
@@ -244,6 +291,10 @@ public class FragmentTimeRange extends SmarterFragment {
                 // Blue/bold day picker text
                 final TextView repMon, repTue, repWed, repThu, repFri, repSat, repSun;
 
+                // Red fail text
+                final TextView errorText1, errorText2;
+                final TextView summaryView;
+
                 collapsedMain = (LinearLayout) v.findViewById(R.id.collapsedMainLayout);
                 expandedMain = (LinearLayout) v.findViewById(R.id.expandedMainLayout);
                 expandView = (LinearLayout) v.findViewById(R.id.expandView);
@@ -280,16 +331,40 @@ public class FragmentTimeRange extends SmarterFragment {
                 repSat = (TextView) v.findViewById(R.id.daySat);
                 repSun = (TextView) v.findViewById(R.id.daySun);
 
+               summaryView = (TextView) v.findViewById(R.id.rangeSummaryText);
+
+                errorText1 = (TextView) v.findViewById(R.id.errorView1);
+                errorText2 = (TextView) v.findViewById(R.id.errorView2);
+
+                int failcode = item.getRangeValid();
+
+                if (failcode < 0) {
+                    errorText1.setVisibility(View.GONE);
+                    errorText2.setVisibility(View.GONE);
+                    summaryView.setVisibility(View.VISIBLE);
+                } else {
+                    errorText1.setText(failcode);
+                    errorText2.setText(failcode);
+                    errorText1.setVisibility(View.VISIBLE);
+                    errorText2.setVisibility(View.VISIBLE);
+                    summaryView.setVisibility(View.GONE);
+                }
+
                 if (item.getDirty()) {
                     if (item.getRevertable())
                         toggleImageViewEnable(undoExpand, true);
                     else
                         toggleImageViewEnable(undoExpand, false);
 
-                    toggleImageViewEnable(saveExpand, true);
+                    // toggleImageViewEnable(saveExpand, true);
+                    // Save turns back into save
+                    saveExpand.setImageResource(R.drawable.ic_action_save);
                 } else {
                     toggleImageViewEnable(undoExpand, false);
-                    toggleImageViewEnable(saveExpand, false);
+
+                    //toggleImageViewEnable(saveExpand, false);
+                    // Turn save into collapse
+                    saveExpand.setImageResource(R.drawable.navigation_collapse);
                 }
 
                 // There are more efficient ways of doing this but it only happens in this one
@@ -521,6 +596,7 @@ public class FragmentTimeRange extends SmarterFragment {
                     @Override
                     public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                         item.setEnabled(b);
+                        serviceBinder.updateTimeRangeEnabled(item);
 
                         // Disable and open, close
                         if (!b) {
@@ -644,10 +720,17 @@ public class FragmentTimeRange extends SmarterFragment {
                 saveExpand.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if (!item.getDirty())
+                        if (!item.getDirty()) {
+                            // We're a collapse button
+                            item.setCollapsed(true);
+                            collapseView(collapsedMain, expandedMain, expandView, collapseView, item.getCollapsed(), item);
+                            listAdapter.notifyDataSetChanged();
                             return;
+                        }
 
-                        // Do save
+                        // Otherwise save
+                        serviceBinder.updateTimeRange(item);
+                        item.applyChanges();
                         listAdapter.notifyDataSetChanged();
                     }
                 });
@@ -657,6 +740,24 @@ public class FragmentTimeRange extends SmarterFragment {
                 Log.e("smarter", "error", ex);
                 return null;
             }
+        }
+    }
+
+    private void updateTimeList() {
+        ArrayList<SmarterTimeRange> tr = serviceBinder.getTimeRangeList();
+
+        if (tr != null) {
+            lastTimeList.clear();
+            lastTimeList.addAll(tr);
+            listAdapter.notifyDataSetChanged();
+        }
+
+        if (lastTimeList.size() <= 0) {
+            emptyView.setVisibility(View.VISIBLE);
+            lv.setVisibility(View.GONE);
+        } else {
+            emptyView.setVisibility(View.GONE);
+            lv.setVisibility(View.VISIBLE);
         }
     }
 
