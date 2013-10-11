@@ -98,7 +98,8 @@ public class SmarterTimeRange implements Parcelable {
         return (c.get(Calendar.DAY_OF_WEEK) * 1440) + (c.get(Calendar.HOUR_OF_DAY) * 60) + c.get(Calendar.MINUTE);
     }
 
-    public boolean isInDuration() {
+    // Returns '0' or duration of current element
+    public long isInDuration() {
         // Blow up our time ranges
         expandTimeDurations();
 
@@ -110,13 +111,54 @@ public class SmarterTimeRange implements Parcelable {
                 continue;
 
             if (now < d.adjustedMinuteOfWeek + d.durationMinutes)
-                return true;
+                return d.durationMinutes;
         }
 
-        return false;
+        return 0;
+    }
+
+    public long getNextStartMillis() {
+        expandTimeDurations();
+
+        long now = System.currentTimeMillis() / 60000;
+
+        long closestmin = 0;
+
+        for (DurationSlice d : expandedDurations) {
+            if (now > d.adjustedMinuteOfWeek)
+                continue;
+
+            if (closestmin == 0 || d.adjustedMinuteOfWeek < closestmin)
+                closestmin = d.adjustedMinuteOfWeek;
+        }
+
+        return closestmin * 60000;
+    }
+
+    public long getNextEndMillis() {
+        expandTimeDurations();
+
+        long now = System.currentTimeMillis() / 60000;
+
+        long closestmin = 0;
+
+        for (DurationSlice d : expandedDurations) {
+            long endminute = d.adjustedMinuteOfWeek + d.durationMinutes;
+
+            if (now > endminute)
+                continue;
+
+            if (closestmin == 0 || endminute < closestmin)
+                closestmin = endminute;
+        }
+
+        return closestmin * 60000;
     }
 
     public void expandTimeDurations() {
+        if (expandedDurations.size() != 0 && !dirty)
+            return;
+
         Calendar c = GregorianCalendar.getInstance();
 
         // Midnight
@@ -210,9 +252,10 @@ public class SmarterTimeRange implements Parcelable {
     }
 
     public void setDays(int repeats) {
-        if (days != repeats)
+        if (days != repeats) {
             dirty = true;
-        // Log.d("smarter", "setdays " + dirty);
+            expandedDurations.clear();
+        }
 
         oldDays = days;
 
@@ -220,9 +263,10 @@ public class SmarterTimeRange implements Parcelable {
     }
 
     public void setStartTime(int starthour, int startminute) {
-        if (startHour != starthour || startMinute != startminute)
+        if (startHour != starthour || startMinute != startminute) {
             dirty = true;
-        //Log.d("smarter", "setstarttime " + dirty);
+            expandedDurations.clear();
+        }
 
         oldStartHour = startHour;
         oldStartMinute = startMinute;
@@ -232,8 +276,10 @@ public class SmarterTimeRange implements Parcelable {
     }
 
     public void setEndTime(int endhour, int endminute) {
-        if (endHour != endhour || endMinute != endminute)
+        if (endHour != endhour || endMinute != endminute) {
             dirty = true;
+            expandedDurations.clear();
+        }
         //Log.d("smarter", "setendtime " + dirty);
 
         oldEndHour = endHour;
@@ -260,9 +306,10 @@ public class SmarterTimeRange implements Parcelable {
     }
 
     public void setWifiControlled(boolean control) {
-        if (controlWifi != control)
+        if (controlWifi != control) {
             dirty = true;
-        //Log.d("smarter", "setwificontrolled " + dirty);
+            expandedDurations.clear();
+        }
 
         oldControlWifi = controlWifi;
 
@@ -274,9 +321,10 @@ public class SmarterTimeRange implements Parcelable {
     }
 
     public void setBluetoothControlled(boolean control) {
-        if (controlBluetooth != control)
+        if (controlBluetooth != control) {
             dirty = true;
-        //Log.d("smarter", "setbtcontrolled " + dirty);
+            expandedDurations.clear();
+        }
 
         oldControlBluetooth = controlBluetooth;
 
@@ -288,10 +336,10 @@ public class SmarterTimeRange implements Parcelable {
     }
 
     public void setWifiEnabled(boolean en) {
-        if (wifiOn != en)
+        if (wifiOn != en) {
             dirty = true;
-
-        //Log.d("smarter", "setwifienabled " + dirty);
+            expandedDurations.clear();
+        }
 
         oldWifiOn = wifiOn;
 
@@ -311,10 +359,10 @@ public class SmarterTimeRange implements Parcelable {
     }
 
     public void setBluetoothEnabled(boolean en) {
-        if (bluetoothOn != en)
+        if (bluetoothOn != en) {
             dirty = true;
-
-        //Log.d("smarter", "setbtenabled " + dirty);
+            expandedDurations.clear();
+        }
 
         oldBluetoothOn = bluetoothOn;
 
@@ -352,6 +400,8 @@ public class SmarterTimeRange implements Parcelable {
         bluetoothOn = oldBluetoothOn;
 
         dirty = false;
+
+        expandedDurations.clear();
     }
 
     public void applyChanges() {
@@ -366,6 +416,8 @@ public class SmarterTimeRange implements Parcelable {
         oldBluetoothOn = bluetoothOn;
 
         dirty = false;
+
+        expandedDurations.clear();
     }
 
     static public int getHuman12Hour(int hour) {

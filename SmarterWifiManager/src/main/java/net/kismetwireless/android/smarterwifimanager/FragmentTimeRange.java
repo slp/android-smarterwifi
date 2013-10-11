@@ -24,6 +24,7 @@ import com.doomonafireball.betterpickers.timepicker.TimePickerBuilder;
 import com.doomonafireball.betterpickers.timepicker.TimePickerDialogFragment;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Created by dragorn on 10/1/13.
@@ -344,6 +345,8 @@ public class FragmentTimeRange extends SmarterFragment {
 
                 // Log.d("smarter", ((then - now) / 1000) + " seconds until start");
                 Log.d("smarter", "Are we in a time range? " + item.isInDuration());
+                Log.d("smarter", "next time we start this event: " + (new Date(item.getNextStartMillis())).toString());
+                Log.d("smarter", "next time we end this event: " + (new Date(item.getNextEndMillis())).toString());
 
                 int failcode = item.getRangeValid();
 
