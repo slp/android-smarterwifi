@@ -54,22 +54,39 @@
     <string name="explanation_wifi_management_disabled">Wi-Fi management disabled</string>
     <string name="explanation_wifi_management_disabled_user">Management turned off</string>
     <string name="explanation_wifi_management_disabled_cell">No cell towers in range</string>
+    <string name="explanation_wifi_geofence_exclude">Disabled by geofence</string>
+    <string name="explanation_wifi_geofence_include">Enabled by geofence</string>
+    <string name="explanation_wifi_time_include">Enabled by time range</string>
+    <string name="explanation_wifi_time_exclude">Disabled by time range</string>
+    <string name="explanation_wifi_disabled_towerid">Connected to blacklisted cell tower</string>
+    <string name="explanation_wifi_ignore_ssidblacklist">Connected to ignored SSID</string>
+    <string name="explanation_wifi_forced_user_enabled">Wi-Fi forced on</string>
+    <string name="explanation_wifi_forced_user_disabled">Wi-Fi forced off</string>
+    <string name="explanation_wifi_ignore_airplane">In airplane mode</string>
+    <string name="explanation_wifi_ignore_tethered">Tethering / sharing connection</string>
+    <string name="explanation_unknown">Unknown reason</string>
+
+    <string name="wifistate_blocked">Wi-Fi forced off</string>
+    <string name="wifistate_ignore">Not managing Wi-Fi</string>
+    <string name="wifistate_on">Wi-Fi connected</string>
+    <string name="wifistate_off">Wi-Fi disabled</string>
+    <string name="wifistate_idle">Wi-Fi enabled but no network</string>
 
     <string name="title_activity_ssid_blacklist">Ignored Networks</string>
     <string name="title_activity_bluetooth_blacklist">Bluetooth</string>
     <string name="title_activity_timerange">Time Ranges</string>
 
     <string name="timerange_delete_text">Delete Time Range</string>
-    <string name="timerange_no_effect">Time range has no effect</string>
-    <string name="timerange_no_days">Time does not occur on any days</string>
+    <string name="timerange_no_effect">Time range doesn\'t control anything</string>
+    <string name="timerange_no_days">Time doesn\'t occur on any days</string>
     <string name="timerange_disabled_text">Time range disabled</string>
     <string name="timerange_control_wifi">Wi-Fi</string>
     <string name="timerange_control_bluetooth">Bluetooth</string>
     <string name="timerange_control_on">on</string>
     <string name="timerange_control_off">off</string>
 
-    <string name="timerange_controlbutton_wifi">Control Wi-Fi</string>
-    <string name="timerange_controlbutton_bt">Control Bluetooth</string>
+    <string name="timerange_controlbutton_wifi">Manage Wi-Fi</string>
+    <string name="timerange_controlbutton_bt">Manage Bluetooth</string>
 
     <string name="timerange_dialog_delete_title">Delete time range?</string>
     <string name="timerange_dialog_delete_cancel">Cancel</string>

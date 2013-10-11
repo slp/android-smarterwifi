@@ -109,7 +109,10 @@ public class FragmentTimeRange extends SmarterFragment {
     }
 
     public void addTimeRange() {
-        lastTimeList.add(new SmarterTimeRange());
+        // Expand new items
+        SmarterTimeRange str = new SmarterTimeRange();
+        str.setCollapsed(false);
+        lastTimeList.add(str);
 
         if (listAdapter != null)
             listAdapter.notifyDataSetChanged();
@@ -335,6 +338,12 @@ public class FragmentTimeRange extends SmarterFragment {
 
                 errorText1 = (TextView) v.findViewById(R.id.errorView1);
                 errorText2 = (TextView) v.findViewById(R.id.errorView2);
+
+                // long now = System.currentTimeMillis();
+                // long then = item.getNextStartAsMillis();
+
+                // Log.d("smarter", ((then - now) / 1000) + " seconds until start");
+                Log.d("smarter", "Are we in a time range? " + item.isInDuration());
 
                 int failcode = item.getRangeValid();
 
@@ -666,21 +675,6 @@ public class FragmentTimeRange extends SmarterFragment {
                         listAdapter.notifyDataSetChanged();
                     }
                 });
-
-                /*
-                expandView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        // We can't expand if we're not enabled
-                        if (!item.getEnabled())
-                            return;
-
-                        item.setCollapsed(!item.getCollapsed());
-
-                        collapseView(collapsedMain, expandedMain, expandView, collapseView, item.getCollapsed(), item);
-                    }
-                });
-                */
 
                 collapseView.setOnClickListener(new View.OnClickListener() {
                     @Override

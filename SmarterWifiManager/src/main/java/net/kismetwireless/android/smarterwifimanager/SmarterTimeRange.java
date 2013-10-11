@@ -3,8 +3,11 @@ package net.kismetwireless.android.smarterwifimanager;
 import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 
 /**
@@ -13,13 +16,13 @@ import java.util.GregorianCalendar;
  * This has to be parcelable because we can keep un-saved changes in fragments
  */
 public class SmarterTimeRange implements Parcelable {
+    public static int REPEAT_SUN = (1 << Calendar.SUNDAY);
     public static int REPEAT_MON = (1 << Calendar.MONDAY);
     public static int REPEAT_TUE = (1 << Calendar.TUESDAY);
     public static int REPEAT_WED = (1 << Calendar.WEDNESDAY);
     public static int REPEAT_THU = (1 << Calendar.THURSDAY);
     public static int REPEAT_FRI = (1 << Calendar.FRIDAY);
     public static int REPEAT_SAT = (1 << Calendar.SATURDAY);
-    public static int REPEAT_SUN = (1 << Calendar.SUNDAY);
 
     private int startHour, startMinute;
     private int endHour, endMinute;
@@ -40,6 +43,14 @@ public class SmarterTimeRange implements Parcelable {
     private boolean enabled = true;
 
     private long dbid = -1;
+
+    // Expanded duration for simple math
+    private class DurationSlice {
+        long adjustedMinuteOfWeek;
+        long durationMinutes;
+    }
+
+    private ArrayList<DurationSlice> expandedDurations = new ArrayList<DurationSlice>();
 
     public SmarterTimeRange() {
         dbid = -1;
@@ -64,27 +75,118 @@ public class SmarterTimeRange implements Parcelable {
         dbid = id;
     }
 
-    public boolean isInTimeRange() {
-        Calendar calendar = GregorianCalendar.getInstance();
+    public SmarterTimeRange(SmarterTimeRange r) {
+        this.startHour = r.getStartHour();
+        this.startMinute = r.getStartMinute();
+        this.endHour = r.getEndHour();
+        this.endMinute = r.getEndMinute();
+        this.days = r.getDays();
+        this.controlWifi = r.getWifiControlled();
+        this.wifiOn = r.getWifiEnabled();
+        this.controlBluetooth = r.getBluetoothControlled();
+        this.bluetoothOn = r.getBluetoothEnabled();
+        this.enabled = r.getEnabled();
 
-        int hr = calendar.get(Calendar.HOUR_OF_DAY);
-        int mn = calendar.get(Calendar.MINUTE);
-        int dy = calendar.get(Calendar.DAY_OF_WEEK);
+        this.dbid = r.getDbId();
 
-        // Today... is a good day to wi-fi
-        if ((dy & days) == 0) {
-            return false;
+        dirty = false;
+    }
+
+    public static long getNowWeekMinutes() {
+        Calendar c = GregorianCalendar.getInstance();
+
+        return (c.get(Calendar.DAY_OF_WEEK) * 1440) + (c.get(Calendar.HOUR_OF_DAY) * 60) + c.get(Calendar.MINUTE);
+    }
+
+    public boolean isInDuration() {
+        // Blow up our time ranges
+        expandTimeDurations();
+
+        // Now since epoch converted to minute precision
+        long now = System.currentTimeMillis() / 60000;
+
+        for (DurationSlice d : expandedDurations) {
+            if (now < d.adjustedMinuteOfWeek)
+                continue;
+
+            if (now < d.adjustedMinuteOfWeek + d.durationMinutes)
+                return true;
         }
 
-        if (hr < startHour || hr > endHour)
-            return false;
+        return false;
+    }
 
-        if (mn < startMinute || mn > endMinute)
-            return false;
+    public void expandTimeDurations() {
+        Calendar c = GregorianCalendar.getInstance();
 
-        // Log.d("smarter", "Day valid, hr " + hr + " falls within " + startHour + "," + endHour + " and mn " + mn + " within " + startMinute + "," + endHour);
+        // Midnight
+        c.set(Calendar.HOUR_OF_DAY, 0);
+        c.clear(Calendar.MINUTE);
+        c.clear(Calendar.SECOND);
+        c.clear(Calendar.MILLISECOND);
 
-        return true;
+        // Decrement via localization
+        while (c.get(Calendar.DAY_OF_WEEK) != c.getFirstDayOfWeek()) {
+            c.add(Calendar.DATE, -1);
+        }
+
+        // Log.d("smarter", "starting week on " + c.toString());
+
+        // Get the start of the week, in seconds, since the epoch
+        long adjustment = c.getTimeInMillis() / 60000;
+
+        /*
+        Date nd = new Date(adjustment * 60000);
+        Log.d("smarter", "equivalent week start on " + nd.toString());
+        */
+
+        expandedDurations.clear();
+
+        // No matter what our localization, numerically we go sunday-saturday and we're iterating the bitfield
+        for (int d = Calendar.SUNDAY; d <= Calendar.SATURDAY; d++) {
+            // For days we're active in
+            if ((days & (1 << d)) == 0)
+                continue;
+
+            // Start time in minutes
+            long weekstart = (1440 * (d - 1)) + (60 * startHour) + startMinute;
+
+            long duration;
+            int endday = d;
+            if (endHour < startHour || (endHour == startHour && endMinute < startMinute)) {
+                endday += 1;
+            }
+
+            long endtime = (1440 * (endday - 1)) + (60 * endHour) + endMinute;
+
+            // Duration in minutes; may extend past end of week
+            duration = endtime - weekstart;
+
+            // If we repeat on saturday and end on sunday, we need to make a record a day earlier
+            // that carries into sunday; which is a week earlier from our current calculation point,
+            // which is the end of the week
+            if (d == Calendar.SATURDAY && endday != d) {
+                DurationSlice ds = new DurationSlice();
+                ds.adjustedMinuteOfWeek = weekstart + adjustment - (7 * 1440);
+                ds.durationMinutes = duration;
+
+                // Log.d("smarter", "Week-wrapping event starts at " + (new Date(ds.adjustedMinuteOfWeek * 60000)).toString() + " for " + ds.durationMinutes);
+                Log.d("smarter", "Occurence at " + (new Date(ds.adjustedMinuteOfWeek * 60000)).toString() + " until " + (new Date((ds.adjustedMinuteOfWeek + ds.durationMinutes) * 60000)).toString());
+
+                expandedDurations.add(ds);
+            }
+
+            DurationSlice ds = new DurationSlice();
+
+            // ds.startMinuteOfWeek = weekstart;
+            ds.adjustedMinuteOfWeek = weekstart + adjustment;
+            ds.durationMinutes = (int) duration;
+
+            expandedDurations.add(ds);
+
+            Log.d("smarter", "Occurence at " + (new Date(ds.adjustedMinuteOfWeek * 60000)).toString() + " until " + (new Date((ds.adjustedMinuteOfWeek + ds.durationMinutes) * 60000)).toString());
+        }
+
     }
 
     public int getStartHour() {
