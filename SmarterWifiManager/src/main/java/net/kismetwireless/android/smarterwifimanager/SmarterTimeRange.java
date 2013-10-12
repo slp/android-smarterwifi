@@ -35,6 +35,8 @@ public class SmarterTimeRange implements Parcelable {
 
     private boolean oldControlWifi, oldControlBluetooth, oldWifiOn, oldBluetoothOn;
 
+    private boolean aggressive = false, oldAggressive;
+
     private boolean dirty = false;
 
     // Hide the UI collapse state in here
@@ -58,7 +60,7 @@ public class SmarterTimeRange implements Parcelable {
 
     public SmarterTimeRange(int starthour, int startminute, int endhour, int endminute, int days,
                             boolean controlwifi, boolean controlbt, boolean wifion, boolean bton,
-                            boolean enabled, long id) {
+                            boolean enabled, boolean aggressive, long id) {
         oldStartHour = startHour = starthour;
         oldStartMinute = startMinute = startminute;
         oldEndHour = endHour = endhour;
@@ -92,14 +94,45 @@ public class SmarterTimeRange implements Parcelable {
         dirty = false;
     }
 
-    public static long getNowWeekMinutes() {
+    public static long getNowInMinutes() {
+        /*
         Calendar c = GregorianCalendar.getInstance();
 
         return (c.get(Calendar.DAY_OF_WEEK) * 1440) + (c.get(Calendar.HOUR_OF_DAY) * 60) + c.get(Calendar.MINUTE);
+        */
+
+        return System.currentTimeMillis() / 60000;
+    }
+
+    public long getDurationMinutes() {
+        // Arbitrary day
+        int d = 1;
+
+        long weekstart = (1440 * (d - 1)) + (60 * startHour) + startMinute;
+
+        long duration;
+        int endday = d;
+        if (getCrossesDays()) {
+            endday += 1;
+        }
+
+        long endtime = (1440 * (endday - 1)) + (60 * endHour) + endMinute;
+
+        duration = endtime - weekstart;
+
+        return duration;
+    }
+
+    public boolean getCrossesDays() {
+        if (endHour < startHour || (endHour == startHour && endMinute < startMinute)) {
+            return true;
+        }
+
+        return false;
     }
 
     // Returns '0' or duration of current element
-    public long isInDuration() {
+    public boolean isInRangeNow() {
         // Blow up our time ranges
         expandTimeDurations();
 
@@ -111,10 +144,10 @@ public class SmarterTimeRange implements Parcelable {
                 continue;
 
             if (now < d.adjustedMinuteOfWeek + d.durationMinutes)
-                return d.durationMinutes;
+                return true;
         }
 
-        return 0;
+        return false;
     }
 
     public long getNextStartMillis() {
@@ -177,6 +210,8 @@ public class SmarterTimeRange implements Parcelable {
         // Get the start of the week, in seconds, since the epoch
         long adjustment = c.getTimeInMillis() / 60000;
 
+        long duration = getDurationMinutes();
+
         /*
         Date nd = new Date(adjustment * 60000);
         Log.d("smarter", "equivalent week start on " + nd.toString());
@@ -193,27 +228,16 @@ public class SmarterTimeRange implements Parcelable {
             // Start time in minutes
             long weekstart = (1440 * (d - 1)) + (60 * startHour) + startMinute;
 
-            long duration;
-            int endday = d;
-            if (endHour < startHour || (endHour == startHour && endMinute < startMinute)) {
-                endday += 1;
-            }
-
-            long endtime = (1440 * (endday - 1)) + (60 * endHour) + endMinute;
-
-            // Duration in minutes; may extend past end of week
-            duration = endtime - weekstart;
-
             // If we repeat on saturday and end on sunday, we need to make a record a day earlier
             // that carries into sunday; which is a week earlier from our current calculation point,
             // which is the end of the week
-            if (d == Calendar.SATURDAY && endday != d) {
+            if (d == Calendar.SATURDAY && getCrossesDays()) {
                 DurationSlice ds = new DurationSlice();
                 ds.adjustedMinuteOfWeek = weekstart + adjustment - (7 * 1440);
                 ds.durationMinutes = duration;
 
                 // Log.d("smarter", "Week-wrapping event starts at " + (new Date(ds.adjustedMinuteOfWeek * 60000)).toString() + " for " + ds.durationMinutes);
-                Log.d("smarter", "Occurence at " + (new Date(ds.adjustedMinuteOfWeek * 60000)).toString() + " until " + (new Date((ds.adjustedMinuteOfWeek + ds.durationMinutes) * 60000)).toString());
+                Log.d("smarter", "Occurrence at " + (new Date(ds.adjustedMinuteOfWeek * 60000)).toString() + " until " + (new Date((ds.adjustedMinuteOfWeek + ds.durationMinutes) * 60000)).toString());
 
                 expandedDurations.add(ds);
             }
@@ -226,7 +250,7 @@ public class SmarterTimeRange implements Parcelable {
 
             expandedDurations.add(ds);
 
-            Log.d("smarter", "Occurence at " + (new Date(ds.adjustedMinuteOfWeek * 60000)).toString() + " until " + (new Date((ds.adjustedMinuteOfWeek + ds.durationMinutes) * 60000)).toString());
+            Log.d("smarter", "Occurrence at " + (new Date(ds.adjustedMinuteOfWeek * 60000)).toString() + " until " + (new Date((ds.adjustedMinuteOfWeek + ds.durationMinutes) * 60000)).toString());
         }
 
     }
@@ -297,8 +321,17 @@ public class SmarterTimeRange implements Parcelable {
         dbid = id;
     }
 
-    public long getNextAlarmMillis() {
-        return 0;
+    public boolean getAggressiveManagement() {
+        return aggressive;
+    }
+
+    public void setAggressiveManagement(boolean agg) {
+        if (aggressive != agg) {
+            dirty = true;
+        }
+
+        oldAggressive = aggressive;
+        aggressive = agg;
     }
 
     public boolean getWifiControlled() {
@@ -398,6 +431,7 @@ public class SmarterTimeRange implements Parcelable {
         wifiOn = oldWifiOn;
         controlBluetooth = oldControlBluetooth;
         bluetoothOn = oldBluetoothOn;
+        aggressive = oldAggressive;
 
         dirty = false;
 
@@ -497,6 +531,7 @@ public class SmarterTimeRange implements Parcelable {
         controlBluetooth = (source.readInt() == 1);
         bluetoothOn = (source.readInt() == 1);
         dbid = source.readLong();
+        aggressive = (source.readInt() == 1);
 
         oldStartHour = source.readInt();
         oldStartMinute = source.readInt();
@@ -507,6 +542,7 @@ public class SmarterTimeRange implements Parcelable {
         oldWifiOn = (source.readInt() == 1);
         oldControlBluetooth = (source.readInt() == 1);
         oldBluetoothOn = (source.readInt() == 1);
+        oldAggressive = (source.readInt() == 1);
 
     }
 
@@ -524,6 +560,7 @@ public class SmarterTimeRange implements Parcelable {
         dest.writeInt(controlBluetooth ? 1 : 0);
         dest.writeInt(bluetoothOn ? 1 : 0);
         dest.writeLong(dbid);
+        dest.writeInt(aggressive ? 1 : 0);
 
         dest.writeInt(oldStartHour);
         dest.writeInt(oldStartMinute);
@@ -534,6 +571,7 @@ public class SmarterTimeRange implements Parcelable {
         dest.writeInt(oldWifiOn ? 1 : 0);
         dest.writeInt(oldControlBluetooth ? 1 : 0);
         dest.writeInt(oldBluetoothOn ? 1 : 0);
+        dest.writeInt(oldAggressive ? 1 : 0);
     }
 
     public int describeContents() {

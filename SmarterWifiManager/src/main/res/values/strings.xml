@@ -14,6 +14,7 @@
     <string name="prefs_item_notification_explanation">Turning off notifications may impact the background service in low memory conditions, if you notice problems, leave it on.</string>
     <string name="prefs_item_boot">Automatically start</string>
     <string name="prefs_item_boot_explanation">Automatically start Smarter Wi-Fi Manager service on boot or Wi-Fi and cell tower changes.</string>
+
     <string name="tab_main">Smarter</string>
     <string name="tab_ignore">Ignore</string>
     <string name="tab_learned">Learned</string>

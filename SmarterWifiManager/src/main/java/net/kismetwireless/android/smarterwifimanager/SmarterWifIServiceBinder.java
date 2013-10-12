@@ -156,6 +156,15 @@ class SmarterWifiServiceBinder {
         smarterService.configureWifiState();
     }
 
+    public void configureTimerangeState() {
+        if (smarterService == null) {
+            Log.e("smarter", "service null configuretimerangestate");
+            return;
+        }
+
+        smarterService.configureTimerangeState();
+    }
+
     public ArrayList<SmarterBluetooth> getBluetoothBlacklist() {
         if (smarterService == null) {
             Log.e("smarter", "service null getting bt blacklist");

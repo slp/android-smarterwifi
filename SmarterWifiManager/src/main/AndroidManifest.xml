@@ -28,6 +28,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:allowBackup="true"
@@ -56,11 +57,14 @@
                 <action android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
             </intent-filter>
         </receiver>
+
         <receiver android:name="net.kismetwireless.android.smarterwifimanager.BootReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
+        <receiver android:name="net.kismetwireless.android.smarterwifimanager.AlarmReceiver" />
 
         <service
             android:name="net.kismetwireless.android.smarterwifimanager.SmarterWifiService"

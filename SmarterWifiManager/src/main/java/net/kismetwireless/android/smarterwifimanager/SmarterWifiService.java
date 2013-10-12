@@ -88,10 +88,15 @@ public class SmarterWifiService extends Service {
 
     private boolean bluetoothEnabled = false;
     private boolean bluetoothBlocking = false;
+    private boolean initialBluetoothState = false;
     private HashMap<String, SmarterBluetooth> bluetoothBlockingDevices = new HashMap<String, SmarterBluetooth>();
     private HashMap<String, SmarterBluetooth> bluetoothConnectedDevices = new HashMap<String, SmarterBluetooth>();
 
     private SmarterTimeRange currentTimeRange, nextTimeRange;
+
+    private AlarmReceiver alarmReceiver;
+
+    private boolean pendingWifiShutdown = false, pendingBluetoothShutdown = false;
 
     public static abstract class SmarterServiceCallback {
         protected ControlType controlType;
@@ -161,8 +166,11 @@ public class SmarterWifiService extends Service {
         btAdapter = BluetoothAdapter.getDefaultAdapter();
 
         notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
         notificationBuilder = new NotificationCompat.Builder(context);
+
+        alarmReceiver = new AlarmReceiver();
+
+        alarmReceiver.setAlarm(context, System.currentTimeMillis() + (20 * 1000));
 
         // Make the notification
         notificationBuilder.setSmallIcon(R.drawable.custom_wifi_enabled);
@@ -175,12 +183,18 @@ public class SmarterWifiService extends Service {
 
         notificationBuilder.setContentIntent(pIntent);
 
+        // Get the initial BT enable state
+        initialBluetoothState = getBluetoothState() != BluetoothState.BLUETOOTH_OFF;
+
         updatePreferences();
 
         telephonyManager.listen(phoneListener, PhoneStateListener.LISTEN_CELL_LOCATION);
 
         // Kick an update
-        configureWifiState();
+        // configureWifiState();
+
+        // Update the time range database which also fires BT and Wifi configurations
+        configureTimerangeState();
 
         if (showNotification)
             notificationManager.notify(0, notificationBuilder.build());
@@ -275,15 +289,84 @@ public class SmarterWifiService extends Service {
 
     public void updateTimeRanges() {
         ArrayList<SmarterTimeRange> ranges = getTimeRangeList();
-        SmarterTimeRange newStart, newEnd;
+
+        currentTimeRange = null;
+        nextTimeRange = null;
 
         if (ranges == null) {
-            currentTimeRange = null;
-            nextTimeRange = null;
             return;
         }
 
+        // Are we in a time range right now?  If so, figure out which one has the
+        // shortest duration that we're part of.  Once we fall out of this time range
+        // we'll redo this calculation, which will grab the outer time range if one
+        // exists.
+        for (SmarterTimeRange t : ranges) {
+            if (!t.getEnabled())
+                continue;
 
+            if (!t.isInRangeNow())
+                continue;
+
+            if (currentTimeRange == null) {
+                currentTimeRange = new SmarterTimeRange(t);
+                continue;
+            }
+
+            if (t.getDurationMinutes() < currentTimeRange.getDurationMinutes()) {
+                currentTimeRange = t;
+            }
+        }
+
+        long now = System.currentTimeMillis();
+        long timeUtilStart = 0;
+
+        // Figure out the next time range we're going to be in
+        for (SmarterTimeRange t : ranges) {
+            if (!t.getEnabled())
+                continue;
+
+            long nextT = t.getNextStartMillis();
+
+            // Shouldn't be possible since next will always find based on now, but can't hurt
+            if (nextT < now)
+                continue;
+
+            if (timeUtilStart == 0 || nextT - now < timeUtilStart) {
+                nextTimeRange = t;
+            }
+        }
+
+        if (currentTimeRange == null && nextTimeRange == null) {
+            Log.d("smarter", "Not in any time ranges");
+            return;
+        }
+
+        if (currentTimeRange != null) {
+            Log.d("smarter", "currently in a time range");
+            // Is the next alarm for the end of this time range, or for an overlapping range?
+            if (nextTimeRange == null ||
+                    (nextTimeRange != null && currentTimeRange.getNextEndMillis() < nextTimeRange.getNextStartMillis())) {
+                Log.d("smarter", "next alarm for end of this time range");
+                alarmReceiver.setAlarm(this, currentTimeRange.getNextEndMillis());
+            } else {
+                Log.d("smarter", "next alarm for start of overlapping time range");
+                alarmReceiver.setAlarm(this, nextTimeRange.getNextStartMillis());
+            }
+
+            // Control what we're going to control
+            if (currentTimeRange.getWifiControlled()) {
+                wifiManager.setWifiEnabled(currentTimeRange.getWifiEnabled());
+            }
+
+            if (currentTimeRange.getBluetoothControlled() && btAdapter != null) {
+                if (currentTimeRange.getBluetoothEnabled()) {
+                    btAdapter.enable();
+                } else {
+                    btAdapter.disable();
+                }
+            }
+        }
     }
 
     public void updatePreferences() {
@@ -311,10 +394,22 @@ public class SmarterWifiService extends Service {
         telephonyManager.listen(phoneListener, 0);
     }
 
-    private void startWifiEnable() {
-        // Restart the enable
-        timerHandler.removeCallbacks(wifiEnableTask);
+    private void startBluetoothEnable() {
+        if (btAdapter != null) {
+            Log.d("smarter", "Turning on bluetooth");
+            btAdapter.enable();
+        }
+    }
 
+    private void startBluetoothShutdown() {
+        if (btAdapter != null) {
+            Log.d("smarter", "Turning off bluetooth");
+            btAdapter.disable();
+        }
+    }
+
+    private void startWifiEnable() {
+        timerHandler.removeCallbacks(wifiEnableTask);
         timerHandler.postDelayed(wifiEnableTask, enableWaitSeconds * 1000);
 
         Log.d("smarter", "Starting countdown of " + enableWaitSeconds + " to enable wifi");
@@ -322,6 +417,12 @@ public class SmarterWifiService extends Service {
     }
 
     private void startWifiShutdown() {
+        if (pendingWifiShutdown) {
+            Log.d("smarter", "wifi countown in progress, not shutting down");
+            return;
+        }
+
+        pendingWifiShutdown = true;
         // Restart the countdown incase we got called while a countdown was already running
         timerHandler.removeCallbacks(wifiDisableTask);
 
@@ -345,6 +446,8 @@ public class SmarterWifiService extends Service {
 
     private Runnable wifiDisableTask = new Runnable() {
         public void run() {
+            pendingWifiShutdown = false;
+
             if (shutdown) return;
 
             // If we're not proctoring wifi...
@@ -510,19 +613,43 @@ public class SmarterWifiService extends Service {
 
     public void configureBluetoothState() {
         int btstate = btAdapter.getState();
+        BluetoothState targetstate = getShouldBluetoothBeEnabled();
 
         if (btstate == BluetoothAdapter.STATE_OFF) {
             bluetoothBlocking = false;
             bluetoothEnabled = false;
             bluetoothBlockingDevices.clear();
             bluetoothConnectedDevices.clear();
+
+            if (targetstate == BluetoothState.BLUETOOTH_ON) {
+                startBluetoothEnable();
+            }
         } else if (btstate == BluetoothAdapter.STATE_ON) {
             bluetoothEnabled = true;
+
+            if (targetstate == BluetoothState.BLUETOOTH_BLOCKED ||
+                    targetstate == BluetoothState.BLUETOOTH_OFF) {
+                startBluetoothShutdown();
+            }
         }
 
         triggerCallbackBluetoothChanged();
 
         // We can't get a list of connected devices, only watch
+    }
+
+    public void configureTimerangeState() {
+        // Are we in a state when we started?  If not, update our bluetooth state
+        if (currentTimeRange == null) {
+            initialBluetoothState = getBluetoothState() != BluetoothState.BLUETOOTH_OFF;
+        }
+
+        // Figure out if we should be in one and set future alarms
+        updateTimeRanges();
+
+        // Configure wifi and bluetooth
+        configureWifiState();
+        configureBluetoothState();
     }
 
     public void handleBluetoothDeviceState(BluetoothDevice d, int state) {
@@ -549,6 +676,26 @@ public class SmarterWifiService extends Service {
                 configureWifiState();
             }
         }
+    }
+
+    // Based on everything we know, should bluetooth be enabled?
+    public BluetoothState getShouldBluetoothBeEnabled() {
+        // Are we in a time range?
+        if (currentTimeRange != null) {
+            if (currentTimeRange.getBluetoothControlled()) {
+                // Does this time range control bluetooth?
+                if (currentTimeRange.getBluetoothEnabled())
+                    return BluetoothState.BLUETOOTH_ON;
+                else
+                    return BluetoothState.BLUETOOTH_BLOCKED;
+            } else {
+                // Otherwise ignore it
+                return BluetoothState.BLUETOOTH_IGNORE;
+            }
+        }
+
+        // Otherwise return us to the state we were before we started this
+        return initialBluetoothState ? BluetoothState.BLUETOOTH_ON : BluetoothState.BLUETOOTH_BLOCKED;
     }
 
     // Based on everything we know, should wifi be enabled?
@@ -588,6 +735,29 @@ public class SmarterWifiService extends Service {
         if (userOverrideState == WifiState.WIFI_ON) {
             lastControlReason = ControlType.CONTROL_USER;
             return WifiState.WIFI_ON;
+        }
+
+        // If we're in a time range...
+        if (currentTimeRange != null) {
+            // And we control wifi...
+            if (currentTimeRange.getWifiControlled()) {
+                // and we're supposed to shut it down
+                if (!currentTimeRange.getWifiEnabled()) {
+                    lastControlReason = ControlType.CONTROL_TIME;
+
+                    // Harsh or gentle?
+                    if (currentTimeRange.getAggressiveManagement())
+                        return WifiState.WIFI_BLOCKED;
+                    else
+                        return WifiState.WIFI_OFF;
+                } else {
+                    // We want it on..
+                    lastControlReason = ControlType.CONTROL_TIME;
+                    return WifiState.WIFI_ON;
+                }
+            }
+
+            // Otherwise we're not managing wifi in this time range so we keep going
         }
 
         // Bluetooth blocks learning
@@ -912,14 +1082,24 @@ public class SmarterWifiService extends Service {
 
     public void deleteTimeRange(SmarterTimeRange r) {
         dbSource.deleteTimeRange(r);
+
+        configureTimerangeState();
     }
 
     public long updateTimeRange(SmarterTimeRange r) {
-        return dbSource.updateTimeRange(r);
+        long ud =  dbSource.updateTimeRange(r);
+
+        configureTimerangeState();
+
+        return ud;
     }
 
     public long updateTimeRangeEnabled(SmarterTimeRange r) {
-        return dbSource.updateTimeRangeEnabled(r);
+        long ud = dbSource.updateTimeRangeEnabled(r);
+
+        configureTimerangeState();
+
+        return ud;
     }
 
 }
