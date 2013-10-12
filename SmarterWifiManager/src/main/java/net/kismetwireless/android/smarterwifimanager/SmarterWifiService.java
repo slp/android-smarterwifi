@@ -354,11 +354,6 @@ public class SmarterWifiService extends Service {
                 alarmReceiver.setAlarm(this, nextTimeRange.getNextStartMillis());
             }
 
-            // Control what we're going to control
-            if (currentTimeRange.getWifiControlled()) {
-                wifiManager.setWifiEnabled(currentTimeRange.getWifiEnabled());
-            }
-
             if (currentTimeRange.getBluetoothControlled() && btAdapter != null) {
                 if (currentTimeRange.getBluetoothEnabled()) {
                     btAdapter.enable();
@@ -745,11 +740,16 @@ public class SmarterWifiService extends Service {
                 if (!currentTimeRange.getWifiEnabled()) {
                     lastControlReason = ControlType.CONTROL_TIME;
 
+                    // Always aggressively block when in a time range
+                    return WifiState.WIFI_BLOCKED;
+
+                    /*
                     // Harsh or gentle?
                     if (currentTimeRange.getAggressiveManagement())
                         return WifiState.WIFI_BLOCKED;
                     else
                         return WifiState.WIFI_OFF;
+                        */
                 } else {
                     // We want it on..
                     lastControlReason = ControlType.CONTROL_TIME;

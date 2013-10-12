@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.kismetwireless.android.smarterwifimanager"
-    android:versionCode="23"
-    android:versionName="2013.9.23" >
+    android:versionCode="25"
+    android:versionName="2013.9.25" >
 
     <uses-sdk
         android:minSdkVersion="14"
