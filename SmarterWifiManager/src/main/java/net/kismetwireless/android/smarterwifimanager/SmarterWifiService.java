@@ -37,7 +37,8 @@ public class SmarterWifiService extends Service {
 
     public enum ControlType {
         CONTROL_DISABLED, CONTROL_USER, CONTROL_TOWER, CONTROL_TOWERID, CONTROL_GEOFENCE,
-        CONTROL_BLUETOOTH, CONTROL_TIME, CONTROL_SSIDBLACKLIST, CONTROL_AIRPLANE, CONTROL_TETHER
+        CONTROL_BLUETOOTH, CONTROL_TIME, CONTROL_SSIDBLACKLIST, CONTROL_AIRPLANE, CONTROL_TETHER,
+        CONTROL_SLEEPPOLICY
     }
 
     public enum WifiState {
@@ -864,6 +865,10 @@ public class SmarterWifiService extends Service {
 
     public boolean getAirplaneMode() {
         return Settings.System.getInt(context.getContentResolver(), Settings.System.AIRPLANE_MODE_ON, 0) != 0;
+    }
+
+    public int getSleepPolicy() {
+        return Settings.System.getInt(context.getContentResolver(), Settings.System.WIFI_SLEEP_POLICY, Settings.System.WIFI_SLEEP_POLICY_NEVER);
     }
 
     public boolean getWifiStateEnabled(WifiState state) {

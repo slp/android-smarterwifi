@@ -65,6 +65,7 @@
     <string name="explanation_wifi_forced_user_disabled">Wi-Fi forced off</string>
     <string name="explanation_wifi_ignore_airplane">In airplane mode</string>
     <string name="explanation_wifi_ignore_tethered">Tethering / sharing connection</string>
+    <string name="explanation_wifi_ignore_sleeppolicy">Ignoring due to sleep policy</string>
     <string name="explanation_unknown">Unknown reason</string>
 
     <string name="wifistate_blocked">Wi-Fi forced off</string>
