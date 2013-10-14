@@ -611,6 +611,12 @@ public class SmarterWifiService extends Service {
         int btstate = btAdapter.getState();
         BluetoothState targetstate = getShouldBluetoothBeEnabled();
 
+        // Learn time range if null
+        if (currentTimeRange == null) {
+            initialBluetoothState = (btstate != BluetoothAdapter.STATE_OFF);
+            Log.d("smarter", "learned default bt state: " + initialBluetoothState);
+        }
+
         if (btstate == BluetoothAdapter.STATE_OFF) {
             bluetoothBlocking = false;
             bluetoothEnabled = false;
@@ -635,13 +641,28 @@ public class SmarterWifiService extends Service {
     }
 
     public void configureTimerangeState() {
+        boolean wasInRange = false;
+
         // Are we in a state when we started?  If not, update our bluetooth state
         if (currentTimeRange == null) {
             initialBluetoothState = getBluetoothState() != BluetoothState.BLUETOOTH_OFF;
+            Log.d("smarter", "learned default bt state: " + initialBluetoothState);
+        } else {
+            wasInRange = true;
         }
 
         // Figure out if we should be in one and set future alarms
         updateTimeRanges();
+
+        // We've transitioned out of a time range
+        if (currentTimeRange != null && btAdapter != null) {
+            Log.d("smarter", "transitioning out of time range, restoring bluetooth to previous state of: " + initialBluetoothState);
+            if (initialBluetoothState) {
+                btAdapter.enable();
+            } else {
+                btAdapter.disable();
+            }
+        }
 
         // Configure wifi and bluetooth
         configureWifiState();
@@ -690,8 +711,13 @@ public class SmarterWifiService extends Service {
             }
         }
 
+        /* Otherwise ignore */
+        return BluetoothState.BLUETOOTH_IGNORE;
+
+        /*
         // Otherwise return us to the state we were before we started this
         return initialBluetoothState ? BluetoothState.BLUETOOTH_ON : BluetoothState.BLUETOOTH_BLOCKED;
+        */
     }
 
     // Based on everything we know, should wifi be enabled?
