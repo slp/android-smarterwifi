@@ -5,7 +5,7 @@
     <Switch
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Manage Wifi"
+        android:text="@string/manage_radio_switch"
         android:id="@+id/switchManageWifi"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"

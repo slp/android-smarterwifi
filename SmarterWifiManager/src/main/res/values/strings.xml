@@ -20,9 +20,17 @@
     <string name="tab_learned">Learned</string>
     <string name="tab_bluetooth">Bluetooth</string>
     <string name="tab_time">Time</string>
+
     <string name="pref_enable">enable_system</string>
     <string name="pref_learn">enable_learning</string>
+
     <string name="service_desc">Smarter Wi-Fi Service</string>
+
+    <string name="manage_radio_switch">Manage radios</string>
+    <string name="manage_radio_explanation">Control Wi-Fi and Bluetooth based on auto-learned locations, time ranges, and other criteria</string>
+
+    <string name="learn_wifi_switch">Auto-Learn Locations</string>
+
     <string name="manage_wifi_explanation">Control Wi-Fi radio based on auto-learned locations and other criteria</string>
     <string name="autolearn_wifi_description">Automatically learn when to enable Wi-Fi based on cell tower identities.  To begin learning in a new location, enable Wi-Fi normally.</string>
     <string name="ssid_blacklist_desc">While connected to an ignored SSID, automatic location learning will be disabled.  It will be re-enabled when you leave the blocked network.</string>

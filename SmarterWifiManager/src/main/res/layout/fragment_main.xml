@@ -69,7 +69,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/manage_wifi_explanation"
+            android:text="@string/manage_radio_explanation"
             android:id="@+id/textView3"
             android:layout_below="@+id/switchManageWifi"
             android:layout_alignParentRight="true"

@@ -697,6 +697,12 @@ public class SmarterWifiService extends Service {
 
     // Based on everything we know, should bluetooth be enabled?
     public BluetoothState getShouldBluetoothBeEnabled() {
+        // We're not looking at all
+        if (proctorWifi == false) {
+            lastControlReason = ControlType.CONTROL_DISABLED;
+            return BluetoothState.BLUETOOTH_IGNORE;
+        }
+
         // Are we in a time range?
         if (currentTimeRange != null) {
             if (currentTimeRange.getBluetoothControlled()) {
