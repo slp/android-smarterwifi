@@ -20,6 +20,7 @@ android {
         minSdkVersion   10
         targetSdkVersion 18
     }
+
 }
 
 dependencies {

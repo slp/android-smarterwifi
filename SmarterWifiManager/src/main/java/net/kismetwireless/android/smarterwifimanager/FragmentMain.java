@@ -30,6 +30,36 @@ public class FragmentMain extends SmarterFragment {
 
     private SmarterWifiService.SmarterServiceCallback guiCallback = new SmarterWifiService.SmarterServiceCallback() {
         @Override
+        public void preferencesChanged() {
+            super.preferencesChanged();
+
+            if (sharedPreferences == null || switchManageWifi == null || switchAutoLearn == null)
+                return;
+
+            Activity ma = getActivity();
+
+            if (ma == null)
+                return;
+
+            ma.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (sharedPreferences.getBoolean(getString(R.string.pref_enable), true)) {
+                        switchManageWifi.setChecked(true);
+                    } else {
+                        switchManageWifi.setChecked(false);
+                    }
+
+                    if (sharedPreferences.getBoolean(getString(R.string.pref_learn), true)) {
+                        switchAutoLearn.setChecked(true);
+                    } else {
+                        switchAutoLearn.setChecked(false);
+                    }
+                }
+            });
+        }
+
+        @Override
         public void wifiStateChanged(final SmarterSSID ssid, final SmarterWifiService.WifiState state,
                                      final SmarterWifiService.WifiState controlstate, final SmarterWifiService.ControlType type) {
             super.wifiStateChanged(ssid, state, controlstate, type);
@@ -120,25 +150,25 @@ public class FragmentMain extends SmarterFragment {
                 if (!isAdded())
                     return;
 
-                switchManageWifi.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                switchManageWifi.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                        if (b == false) {
-                            switchAutoLearn.setEnabled(false);
-                        } else {
-                            switchAutoLearn.setEnabled(true);
-                        }
+                    public void onClick(View view) {
+                        boolean checked = ((CompoundButton) view).isChecked();
 
-                        setManageWifi(b);
+                        switchAutoLearn.setEnabled(checked);
+                        setManageWifi(checked);
+
                     }
                 });
 
                 serviceBinder.addCallback(guiCallback);
 
-                switchAutoLearn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                switchAutoLearn.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                        setLearnWifi(b);
+                    public void onClick(View view) {
+                        boolean checked = ((CompoundButton) view).isChecked();
+
+                        setLearnWifi(checked);
                     }
                 });
 

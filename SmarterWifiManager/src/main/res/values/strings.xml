@@ -114,5 +114,11 @@
     <string name="range_fail_nodays">No days selected</string>
     <string name="range_fail_notime">No time set</string>
     <string name="range_fail_nocontrol">No effect on Wi-Fi or Bluetooth</string>
+    <string name="quicker_enable">Smarter Wi-Fi Manager</string>
+    <string name="quicker_wifi">Wi-Fi</string>
+    <string name="quicker_bt">Bluetooth</string>
+    <string name="quicker_startswm">Smarter Wi-Fi Manager</string>
+    <string name="quicker_settings">Android Wi-Fi Settings</string>
+    <string name="quicker_close">Close</string><string name="quicker_explanation">Smarter Wi-Fi Manager may disable or re-enable radios depending on the current configuration.</string>
 
 </resources>

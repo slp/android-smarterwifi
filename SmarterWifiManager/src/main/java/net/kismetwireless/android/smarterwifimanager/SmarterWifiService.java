@@ -127,6 +127,10 @@ public class SmarterWifiService extends Service {
 
             return;
         }
+
+        public void preferencesChanged() {
+            return;
+        }
     }
 
     ArrayList<SmarterServiceCallback> callbackList = new ArrayList<SmarterServiceCallback>();
@@ -179,7 +183,11 @@ public class SmarterWifiService extends Service {
         notificationBuilder.setOnlyAlertOnce(true);
         notificationBuilder.setOngoing(true);
 
-        Intent intent = new Intent(this, MainActivity.class);
+        //Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, ActivityQuickconfig.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        // intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
         PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
         notificationBuilder.setContentIntent(pIntent);
@@ -382,6 +390,8 @@ public class SmarterWifiService extends Service {
             notificationManager.notify(0, notificationBuilder.build());
 
         configureWifiState();
+
+        triggerCallbackPrefsChanged();
     }
 
     public void shutdownService() {
@@ -549,6 +559,14 @@ public class SmarterWifiService extends Service {
 
         synchronized (callbackList) {
             callbackList.remove(cb);
+        }
+    }
+
+    public void triggerCallbackPrefsChanged() {
+        synchronized (callbackList) {
+            for (SmarterServiceCallback cb : callbackList) {
+                cb.preferencesChanged();
+            }
         }
     }
 
