@@ -18,7 +18,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/imageWifiStatus"
-                android:src="@drawable/custom_wifi_inactive"
+                android:src="@drawable/ic_launcher_notification_idle"
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="20dp" />
 

@@ -219,6 +219,15 @@ class SmarterWifiServiceBinder {
         smarterService.deleteSsidTowerMap(ssid);
     }
 
+    public void deleteCurrentTower() {
+        if (smarterService == null) {
+            Log.e("smarter", "service null deleting current tower");
+            return;
+        }
+
+        smarterService.deleteCurrentTower();
+    }
+
     public long getLastTowerMap() {
         if (smarterService == null) {
             Log.e("smarter", "service null getting last towermap");

@@ -178,7 +178,7 @@ public class SmarterWifiService extends Service {
         alarmReceiver.setAlarm(context, System.currentTimeMillis() + (20 * 1000));
 
         // Make the notification
-        notificationBuilder.setSmallIcon(R.drawable.custom_wifi_enabled);
+        notificationBuilder.setSmallIcon(R.drawable.ic_launcher_notification_idle);
         notificationBuilder.setPriority(NotificationCompat.PRIORITY_MIN);
         notificationBuilder.setOnlyAlertOnce(true);
         notificationBuilder.setOngoing(true);
@@ -822,39 +822,35 @@ public class SmarterWifiService extends Service {
             return WifiState.WIFI_IGNORE;
         }
 
-        if (learnWifi) {
-            if (currentTowerType == TowerType.TOWER_INVALID) {
-                lastControlReason = ControlType.CONTROL_TOWER;
-                return WifiState.WIFI_IGNORE;
-            }
+        if (currentTowerType == TowerType.TOWER_INVALID) {
+            lastControlReason = ControlType.CONTROL_TOWER;
+            return WifiState.WIFI_IGNORE;
+        }
 
-            if (currentTowerType == TowerType.TOWER_BLOCK) {
-                lastControlReason = ControlType.CONTROL_TOWERID;
-                return WifiState.WIFI_BLOCKED;
-            }
+        if (currentTowerType == TowerType.TOWER_BLOCK) {
+            lastControlReason = ControlType.CONTROL_TOWERID;
+            return WifiState.WIFI_BLOCKED;
+        }
 
-            if (currentTowerType == TowerType.TOWER_ENABLE) {
-                lastControlReason = ControlType.CONTROL_TOWER;
-                return WifiState.WIFI_ON;
-            }
+        if (currentTowerType == TowerType.TOWER_ENABLE) {
+            lastControlReason = ControlType.CONTROL_TOWER;
+            return WifiState.WIFI_ON;
+        }
 
-            if (currentTowerType == TowerType.TOWER_UNKNOWN &&
-                    curstate == WifiState.WIFI_ON) {
-                lastControlReason = ControlType.CONTROL_TOWER;
-                return WifiState.WIFI_ON;
-            }
+        if (currentTowerType == TowerType.TOWER_UNKNOWN &&
+                curstate == WifiState.WIFI_ON) {
+            lastControlReason = ControlType.CONTROL_TOWER;
+            return WifiState.WIFI_ON;
+        }
 
-            if (currentTowerType == TowerType.TOWER_UNKNOWN &&
-                    curstate == WifiState.WIFI_IDLE) {
-                lastControlReason = ControlType.CONTROL_TOWER;
-                return WifiState.WIFI_OFF;
-            }
-
+        if (currentTowerType == TowerType.TOWER_UNKNOWN &&
+                curstate == WifiState.WIFI_IDLE) {
             lastControlReason = ControlType.CONTROL_TOWER;
             return WifiState.WIFI_OFF;
         }
 
-        return WifiState.WIFI_IGNORE;
+        lastControlReason = ControlType.CONTROL_TOWER;
+        return WifiState.WIFI_OFF;
     }
 
     public BluetoothState getBluetoothState() {
@@ -963,6 +959,8 @@ public class SmarterWifiService extends Service {
             case CONTROL_TOWER:
                 if (s == WifiState.WIFI_OFF)
                     return R.string.explanation_wifi_disabled_cell;
+                if (s == WifiState.WIFI_IDLE)
+                    return R.string.explanation_wifi_idle_disable;
                 return R.string.explanation_wifi_enabled_cell;
             case CONTROL_TOWERID:
                 return R.string.explanation_wifi_disabled_towerid;
@@ -1080,6 +1078,18 @@ public class SmarterWifiService extends Service {
 
     public void deleteSsidTowerMap(SmarterSSID ssid) {
         dbSource.deleteSsidTowerMap(ssid);
+
+        handleCellLocation(null);
+    }
+
+    public void deleteCurrentTower() {
+        if (currentCellLocation == null)
+            return;
+
+        if (currentCellLocation.getTowerId() < 0)
+            return;
+
+        dbSource.deleteSsidTowerInstance(currentCellLocation.getTowerId());
 
         handleCellLocation(null);
     }

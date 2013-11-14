@@ -430,6 +430,15 @@ public class SmarterDBSource {
         dataBase.delete(SmarterWifiDBHelper.TABLE_SSID_CELL_MAP, compare, args);
     }
 
+    public void deleteSsidTowerInstance(long towerid) {
+        long tid = getTowerDbId(towerid);
+
+        String compare = SmarterWifiDBHelper.COL_SCMAP_CELLID + "=?";
+        String[] args = {Long.toString(tid)};
+
+        dataBase.delete(SmarterWifiDBHelper.TABLE_SSID_CELL_MAP, compare, args);
+    }
+
     public ArrayList<SmarterTimeRange> getTimeRangeList() {
         ArrayList<SmarterTimeRange> retlist = new ArrayList<SmarterTimeRange>();
 

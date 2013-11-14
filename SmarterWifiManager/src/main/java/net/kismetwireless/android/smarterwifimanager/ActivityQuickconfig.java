@@ -25,6 +25,7 @@ import android.widget.CompoundButton;
  * Created by dragorn on 10/19/13.
  */
 public class ActivityQuickconfig extends FragmentActivity {
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,10 +53,33 @@ public class ActivityQuickconfig extends FragmentActivity {
     }
 
     class QuickDialog extends DialogFragment {
-        View dialogView;
-        SharedPreferences sharedPreferences;
-        WifiManager wifiManager;
-        BluetoothAdapter btAdapter;
+        private View dialogView;
+        private SharedPreferences sharedPreferences;
+        private WifiManager wifiManager;
+        private BluetoothAdapter btAdapter;
+        private View forgetView;
+        private SmarterWifiServiceBinder binder;
+
+        private SmarterWifiService.SmarterServiceCallback serviceCallback = new SmarterWifiService.SmarterServiceCallback() {
+            @Override
+            public void wifiStateChanged(SmarterSSID ssid, SmarterWifiService.WifiState state, final SmarterWifiService.WifiState controlstate, final SmarterWifiService.ControlType type) {
+                super.wifiStateChanged(ssid, state, controlstate, type);
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Toast.makeText(ActivityQuickconfig.this, "controlstate " + controlstate + " type " + type, Toast.LENGTH_SHORT).show();
+
+                        if (controlstate == SmarterWifiService.WifiState.WIFI_ON &&
+                                type == SmarterWifiService.ControlType.CONTROL_TOWER &&
+                                forgetView != null)
+                            forgetView.setVisibility(View.VISIBLE);
+                        // else
+                            //forgetView.setVisibility(View.GONE);
+                    }
+                });
+            }
+        };
 
         private BroadcastReceiver bcastRx = new BroadcastReceiver() {
             @Override
@@ -75,8 +99,12 @@ public class ActivityQuickconfig extends FragmentActivity {
         public QuickDialog() {
             sharedPreferences = PreferenceManager.getDefaultSharedPreferences(ActivityQuickconfig.this);
 
+            binder = new SmarterWifiServiceBinder(ActivityQuickconfig.this);
+            binder.doBindService();
+
             wifiManager = (WifiManager) ActivityQuickconfig.this.getSystemService(Context.WIFI_SERVICE);
             btAdapter = BluetoothAdapter.getDefaultAdapter();
+
         }
 
         private void configureView() {
@@ -182,6 +210,16 @@ public class ActivityQuickconfig extends FragmentActivity {
                 }
             });
 
+            forgetView = (View) view.findViewById(R.id.quickerForget);
+            forgetView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    binder.deleteCurrentTower();
+                }
+            });
+
+            binder.addCallback(serviceCallback);
+
             dialogView = view;
 
             IntentFilter intf = new IntentFilter();
@@ -197,6 +235,7 @@ public class ActivityQuickconfig extends FragmentActivity {
         @Override
         public void onDismiss(DialogInterface dialog) {
             unregisterReceiver(bcastRx);
+            binder.removeCallback(serviceCallback);
             ActivityQuickconfig.this.finish();
         }
 

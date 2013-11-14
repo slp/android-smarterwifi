@@ -32,6 +32,8 @@ public class FragmentLearned extends SmarterFragment {
     private ListView lv;
     private TextView emptyView;
 
+    private View forgetView, forgetSeparator;
+
     private Handler timeHandler = new Handler();
 
     private void updateTowerList() {
@@ -62,6 +64,34 @@ public class FragmentLearned extends SmarterFragment {
         }
     };
 
+    private SmarterWifiService.SmarterServiceCallback serviceCallback = new SmarterWifiService.SmarterServiceCallback() {
+        @Override
+        public void wifiStateChanged(SmarterSSID ssid, SmarterWifiService.WifiState state,
+                                     final SmarterWifiService.WifiState controlstate,
+                                     final SmarterWifiService.ControlType type) {
+            super.wifiStateChanged(ssid, state, controlstate, type);
+
+            Activity ma = getActivity();
+
+            if (ma == null)
+                return;
+
+            ma.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (controlstate == SmarterWifiService.WifiState.WIFI_ON && type == SmarterWifiService.ControlType.CONTROL_TOWER &&
+                            forgetView != null) {
+                        forgetView.setVisibility(View.VISIBLE);
+                        forgetSeparator.setVisibility(View.VISIBLE);
+                    } else {
+                        forgetView.setVisibility(View.GONE);
+                        forgetSeparator.setVisibility(View.GONE);
+                    }
+                }
+            });
+        }
+    };
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
@@ -78,6 +108,17 @@ public class FragmentLearned extends SmarterFragment {
         lv.setAdapter(listAdapter);
 
         serviceBinder = new SmarterWifiServiceBinder(context);
+        serviceBinder.addCallback(serviceCallback);
+
+        forgetView = (View) mainView.findViewById(R.id.forget);
+        forgetSeparator = (View) mainView.findViewById(R.id.forgetSeparator);
+
+        forgetView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                serviceBinder.deleteCurrentTower();
+            }
+        });
 
         serviceBinder.doCallAndBindService(new SmarterWifiServiceBinder.BinderCallback() {
             @Override

@@ -56,9 +56,9 @@
     <string name="explanation_wifi_idle">Wi-Fi enabled but not connected</string>
     <string name="explanation_wifi_blocked">Wi-Fi blocked</string>
     <string name="explanation_wifi_enabled">Wi-Fi enabled</string>
-    <string name="explanation_wifi_enabled_cell">In previously learned location</string>
+    <string name="explanation_wifi_enabled_cell">In auto-learned location</string>
     <string name="explanation_wifi_disabled">Wi-Fi disabled</string>
-    <string name="explanation_wifi_disabled_cell">In unknown location</string>
+    <string name="explanation_wifi_disabled_cell">Not near a known location</string>
     <string name="explanation_wifi_disabled_bluetooth">Connected to blacklisted Bluetooth device</string>
     <string name="explanation_wifi_management_disabled">Wi-Fi management disabled</string>
     <string name="explanation_wifi_management_disabled_user">Management turned off</string>
@@ -74,6 +74,7 @@
     <string name="explanation_wifi_ignore_airplane">In airplane mode</string>
     <string name="explanation_wifi_ignore_tethered">Tethering / sharing connection</string>
     <string name="explanation_wifi_ignore_sleeppolicy">Ignoring due to sleep policy</string>
+    <string name="explanation_wifi_idle_disable">Wi-Fi idle in unknown location, waiting to disable</string>
     <string name="explanation_unknown">Unknown reason</string>
 
     <string name="wifistate_blocked">Wi-Fi forced off</string>
@@ -119,6 +120,8 @@
     <string name="quicker_bt">Bluetooth</string>
     <string name="quicker_startswm">Smarter Wi-Fi Manager</string>
     <string name="quicker_settings">Android Wi-Fi Settings</string>
-    <string name="quicker_close">Close</string><string name="quicker_explanation">Smarter Wi-Fi Manager may disable or re-enable radios depending on the current configuration.</string>
+    <string name="quicker_close">Close</string>
+    <string name="quicker_explanation">Smarter Wi-Fi Manager may disable or re-enable radios depending on the current configuration.</string>
+    <string name="quicker_forget">Forget current location</string>
 
 </resources>
