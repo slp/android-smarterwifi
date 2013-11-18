@@ -1,8 +1,6 @@
 package net.kismetwireless.android.smarterwifimanager;
 
-import android.support.v7.app.ActionBar;
 import android.app.AlertDialog;
-import android.support.v4.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,11 +8,8 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,8 +26,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
 
 
 // Main icon color shifts
@@ -44,8 +37,8 @@ public class MainActivity extends ActionBarActivity {
     private static int PREFS_REQ = 1;
 
     private SmarterWifiServiceBinder serviceBinder;
-    private SmarterPagerAdapter pagerAdapter;
-    private ViewPager viewPager;
+    // private SmarterPagerAdapter pagerAdapter;
+    // private ViewPager viewPager;
     private ActionBar actionBar;
 
     private ArrayList<Integer[]> drawerContent = new ArrayList<Integer[]>();
@@ -54,6 +47,8 @@ public class MainActivity extends ActionBarActivity {
     private ListView drawerList;
     private ActionBarDrawerToggle drawerToggle;
     private DualDrawerListAdapter listAdapter;
+
+    private FragmentMain mainFragment;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -67,6 +62,7 @@ public class MainActivity extends ActionBarActivity {
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerList = (ListView) findViewById(R.id.left_drawer);
 
+        drawerContent.add(new Integer[] {R.string.nav_learned, R.drawable.ic_action_save});
         drawerContent.add(new Integer[] {R.string.nav_ignore, R.drawable.ic_action_bad});
         drawerContent.add(new Integer[] {R.string.nav_bluetooth, R.drawable.ic_action_bluetooth_connected});
         drawerContent.add(new Integer[] {R.string.nav_time, R.drawable.ic_action_time});
@@ -79,7 +75,7 @@ public class MainActivity extends ActionBarActivity {
 
         actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        // actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         // actionBar.setDisplayHomeAsUpEnabled(false);
 
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout,
@@ -101,6 +97,16 @@ public class MainActivity extends ActionBarActivity {
         // Set the drawer toggle as the DrawerListener
         drawerLayout.setDrawerListener(drawerToggle);
 
+        if (savedInstanceState != null) {
+            mainFragment = (FragmentMain) getSupportFragmentManager().findFragmentByTag("mainfragment");
+        } else if (findViewById(R.id.fragment_container) != null) {
+            mainFragment = new FragmentMain();
+            mainFragment.setArguments(getIntent().getExtras());
+
+            getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, mainFragment, "mainfragment").commit();
+        }
+
+        /*
         viewPager = (ViewPager) findViewById(R.id.pager);
 
         // Defer UI creation until we've bound to the service
@@ -140,6 +146,7 @@ public class MainActivity extends ActionBarActivity {
             }
 
         });
+        */
 
     }
 
@@ -147,11 +154,13 @@ public class MainActivity extends ActionBarActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
+        /*
         try {
             outState.putInt("tabposition", actionBar.getSelectedTab().getPosition());
         } catch (NullPointerException npe) {
             Log.d("smarter", "tried to save sate but got a null in getSelectedTab(): " + npe);
         }
+        */
     }
 
     @Override
@@ -212,6 +221,7 @@ public class MainActivity extends ActionBarActivity {
         return true;
     }
 
+    /*
     public class SmarterTabsListener implements ActionBar.TabListener {
         public Fragment fragment;
 
@@ -255,6 +265,7 @@ public class MainActivity extends ActionBarActivity {
             return fragments.size();
         }
     }
+    */
 
     public void showAbout() {
         AlertDialog.Builder alert = new AlertDialog.Builder(context);
@@ -299,6 +310,10 @@ public class MainActivity extends ActionBarActivity {
             Integer[] item = listAdapter.getItem(position);
 
             switch (item[0]) {
+                case R.string.nav_learned:
+                    startActivity(new Intent(MainActivity.this, ActivitySsidLearned.class));
+                    drawerLayout.closeDrawer(drawerList);
+                    break;
                 case R.string.nav_ignore:
                     startActivity(new Intent(MainActivity.this, ActivitySsidBlacklist.class));
                     drawerLayout.closeDrawer(drawerList);
