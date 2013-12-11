@@ -1,5 +1,6 @@
 package net.kismetwireless.android.smarterwifimanager;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -14,6 +15,7 @@ import android.provider.Settings;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,9 +32,11 @@ public class ActivityQuickconfig extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        FragmentManager fm = getSupportFragmentManager();
-        QuickDialog qDialog = new QuickDialog();
-        qDialog.show(fm, "fragment_edit_name");
+        if (savedInstanceState == null) {
+            FragmentManager fm = getSupportFragmentManager();
+            QuickDialog qDialog = new QuickDialog();
+            qDialog.show(fm, "fragment_edit_name");
+        }
 
         /*
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -52,7 +56,7 @@ public class ActivityQuickconfig extends FragmentActivity {
 
     }
 
-    class QuickDialog extends DialogFragment {
+    public static class QuickDialog extends DialogFragment {
         private View dialogView;
         private SharedPreferences sharedPreferences;
         private WifiManager wifiManager;
@@ -65,19 +69,25 @@ public class ActivityQuickconfig extends FragmentActivity {
             public void wifiStateChanged(SmarterSSID ssid, SmarterWifiService.WifiState state, final SmarterWifiService.WifiState controlstate, final SmarterWifiService.ControlType type) {
                 super.wifiStateChanged(ssid, state, controlstate, type);
 
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        // Toast.makeText(ActivityQuickconfig.this, "controlstate " + controlstate + " type " + type, Toast.LENGTH_SHORT).show();
+                try {
+                    Activity activity = getActivity();
 
-                        if (controlstate == SmarterWifiService.WifiState.WIFI_ON &&
-                                type == SmarterWifiService.ControlType.CONTROL_TOWER &&
-                                forgetView != null)
-                            forgetView.setVisibility(View.VISIBLE);
-                        // else
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            // Toast.makeText(ActivityQuickconfig.this, "controlstate " + controlstate + " type " + type, Toast.LENGTH_SHORT).show();
+
+                            if (controlstate == SmarterWifiService.WifiState.WIFI_ON &&
+                                    type == SmarterWifiService.ControlType.CONTROL_TOWER &&
+                                    forgetView != null)
+                                forgetView.setVisibility(View.VISIBLE);
+                            // else
                             //forgetView.setVisibility(View.GONE);
-                    }
-                });
+                        }
+                    });
+                } catch (NullPointerException npe) {
+
+                }
             }
         };
 
@@ -86,24 +96,25 @@ public class ActivityQuickconfig extends FragmentActivity {
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equals(WifiManager.WIFI_STATE_CHANGED_ACTION) ||
                         intent.getAction().equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
-                    ActivityQuickconfig.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            configureView();
-                        }
-                    });
+
+                    try {
+                        Activity activity = getActivity();
+
+                        activity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                configureView();
+                            }
+                        });
+
+                    } catch (NullPointerException npe) {
+
+                    }
                 }
             }
         };
 
         public QuickDialog() {
-            sharedPreferences = PreferenceManager.getDefaultSharedPreferences(ActivityQuickconfig.this);
-
-            binder = new SmarterWifiServiceBinder(ActivityQuickconfig.this);
-            binder.doBindService();
-
-            wifiManager = (WifiManager) ActivityQuickconfig.this.getSystemService(Context.WIFI_SERVICE);
-            btAdapter = BluetoothAdapter.getDefaultAdapter();
 
         }
 
@@ -172,7 +183,19 @@ public class ActivityQuickconfig extends FragmentActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
+            final Activity activity = getActivity();
+
+            sharedPreferences = PreferenceManager.getDefaultSharedPreferences(activity);
+
+            binder = new SmarterWifiServiceBinder(activity);
+            binder.doBindService();
+
+            wifiManager = (WifiManager) activity.getSystemService(Context.WIFI_SERVICE);
+            btAdapter = BluetoothAdapter.getDefaultAdapter();
+
             View view = inflater.inflate(R.layout.activity_quickconfig, container);
+
+            Log.d("smarter", "oncreateview");
 
             getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 
@@ -201,12 +224,17 @@ public class ActivityQuickconfig extends FragmentActivity {
             swmView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent i = new Intent(ActivityQuickconfig.this, MainActivity.class);
-                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    try {
+                        Intent i = new Intent(activity, MainActivity.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-                    QuickDialog.this.getDialog().dismiss();
+                        QuickDialog.this.getDialog().dismiss();
 
-                    startActivity(i);
+                        startActivity(i);
+
+                    } catch (NullPointerException npe) {
+
+                    }
                 }
             });
 
@@ -225,7 +253,7 @@ public class ActivityQuickconfig extends FragmentActivity {
             IntentFilter intf = new IntentFilter();
             intf.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
             intf.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-            registerReceiver(bcastRx, intf);
+            activity.registerReceiver(bcastRx, intf);
 
             configureView();
 
@@ -234,9 +262,15 @@ public class ActivityQuickconfig extends FragmentActivity {
 
         @Override
         public void onDismiss(DialogInterface dialog) {
-            unregisterReceiver(bcastRx);
-            binder.removeCallback(serviceCallback);
-            ActivityQuickconfig.this.finish();
+            try {
+                Activity activity = getActivity();
+
+                activity.unregisterReceiver(bcastRx);
+                binder.removeCallback(serviceCallback);
+                activity.finish();
+            } catch (NullPointerException npe) {
+
+            }
         }
 
         private boolean setManageWifi(boolean b) {
@@ -244,14 +278,20 @@ public class ActivityQuickconfig extends FragmentActivity {
             e.putBoolean(getString(R.string.pref_enable), b);
             e.commit();
 
-            SmarterWifiServiceBinder binder = new SmarterWifiServiceBinder(ActivityQuickconfig.this);
-            binder.doCallAndBindService(new SmarterWifiServiceBinder.BinderCallback() {
-                @Override
-                public void run(SmarterWifiServiceBinder b) {
-                    b.doUpdatePreferences();
-                }
-            });
+            try {
+                Activity activity = getActivity();
 
+                SmarterWifiServiceBinder binder = new SmarterWifiServiceBinder(activity);
+                binder.doCallAndBindService(new SmarterWifiServiceBinder.BinderCallback() {
+                    @Override
+                    public void run(SmarterWifiServiceBinder b) {
+                        b.doUpdatePreferences();
+                    }
+                });
+
+            } catch (NullPointerException npe) {
+
+            }
             return true;
         }
     }

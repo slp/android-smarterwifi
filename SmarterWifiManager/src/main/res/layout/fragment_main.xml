@@ -63,7 +63,9 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
 
-        <include layout="@layout/main_switch_manage" />
+        <include layout="@layout/main_switch_manage"
+            android:layout_alignTop="@+id/textView3"
+            android:layout_alignParentRight="true" />
 
         <TextView
             android:layout_width="wrap_content"

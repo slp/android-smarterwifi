@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.kismetwireless.android.smarterwifimanager"
-    android:versionCode="32"
-    android:versionName="2013.11.32" >
+    android:versionCode="33"
+    android:versionName="2013.12.33" >
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -99,7 +99,7 @@
 
         <activity
             android:name=".ActivitySsidLearned"
-            android:label="@string/title_activity_timerange"
+            android:label="@string/title_activity_learned"
             android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -111,7 +111,8 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:launchMode="singleTop"
             android:taskAffinity=""
-            android:excludeFromRecents="true"  />
+            android:excludeFromRecents="true"
+            android:screenOrientation="portrait"/>
 
     </application>
 

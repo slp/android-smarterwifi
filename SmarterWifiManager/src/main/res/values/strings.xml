@@ -88,6 +88,7 @@
     <string name="title_activity_ssid_blacklist">Ignored Networks</string>
     <string name="title_activity_bluetooth_blacklist">Bluetooth</string>
     <string name="title_activity_timerange">Time Ranges</string>
+    <string name="title_activity_learned">Learned Networks</string>
 
     <string name="timerange_delete_text">Delete Time Range</string>
     <string name="timerange_no_effect">Time range doesn\'t control anything</string>
