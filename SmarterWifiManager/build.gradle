@@ -7,19 +7,27 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 19
-        versionCode 1
-        versionName "1.0"
+        versionCode 36
+        versionName "2014.02.36"
     }
     buildTypes {
+        debug {
+            runProguard false
+            debuggable false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+
         release {
             runProguard false
+            debuggable false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
 }
 
 dependencies {
-    compile "com.android.support:appcompat-v7:18.0+"
+    compile 'com.android.support:support-v4:18.0.+'
+    compile 'com.android.support:appcompat-v7:18.0.+'
 	compile project(':libraries:nineoldandroids')
 	compile project(':libraries:betterpickers')
 }

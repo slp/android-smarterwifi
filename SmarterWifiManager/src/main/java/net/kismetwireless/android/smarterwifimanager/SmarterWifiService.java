@@ -762,23 +762,27 @@ public class SmarterWifiService extends Service {
 
         // Tethering overrides almost everything
         if (tethered) {
+            Log.d("smarter", "Tethering detected, ignoring wifi state");
             lastControlReason = ControlType.CONTROL_TETHER;
             return WifiState.WIFI_IGNORE;
         }
 
         // Airplane mode causes us to ignore the wifi entirely, do whatever the user sets it as
         if (getAirplaneMode()) {
+            Log.d("smarter", "Airplane mode detected, ignoring wifi state");
             lastControlReason = ControlType.CONTROL_AIRPLANE;
             return WifiState.WIFI_IGNORE;
         }
 
         // If the user wants spefically to turn it on or off via the SWM UI, do so
         if (userOverrideState == WifiState.WIFI_OFF) {
+            Log.d("smarter", "User-controled wifi, user wants wifi off");
             lastControlReason = ControlType.CONTROL_USER;
             return WifiState.WIFI_BLOCKED;
         }
 
         if (userOverrideState == WifiState.WIFI_ON) {
+            Log.d("smarter", "User-controlled wifi, user wants wifi on");
             lastControlReason = ControlType.CONTROL_USER;
             return WifiState.WIFI_ON;
         }
@@ -789,9 +793,10 @@ public class SmarterWifiService extends Service {
             if (currentTimeRange.getWifiControlled()) {
                 // and we're supposed to shut it down
                 if (!currentTimeRange.getWifiEnabled()) {
-                    lastControlReason = ControlType.CONTROL_TIME;
-
                     // Always aggressively block when in a time range
+                    Log.d("smarter", "Time range, aggressively disabling wifi");
+
+                    lastControlReason = ControlType.CONTROL_TIME;
                     return WifiState.WIFI_BLOCKED;
 
                     /*
@@ -803,6 +808,8 @@ public class SmarterWifiService extends Service {
                         */
                 } else {
                     // We want it on..
+                    Log.d("smarter", "Time range, enabling wifi");
+
                     lastControlReason = ControlType.CONTROL_TIME;
                     return WifiState.WIFI_ON;
                 }
@@ -813,32 +820,37 @@ public class SmarterWifiService extends Service {
 
         // Bluetooth blocks learning
         if (bluetoothBlocking) {
+            Log.d("smarter", "Connected to bluetooth device, blocking wifi");
             lastControlReason = ControlType.CONTROL_BLUETOOTH;
             return WifiState.WIFI_BLOCKED;
         }
 
         if (curstate == WifiState.WIFI_ON && (ssid != null && ssid.isBlacklisted())) {
+            Log.d("smarter", "Connected to blacklisted SSID, ignoring wifi");
             lastControlReason = ControlType.CONTROL_SSIDBLACKLIST;
             return WifiState.WIFI_IGNORE;
         }
 
         if (currentTowerType == TowerType.TOWER_INVALID) {
+            Log.d("smarter", "Connected to invalid tower, ignoring wifi state");
             lastControlReason = ControlType.CONTROL_TOWER;
             return WifiState.WIFI_IGNORE;
         }
 
         if (currentTowerType == TowerType.TOWER_BLOCK) {
+            Log.d("smarter", "Connected to blocked tower, turning off wifi");
             lastControlReason = ControlType.CONTROL_TOWERID;
             return WifiState.WIFI_BLOCKED;
         }
 
         if (currentTowerType == TowerType.TOWER_ENABLE) {
+            Log.d("smarter", "Connected to enable tower, turning on wifi");
             lastControlReason = ControlType.CONTROL_TOWER;
             return WifiState.WIFI_ON;
         }
 
-        if (currentTowerType == TowerType.TOWER_UNKNOWN &&
-                curstate == WifiState.WIFI_ON) {
+        if (currentTowerType == TowerType.TOWER_UNKNOWN && curstate == WifiState.WIFI_ON) {
+            Log.d("smarter", "Connected to unknown tower, wifi is enabled, keep wifi on");
             lastControlReason = ControlType.CONTROL_TOWER;
             return WifiState.WIFI_ON;
         }
