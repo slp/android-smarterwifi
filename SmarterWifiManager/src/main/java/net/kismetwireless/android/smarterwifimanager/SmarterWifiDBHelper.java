@@ -19,12 +19,14 @@ public class SmarterWifiDBHelper extends SQLiteOpenHelper {
     public static final String COL_CELL_ID = "_id";
     public static final String COL_CELL_CELLID = "cellid";
     public static final String COL_CELL_TIME_S = "timesec";
+    public static final String COL_CELL_TIME_LAST_S = "lasttimesec";
 
     public static final String TABLE_SSID_CELL_MAP = "ssidcellmap";
     public static final String COL_SCMAP_ID = "_id";
     public static final String COL_SCMAP_SSIDID = "ssidid";
     public static final String COL_SCMAP_CELLID = "cellid";
     public static final String COL_SCMAP_TIME_S = "timesec";
+    public static final String COL_SCMAP_TIME_LAST_S = "lasttimesec";
 
     public static final String TABLE_SSID_BLACKLIST = "ssidblacklist";
     public static final String COL_SSIDBL_ID = "_id";
@@ -62,7 +64,8 @@ public class SmarterWifiDBHelper extends SQLiteOpenHelper {
             "CREATE TABLE " + TABLE_CELL + " (" +
                     COL_CELL_ID + " integer primary key autoincrement, " +
                     COL_CELL_CELLID + " int, " +
-                    COL_CELL_TIME_S + " int " +
+                    COL_CELL_TIME_S + " int," +
+                    COL_CELL_TIME_LAST_S + " int " +
                     ");";
 
     public static final String CREATE_SSID_CELL_MAP_TABLE =
@@ -70,7 +73,8 @@ public class SmarterWifiDBHelper extends SQLiteOpenHelper {
                     COL_SCMAP_ID + " integer primary key autoincrement, " +
                     COL_SCMAP_SSIDID + " int, " +
                     COL_SCMAP_CELLID + " int, " +
-                    COL_SCMAP_TIME_S + " int" +
+                    COL_SCMAP_TIME_S + " int," +
+                    COL_SCMAP_TIME_LAST_S + "int" +
                     ");";
 
     public static final String CREATE_SSID_BLACKLIST_TABLE =
@@ -105,7 +109,7 @@ public class SmarterWifiDBHelper extends SQLiteOpenHelper {
                     ");";
 
     public static final String DATABASE_NAME = "smartermap.db";
-    private static final int DATABASE_VERSION = 9;
+    private static final int DATABASE_VERSION = 10;
 
     public SmarterWifiDBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -147,6 +151,12 @@ public class SmarterWifiDBHelper extends SQLiteOpenHelper {
         if (oldVersion < 9) {
             Log.d("smarter", "creating new timerange table");
             db.execSQL(CREATE_TIMERANGE_TABLE);
+        }
+
+        if (oldVersion < 10) {
+            Log.d("smarter", "adding last timesec column");
+            db.execSQL("ALTER TABLE " + TABLE_CELL + " ADD COLUMN " + COL_CELL_TIME_LAST_S + " int;");
+            db.execSQL("ALTER TABLE " + TABLE_SSID_CELL_MAP + " ADD COLUMN " + COL_SCMAP_TIME_LAST_S + " int;");
         }
 
     }

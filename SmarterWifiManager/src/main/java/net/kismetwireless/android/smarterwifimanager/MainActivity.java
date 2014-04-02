@@ -4,9 +4,11 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -106,48 +108,7 @@ public class MainActivity extends ActionBarActivity {
             getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, mainFragment, "mainfragment").commit();
         }
 
-        /*
-        viewPager = (ViewPager) findViewById(R.id.pager);
-
-        // Defer UI creation until we've bound to the service
-        serviceBinder.doCallAndBindService(new SmarterWifiServiceBinder.BinderCallback() {
-            @Override
-            public void run(SmarterWifiServiceBinder b) {
-                List<Fragment> fragments = new Vector<Fragment>();
-
-                fragments.add(Fragment.instantiate(context, FragmentMain.class.getName()));
-                // fragments.add(Fragment.instantiate(context, FragmentSsidBlacklist.class.getName()));
-                fragments.add(Fragment.instantiate(context, FragmentLearned.class.getName()));
-                // fragments.add(Fragment.instantiate(context, FragmentBluetoothBlacklist.class.getName()));
-                // fragments.add(Fragment.instantiate(context, FragmentTimeRange.class.getName()));
-
-                pagerAdapter = new SmarterPagerAdapter(getSupportFragmentManager(), fragments);
-
-                for (int x = 0; x < pagerAdapter.getCount(); x++) {
-                    SmarterFragment sf = (SmarterFragment) pagerAdapter.getItem(x);
-
-                    ActionBar.Tab t = actionBar.newTab().setText(getString(sf.getTitle()));
-                    t.setTabListener(new SmarterTabsListener(sf));
-                    actionBar.addTab(t);
-                }
-
-                viewPager.setAdapter(pagerAdapter);
-
-                viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-                    @Override
-                    public void onPageSelected(int position) {
-                        actionBar.setSelectedNavigationItem(position);
-                    }
-                });
-
-                if (savedInstanceState != null) {
-                    actionBar.setSelectedNavigationItem(savedInstanceState.getInt("tabposition", 0));
-                }
-            }
-
-        });
-        */
-
+        showNagCleanup();
     }
 
     @Override
@@ -295,6 +256,37 @@ public class MainActivity extends ActionBarActivity {
 
         alert.show();
 
+    }
+
+    public void showNagCleanup() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+
+        if (prefs.getBoolean("nag_showed_cleanup2", false)) {
+            return;
+        }
+
+        SharedPreferences.Editor e = prefs.edit();
+        e.putBoolean("nag_showed_cleanup2", true);
+        e.commit();
+
+        AlertDialog.Builder alert = new AlertDialog.Builder(context);
+        alert.setMessage(R.string.nag_tower_maintenance);
+
+        alert.setPositiveButton(R.string.nag_tower_maintenance_prefs, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                startActivityForResult(new Intent(MainActivity.this, ActivityPrefs.class), PREFS_REQ);
+            }
+        });
+
+        alert.setNegativeButton(R.string.nag_tower_maintenance_cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+
+        alert.show();
     }
 
     @Override

@@ -14,6 +14,8 @@
     <string name="prefs_item_notification_explanation">Turning off notifications may impact the background service in low memory conditions, if you notice problems, leave it on.</string>
     <string name="prefs_item_boot">Automatically start</string>
     <string name="prefs_item_boot_explanation">Automatically start Smarter Wi-Fi Manager service on boot or Wi-Fi and cell tower changes.</string>
+    <string name="prefs_item_towermaintenance">Location Maintenance</string>
+    <string name="prefs_item_towermaintenance_explanation">Keep the list of locations from growing too large by clever maintenance.</string>
 
     <string name="tab_main">Smarter</string>
     <string name="tab_ignore">Ignore</string>
@@ -126,5 +128,9 @@
     <string name="quicker_close">Close</string>
     <string name="quicker_explanation">Smarter Wi-Fi Manager may disable or re-enable radios depending on the current configuration.</string>
     <string name="quicker_forget">Forget current location</string>
+
+    <string name="nag_tower_maintenance">Smarter Wi-Fi Manager now has a method for automatically maintaining the list of locations for a Wi-Fi network.  Enable it by going to Preferences and turning on Location Maintenance!</string>
+    <string name="nag_tower_maintenance_prefs">Go to prefs</string>
+    <string name="nag_tower_maintenance_cancel">No thanks</string>
 
 </resources>

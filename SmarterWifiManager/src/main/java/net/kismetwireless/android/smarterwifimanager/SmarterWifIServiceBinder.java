@@ -312,4 +312,14 @@ class SmarterWifiServiceBinder {
         smarterService.handleBluetoothDeviceState(d, state);
     }
 
+    public void handleWifiP2PState(int state) {
+        if (smarterService == null) {
+            Log.e("smarter", "wifip2p while service null");
+            return;
+        }
+
+        smarterService.handleWifiP2PState(state);
+
+    }
+
 }

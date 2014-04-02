@@ -71,6 +71,8 @@ public class SmarterWifiService extends Service {
     private int enableWaitSeconds = 1;
     private int disableWaitSeconds = 30;
     private boolean showNotification = true;
+    private boolean performTowerPurges = false;
+    private int purgeTowerHours = 48;
 
     private WifiState userOverrideState = WifiState.WIFI_IGNORE;
 
@@ -277,6 +279,8 @@ public class SmarterWifiService extends Service {
                     notificationManager.notify(0, notificationBuilder.build());
             }
         });
+
+        towerCleanupTask.run();
     }
 
     @Override
@@ -389,6 +393,8 @@ public class SmarterWifiService extends Service {
         else
             notificationManager.notify(0, notificationBuilder.build());
 
+        performTowerPurges = preferences.getBoolean(getString(R.string.prefs_item_towermaintenance), false);
+
         configureWifiState();
 
         triggerCallbackPrefsChanged();
@@ -396,6 +402,7 @@ public class SmarterWifiService extends Service {
 
     public void shutdownService() {
         shutdown = true;
+        timerHandler.removeCallbacks(towerCleanupTask);
         timerHandler.removeCallbacks(wifiDisableTask);
         telephonyManager.listen(phoneListener, 0);
     }
@@ -415,6 +422,7 @@ public class SmarterWifiService extends Service {
     }
 
     private void startWifiEnable() {
+        pendingWifiShutdown = false;
         timerHandler.removeCallbacks(wifiEnableTask);
         timerHandler.postDelayed(wifiEnableTask, enableWaitSeconds * 1000);
 
@@ -505,6 +513,8 @@ public class SmarterWifiService extends Service {
             // If we know this tower already, set type to enable
             if (dbSource.queryTowerMapped(curloc.getTowerId())) {
                 Log.d("smarter", "Found known tower");
+                // map it and update the last seen time
+                dbSource.mapTower(getCurrentSsid(), curloc.getTowerId());
                 currentTowerType = TowerType.TOWER_ENABLE;
             }
 
@@ -617,7 +627,6 @@ public class SmarterWifiService extends Service {
         } else {
             if (targetstate == WifiState.WIFI_ON) {
                 Log.d("smarter", "Target state: On, scheduling bringup, " + controlTypeToText(lastControlReason));
-                timerHandler.removeCallbacks(wifiDisableTask);
                 startWifiEnable();
             }
         }
@@ -685,6 +694,10 @@ public class SmarterWifiService extends Service {
         // Configure wifi and bluetooth
         configureWifiState();
         configureBluetoothState();
+    }
+
+    public void handleWifiP2PState(int state) {
+        Log.d("smarter", "wifi p2p state changed: " + state);
     }
 
     public void handleBluetoothDeviceState(BluetoothDevice d, int state) {
@@ -1178,5 +1191,21 @@ public class SmarterWifiService extends Service {
 
         return ud;
     }
+
+    private Runnable towerCleanupTask = new Runnable() {
+        @Override
+        public void run() {
+            if (performTowerPurges && dbSource != null && getWifiState() == WifiState.WIFI_ON) {
+                SmarterSSID ssid = getCurrentSsid();
+
+                Log.d("smarter", "looking to see if we should purge old towers...");
+                dbSource.deleteSsidTowerLastTime(ssid, purgeTowerHours * 60 * 60);
+
+            }
+
+            // every 10 minutes
+            timerHandler.postDelayed(this, 1000 * 60 * 10);
+        }
+    };
 
 }

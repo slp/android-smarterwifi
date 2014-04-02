@@ -6,6 +6,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -87,17 +88,19 @@ public class SmarterDBSource {
             cv.put(SmarterWifiDBHelper.COL_CELL_CELLID, towerid);
         }
 
-        cv.put(SmarterWifiDBHelper.COL_CELL_TIME_S, System.currentTimeMillis() / 1000);
+        cv.put(SmarterWifiDBHelper.COL_CELL_TIME_LAST_S, System.currentTimeMillis() / 1000);
 
         String compare = SmarterWifiDBHelper.COL_CELL_ID + " = ?";
         String args[] = {Long.toString(towerid)};
 
         dataBase.beginTransaction();
 
-        if (tid < 0)
+        if (tid < 0) {
+            cv.put(SmarterWifiDBHelper.COL_CELL_TIME_S, System.currentTimeMillis() / 1000);
             tid = dataBase.insert(SmarterWifiDBHelper.TABLE_CELL, null, cv);
-        else
+        } else {
             dataBase.update(SmarterWifiDBHelper.TABLE_CELL, cv, compare, args);
+        }
 
         dataBase.setTransactionSuccessful();
         dataBase.endTransaction();
@@ -320,17 +323,18 @@ public class SmarterDBSource {
             cv.put(SmarterWifiDBHelper.COL_SCMAP_SSIDID, sid);
         }
 
-        cv.put(SmarterWifiDBHelper.COL_SCMAP_TIME_S, System.currentTimeMillis() / 1000);
+        cv.put(SmarterWifiDBHelper.COL_SCMAP_TIME_LAST_S, System.currentTimeMillis() / 1000);
 
-        String compare = SmarterWifiDBHelper.COL_SCMAP_SSIDID + "=? AND " + SmarterWifiDBHelper.COL_SCMAP_CELLID + "=?";
+        String compare = SmarterWifiDBHelper.COL_SCMAP_SSIDID + "=? AND (" + SmarterWifiDBHelper.COL_SCMAP_CELLID + "=? OR " + SmarterWifiDBHelper.COL_SCMAP_CELLID + " IS NULL)";
         String[] args = {Long.toString(sid), Long.toString(tid)};
 
         dataBase.beginTransaction();
         if (mid < 0) {
-            // Log.d("smarter", "Update tower/ssid map for " + towerid + " / " + ssid);
+            // Log.d("smarter", "Mapping tower " + towerid + " to ssid " + ssid);
+            cv.put(SmarterWifiDBHelper.COL_SCMAP_TIME_S, System.currentTimeMillis() / 1000);
             dataBase.insert(SmarterWifiDBHelper.TABLE_SSID_CELL_MAP, null, cv);
         } else {
-            // Log.d("smarter", "Mapping tower " + towerid + " to ssid " + ssid);
+            Log.d("smarter", "Update tower/ssid map for " + towerid + " / " + ssid);
             dataBase.update(SmarterWifiDBHelper.TABLE_SSID_CELL_MAP, cv, compare, args);
         }
         dataBase.setTransactionSuccessful();
@@ -415,19 +419,22 @@ public class SmarterDBSource {
     }
 
     public void deleteSsidTowerMap(SmarterSSID ssid) {
+        if (ssid == null)
+            return;
+
         if (ssid.getMapDbId() < 0) {
             if (!ssid.getDisplaySsid().isEmpty()) {
                 ssid = getMappedSsidFromBlacklist(ssid);
             }
         }
 
-        if (ssid == null)
-            return;
-
         String compare = SmarterWifiDBHelper.COL_SCMAP_SSIDID + "=?";
         String[] args = {Long.toString(ssid.getMapDbId())};
 
+        dataBase.beginTransaction();
         dataBase.delete(SmarterWifiDBHelper.TABLE_SSID_CELL_MAP, compare, args);
+        dataBase.setTransactionSuccessful();
+        dataBase.endTransaction();
     }
 
     public void deleteSsidTowerInstance(long towerid) {
@@ -436,7 +443,42 @@ public class SmarterDBSource {
         String compare = SmarterWifiDBHelper.COL_SCMAP_CELLID + "=?";
         String[] args = {Long.toString(tid)};
 
+        dataBase.beginTransaction();
         dataBase.delete(SmarterWifiDBHelper.TABLE_SSID_CELL_MAP, compare, args);
+        dataBase.setTransactionSuccessful();
+        dataBase.endTransaction();
+    }
+
+    public void deleteSsidTowerLastTime(SmarterSSID ssidbl, int olderthan_sec) {
+        if (ssidbl == null) {
+            Log.d("smarter", "ssid null in deletetowertime");
+            return;
+        }
+
+        SmarterSSID ssidmapped = getMappedSsidFromBlacklist(ssidbl);
+
+        if (ssidmapped.getMapDbId() < 0) {
+            Log.d("smarter", "ssid tower not in db?... " + ssidmapped.getDisplaySsid());
+            return;
+        }
+
+        Log.d("smarter", "Now: " + (System.currentTimeMillis() / 1000) + " older than sec " + olderthan_sec);
+
+        long mintime = (System.currentTimeMillis() / 1000) - olderthan_sec;
+
+        String compare = SmarterWifiDBHelper.COL_SCMAP_SSIDID + "=?" + " AND " + SmarterWifiDBHelper.COL_SCMAP_TIME_LAST_S + " < ?";
+        String[] args = {Long.toString(ssidmapped.getMapDbId()), Long.toString(mintime)};
+
+        int oldcount = getNumTowersInSsid(ssidmapped.getMapDbId());
+
+        dataBase.beginTransaction();
+        dataBase.delete(SmarterWifiDBHelper.TABLE_SSID_CELL_MAP, compare, args);
+        dataBase.setTransactionSuccessful();
+        dataBase.endTransaction();
+
+        int newcount = getNumTowersInSsid(ssidmapped.getMapDbId());
+
+        Log.d("smarter", "SSID '" + ssidmapped.getDisplaySsid() + "' trimmed from " + oldcount + " to " + newcount);
     }
 
     public ArrayList<SmarterTimeRange> getTimeRangeList() {
@@ -493,7 +535,10 @@ public class SmarterDBSource {
         String compare = SmarterWifiDBHelper.COL_TIMERANGE_ID + "=?";
         String[] args = {Long.toString(range.getDbId())};
 
+        dataBase.beginTransaction();
         dataBase.delete(SmarterWifiDBHelper.TABLE_TIMERANGE, compare, args);
+        dataBase.setTransactionSuccessful();
+        dataBase.endTransaction();
     }
 
     public long updateTimeRange(SmarterTimeRange range) {

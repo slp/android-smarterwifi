@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
+import android.net.wifi.p2p.WifiP2pManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -72,7 +73,24 @@ public class NetworkReceiver extends BroadcastReceiver {
                     }
                 });
 
-                Log.d("smarter", "bcast rx got bt device " + bluetoothDevice.getAddress() + " " + bluetoothDevice.getName() + " state " + state);
+                // Log.d("smarter", "bcast rx got bt device " + bluetoothDevice.getAddress() + " " + bluetoothDevice.getName() + " state " + state);
+            }
+
+            Log.d("smarter", "bcase rx: " + intent.getAction());
+
+            if (intent.getAction().equals(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION)) {
+                final int state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1);
+
+                Log.d("smarter", "got wifi p2p state " + state);
+
+                if (state != -1) {
+                    serviceBinder.doCallAndBindService(new SmarterWifiServiceBinder.BinderCallback() {
+                        public void run(SmarterWifiServiceBinder b) {
+                            b.handleWifiP2PState(state);
+                        }
+                    });
+                }
+
             }
 
         } catch (NullPointerException npe) {
