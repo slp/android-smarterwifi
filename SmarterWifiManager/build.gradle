@@ -7,8 +7,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 19
-        versionCode 38
-        versionName "2014.03.38"
+        versionCode 40
+        versionName "2014.04.40"
     }
 
     lintOptions {
@@ -18,7 +18,7 @@ android {
     buildTypes {
         debug {
             runProguard false
-            debuggable false
+            debuggable true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
 

@@ -76,7 +76,7 @@ public class NetworkReceiver extends BroadcastReceiver {
                 // Log.d("smarter", "bcast rx got bt device " + bluetoothDevice.getAddress() + " " + bluetoothDevice.getName() + " state " + state);
             }
 
-            Log.d("smarter", "bcase rx: " + intent.getAction());
+            Log.d("smarter", "bcast rx: " + intent.getAction());
 
             if (intent.getAction().equals(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION)) {
                 final int state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1);

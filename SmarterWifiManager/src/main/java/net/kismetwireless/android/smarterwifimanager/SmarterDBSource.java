@@ -325,7 +325,7 @@ public class SmarterDBSource {
 
         cv.put(SmarterWifiDBHelper.COL_SCMAP_TIME_LAST_S, System.currentTimeMillis() / 1000);
 
-        String compare = SmarterWifiDBHelper.COL_SCMAP_SSIDID + "=? AND (" + SmarterWifiDBHelper.COL_SCMAP_CELLID + "=? OR " + SmarterWifiDBHelper.COL_SCMAP_CELLID + " IS NULL)";
+        String compare = SmarterWifiDBHelper.COL_SCMAP_SSIDID + "=? AND " + SmarterWifiDBHelper.COL_SCMAP_CELLID + "=?";
         String[] args = {Long.toString(sid), Long.toString(tid)};
 
         dataBase.beginTransaction();
@@ -425,6 +425,11 @@ public class SmarterDBSource {
         if (ssid.getMapDbId() < 0) {
             if (!ssid.getDisplaySsid().isEmpty()) {
                 ssid = getMappedSsidFromBlacklist(ssid);
+
+                if (ssid == null) {
+                    Log.d("smarter", "deleteSsidTowerMap got a null from getmappedSsidFromBlacklist");
+                    return;
+                }
             }
         }
 
@@ -457,6 +462,11 @@ public class SmarterDBSource {
 
         SmarterSSID ssidmapped = getMappedSsidFromBlacklist(ssidbl);
 
+        if (ssidmapped == null) {
+            Log.d("smarter", "deleteSsidTowerLastTime got a null from getmappedssidfromblacklist");
+            return;
+        }
+
         if (ssidmapped.getMapDbId() < 0) {
             Log.d("smarter", "ssid tower not in db?... " + ssidmapped.getDisplaySsid());
             return;
@@ -466,7 +476,8 @@ public class SmarterDBSource {
 
         long mintime = (System.currentTimeMillis() / 1000) - olderthan_sec;
 
-        String compare = SmarterWifiDBHelper.COL_SCMAP_SSIDID + "=?" + " AND " + SmarterWifiDBHelper.COL_SCMAP_TIME_LAST_S + " < ?";
+        String compare = SmarterWifiDBHelper.COL_SCMAP_SSIDID + "=? AND (" + SmarterWifiDBHelper.COL_SCMAP_TIME_LAST_S + "<? OR " + SmarterWifiDBHelper.COL_SCMAP_TIME_LAST_S + " IS NULL)";
+        // String compare = SmarterWifiDBHelper.COL_SCMAP_SSIDID + "=?" + " AND " + SmarterWifiDBHelper.COL_SCMAP_TIME_LAST_S + " < ?";
         String[] args = {Long.toString(ssidmapped.getMapDbId()), Long.toString(mintime)};
 
         int oldcount = getNumTowersInSsid(ssidmapped.getMapDbId());
@@ -478,7 +489,9 @@ public class SmarterDBSource {
 
         int newcount = getNumTowersInSsid(ssidmapped.getMapDbId());
 
-        Log.d("smarter", "SSID '" + ssidmapped.getDisplaySsid() + "' trimmed from " + oldcount + " to " + newcount);
+        if (oldcount != newcount) {
+            Log.d("smarter", "SSID '" + ssidmapped.getDisplaySsid() + "' trimmed from " + oldcount + " to " + newcount);
+        }
     }
 
     public ArrayList<SmarterTimeRange> getTimeRangeList() {
