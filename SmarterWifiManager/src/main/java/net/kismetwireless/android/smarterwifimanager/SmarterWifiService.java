@@ -16,6 +16,7 @@ import android.net.wifi.WifiManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
@@ -429,6 +430,14 @@ public class SmarterWifiService extends Service {
     private void startWifiEnable() {
         pendingWifiShutdown = false;
         timerHandler.removeCallbacks(wifiEnableTask);
+
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        if (!pm.isScreenOn()) {
+            Log.d("smarter", "turning on wifi immediately because screen is off");
+            wifiManager.setWifiEnabled(true);
+            return;
+        }
+
         timerHandler.postDelayed(wifiEnableTask, enableWaitSeconds * 1000);
 
         Log.d("smarter", "Starting countdown of " + enableWaitSeconds + " to enable wifi");
@@ -436,6 +445,17 @@ public class SmarterWifiService extends Service {
     }
 
     private void startWifiShutdown() {
+        // If we're asked to turn off wifi and the screen is off, just do it.
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        if (!pm.isScreenOn()) {
+            Log.d("smarter", "shutting down wifi immediately because screen is off");
+
+            pendingWifiShutdown = false;
+            timerHandler.removeCallbacks(wifiDisableTask);
+            wifiManager.setWifiEnabled(false);
+            return;
+        }
+
         if (pendingWifiShutdown) {
             Log.d("smarter", "wifi countdown in progress, not shutting down");
             return;
@@ -524,10 +544,15 @@ public class SmarterWifiService extends Service {
             curloc = new CellLocationCommon(telephonyManager.getCellLocation());
         }
 
+        /*
         CellLocationCommon oldLoc = currentCellLocation;
 
         if (oldLoc != null && oldLoc.getTowerId() == curloc.getTowerId()) {
             WifiState idlestate = getWifiState();
+
+            if (targetState == WifiState.WIFI_BLOCKED || targetState == WifiState.WIFI_OFF) {
+                startWifiShutdown();
+            }
 
             if (idlestate == targetState) {
                 // Nothing to do, get out
@@ -537,6 +562,7 @@ public class SmarterWifiService extends Service {
                 Log.d("smarter", "tower changed but state " + idlestate + " doesn't match target " + targetState + " so trigger update");
             }
         }
+        */
 
         currentCellLocation = curloc;
 
@@ -649,21 +675,30 @@ public class SmarterWifiService extends Service {
 
         Log.d("smarter", "configureWifiState current " + curState + " target " + targetState);
 
+        if (curState == WifiState.WIFI_IGNORE)
+            return;
+
         if (curState == WifiState.WIFI_ON || curState == WifiState.WIFI_IDLE) {
+            // If we're on or idle then we only need to turn off
+
             Log.d("smarter", "configureWifiState " + curState);
 
             if (targetState == WifiState.WIFI_BLOCKED) {
                 Log.d("smarter", "Target state: Blocked, shutting down wifi now, " + controlTypeToText(lastControlReason));
                 timerHandler.removeCallbacks(wifiEnableTask);
+
                 timerHandler.removeCallbacks(wifiDisableTask);
                 pendingWifiShutdown = false;
+
                 wifiManager.setWifiEnabled(false);
             } else if (targetState == WifiState.WIFI_OFF) {
                 Log.d("smarter", "Target state: Off, scheduling shutdown, " + controlTypeToText(lastControlReason));
+
+                // Kill any enable pending
                 timerHandler.removeCallbacks(wifiEnableTask);
+
+                // Start the timered kill
                 startWifiShutdown();
-            } else {
-                Log.d("smarter", "configurewifistate, unused target state " + targetState);
             }
         } else {
             if (targetState == WifiState.WIFI_ON) {

@@ -74,7 +74,7 @@ public class SmarterWifiDBHelper extends SQLiteOpenHelper {
                     COL_SCMAP_SSIDID + " int, " +
                     COL_SCMAP_CELLID + " int, " +
                     COL_SCMAP_TIME_S + " int," +
-                    COL_SCMAP_TIME_LAST_S + "int" +
+                    COL_SCMAP_TIME_LAST_S + " int" +
                     ");";
 
     public static final String CREATE_SSID_BLACKLIST_TABLE =

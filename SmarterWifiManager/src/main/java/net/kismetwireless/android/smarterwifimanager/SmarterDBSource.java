@@ -476,7 +476,8 @@ public class SmarterDBSource {
 
         long mintime = (System.currentTimeMillis() / 1000) - olderthan_sec;
 
-        String compare = SmarterWifiDBHelper.COL_SCMAP_SSIDID + "=? AND (" + SmarterWifiDBHelper.COL_SCMAP_TIME_LAST_S + "<? OR " + SmarterWifiDBHelper.COL_SCMAP_TIME_LAST_S + " IS NULL)";
+        String compare = SmarterWifiDBHelper.COL_SCMAP_SSIDID + "=? AND (" + SmarterWifiDBHelper.COL_SCMAP_TIME_LAST_S +
+                "<? OR " + SmarterWifiDBHelper.COL_SCMAP_TIME_LAST_S + " IS NULL)";
         // String compare = SmarterWifiDBHelper.COL_SCMAP_SSIDID + "=?" + " AND " + SmarterWifiDBHelper.COL_SCMAP_TIME_LAST_S + " < ?";
         String[] args = {Long.toString(ssidmapped.getMapDbId()), Long.toString(mintime)};
 
