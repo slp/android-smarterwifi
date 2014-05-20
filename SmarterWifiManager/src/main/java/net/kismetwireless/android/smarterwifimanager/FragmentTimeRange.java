@@ -51,7 +51,6 @@ public class FragmentTimeRange extends SmarterFragment {
         serviceBinder.doBindService();
 
         if (savedInstanceState != null) {
-            Log.d("smarter", "oac - loading saved timelist");
             lastTimeList = savedInstanceState.getParcelableArrayList("timelist");
 
             if (lv != null) {
@@ -101,7 +100,6 @@ public class FragmentTimeRange extends SmarterFragment {
         lv = (ListView) mainView.findViewById(R.id.timeRangeListView);
         emptyView = (TextView) mainView.findViewById(R.id.textViewNoTime);
 
-        Log.d("smarter", "ocv - creating list adapter");
         listAdapter = new TimeListAdapter(context, R.layout.time_entry, lastTimeList);
         lv.setAdapter(listAdapter);
 
@@ -341,13 +339,6 @@ public class FragmentTimeRange extends SmarterFragment {
 
                 // long now = System.currentTimeMillis();
                 // long then = item.getNextStartAsMillis();
-
-                // Log.d("smarter", ((then - now) / 1000) + " seconds until start");
-                /*
-                Log.d("smarter", "Are we in a time range? " + item.isInDuration());
-                Log.d("smarter", "next time we start this event: " + (new Date(item.getNextStartMillis())).toString());
-                Log.d("smarter", "next time we end this event: " + (new Date(item.getNextEndMillis())).toString());
-                */
 
                 int failcode = item.getRangeValid();
 

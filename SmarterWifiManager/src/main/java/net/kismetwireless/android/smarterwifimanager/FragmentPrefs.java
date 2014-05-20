@@ -16,7 +16,6 @@ public class FragmentPrefs extends PreferenceFragment implements SharedPreferenc
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.d("smarter", "Loading prefs xml");
         addPreferencesFromResource(R.xml.main_prefs);
 
         timeoutPref = (ListPreference) getPreferenceScreen().findPreference(getString(R.string.prefs_item_shutdowntime));

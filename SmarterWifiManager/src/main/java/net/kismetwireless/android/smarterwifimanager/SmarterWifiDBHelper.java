@@ -143,18 +143,18 @@ public class SmarterWifiDBHelper extends SQLiteOpenHelper {
         }
 
         if (oldVersion < 8) {
-            Log.d("smarter", "Purging old cell tower format");
+            LogAlias.d("smarter", "Purging old cell tower format");
             db.execSQL("DELETE FROM " + TABLE_SSID_CELL_MAP);
             db.execSQL("DELETE FROM " + TABLE_CELL);
         }
 
         if (oldVersion < 9) {
-            Log.d("smarter", "creating new timerange table");
+            LogAlias.d("smarter", "creating new timerange table");
             db.execSQL(CREATE_TIMERANGE_TABLE);
         }
 
         if (oldVersion < 10) {
-            Log.d("smarter", "adding last timesec column");
+            LogAlias.d("smarter", "adding last timesec column");
             db.execSQL("ALTER TABLE " + TABLE_CELL + " ADD COLUMN " + COL_CELL_TIME_LAST_S + " int;");
             db.execSQL("ALTER TABLE " + TABLE_SSID_CELL_MAP + " ADD COLUMN " + COL_SCMAP_TIME_LAST_S + " int;");
         }

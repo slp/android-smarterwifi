@@ -114,14 +114,6 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-
-        /*
-        try {
-            outState.putInt("tabposition", actionBar.getSelectedTab().getPosition());
-        } catch (NullPointerException npe) {
-            Log.d("smarter", "tried to save sate but got a null in getSelectedTab(): " + npe);
-        }
-        */
     }
 
     @Override

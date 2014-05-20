@@ -195,8 +195,6 @@ public class ActivityQuickconfig extends FragmentActivity {
 
             View view = inflater.inflate(R.layout.activity_quickconfig, container);
 
-            Log.d("smarter", "oncreateview");
-
             getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 
             Button closeButton = (Button) view.findViewById(R.id.quickerButtonClose);

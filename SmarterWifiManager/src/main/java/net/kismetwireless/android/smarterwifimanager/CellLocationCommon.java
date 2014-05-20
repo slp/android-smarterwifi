@@ -3,7 +3,6 @@ package net.kismetwireless.android.smarterwifimanager;
 import android.telephony.CellLocation;
 import android.telephony.cdma.CdmaCellLocation;
 import android.telephony.gsm.GsmCellLocation;
-import android.util.Log;
 
 /**
  * Created by dragorn on 8/30/13.
@@ -18,7 +17,7 @@ public class CellLocationCommon {
         if (l == null) {
             valid = false;
         } else if (l instanceof GsmCellLocation) {
-            // Log.d("smarter", "Looks like a GSM location");
+            // LogAlias.d("smarter", "Looks like a GSM location");
             setGsmLocation((GsmCellLocation) l);
         } else if (l instanceof CdmaCellLocation) {
             setCdmaLocation((CdmaCellLocation) l);
@@ -26,10 +25,10 @@ public class CellLocationCommon {
     }
 
     public void setGsmLocation(GsmCellLocation gsm) {
-        // Log.d("smarter", "gsm lac " + gsm.getLac() + " cid " + gsm.getCid() + " psc " + gsm.getPsc());
+        // LogAlias.d("smarter", "gsm lac " + gsm.getLac() + " cid " + gsm.getCid() + " psc " + gsm.getPsc());
 
         if (gsm.getLac() < 0 && gsm.getCid() < 0) {
-            Log.d("smarter", "gsm tower lac or cid negative, discarding");
+            LogAlias.d("smarter", "gsm tower lac or cid negative, discarding");
             valid = false;
             towerId = -1;
             return;
@@ -39,12 +38,12 @@ public class CellLocationCommon {
         towerId = ((long) gsm.getLac() << 32) + (long) gsm.getCid();
 
         if (towerId < 0) {
-            Log.d("smarter", "gsm tower problem:  valid tower lac " + gsm.getLac() + " cid " + gsm.getCid() + " but negative result, kluging to positive");
+            LogAlias.d("smarter", "gsm tower problem:  valid tower lac " + gsm.getLac() + " cid " + gsm.getCid() + " but negative result, kluging to positive");
             towerId = Math.abs(towerId);
             valid = true;
         }
 
-        // Log.d("smarter", "towerid " + towerId);
+        // LogAlias.d("smarter", "towerid " + towerId);
     }
 
     public CellLocationCommon(GsmCellLocation gsm) {
@@ -53,7 +52,7 @@ public class CellLocationCommon {
 
     public void setCdmaLocation(CdmaCellLocation cdma) {
         if (cdma.getNetworkId() < 0 && cdma.getSystemId() < 0 && cdma.getBaseStationId() < 0) {
-            Log.d("smarter", "cdma nid/sid/bsid negative, discarding");
+            LogAlias.d("smarter", "cdma nid/sid/bsid negative, discarding");
             valid = false;
             towerId = -1;
             return;
@@ -63,7 +62,7 @@ public class CellLocationCommon {
         towerId = ((long) cdma.getNetworkId() << 32) + ((long) cdma.getSystemId() << 16) + (long) cdma.getBaseStationId();
 
         if (towerId < 0) {
-            Log.d("smarter", "cdma tower problem:  valid tower nid " + cdma.getNetworkId() + " sid " + cdma.getSystemId() + " bsid " + cdma.getBaseStationId() + " but negative result, kluging to positive");
+            LogAlias.d("smarter", "cdma tower problem:  valid tower nid " + cdma.getNetworkId() + " sid " + cdma.getSystemId() + " bsid " + cdma.getBaseStationId() + " but negative result, kluging to positive");
             towerId = Math.abs(towerId);
             valid = true;
         }

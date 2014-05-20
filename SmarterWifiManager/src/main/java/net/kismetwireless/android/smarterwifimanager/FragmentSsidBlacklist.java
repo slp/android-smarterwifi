@@ -132,7 +132,7 @@ public class FragmentSsidBlacklist extends SmarterFragment {
                         entry.setBlacklisted(!entry.isBlacklisted());
                         cb.setChecked(entry.isBlacklisted());
 
-                        Log.d("smarter", "listadapter setting " + entry.getSsid() + " to " + entry.isBlacklisted());
+                        LogAlias.d("smarter", "listadapter setting " + entry.getSsid() + " to " + entry.isBlacklisted());
                         serviceBinder.setSsidBlacklisted(entry, entry.isBlacklisted());
                         listAdapter.notifyDataSetChanged();
 

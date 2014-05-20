@@ -7,8 +7,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 19
-        versionCode 43
-        versionName "2014.04.43"
+        versionCode 44
+        versionName "2014.04.44"
     }
 
     lintOptions {

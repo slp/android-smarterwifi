@@ -24,7 +24,7 @@ public class NetworkReceiver extends BroadcastReceiver {
 
         if (!p.getBoolean("start_boot", true)) {
             if (!SmarterWifiServiceBinder.isServiceRunning(context)) {
-                Log.d("smarter", "Would have done something but service isn't running and we're not autostarting");
+                LogAlias.d("smarter", "Would have done something but service isn't running and we're not autostarting");
                 return;
             }
         }
@@ -73,15 +73,15 @@ public class NetworkReceiver extends BroadcastReceiver {
                     }
                 });
 
-                // Log.d("smarter", "bcast rx got bt device " + bluetoothDevice.getAddress() + " " + bluetoothDevice.getName() + " state " + state);
+                // LogAlias.d("smarter", "bcast rx got bt device " + bluetoothDevice.getAddress() + " " + bluetoothDevice.getName() + " state " + state);
             }
 
-            Log.d("smarter", "bcast rx: " + intent.getAction());
+            LogAlias.d("smarter", "bcast rx: " + intent.getAction());
 
             if (intent.getAction().equals(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION)) {
                 final int state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1);
 
-                Log.d("smarter", "got wifi p2p state " + state);
+                LogAlias.d("smarter", "got wifi p2p state " + state);
 
                 if (state != -1) {
                     serviceBinder.doCallAndBindService(new SmarterWifiServiceBinder.BinderCallback() {

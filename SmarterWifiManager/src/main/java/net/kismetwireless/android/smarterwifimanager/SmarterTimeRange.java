@@ -205,17 +205,10 @@ public class SmarterTimeRange implements Parcelable {
             c.add(Calendar.DATE, -1);
         }
 
-        // Log.d("smarter", "starting week on " + c.toString());
-
         // Get the start of the week, in seconds, since the epoch
         long adjustment = c.getTimeInMillis() / 60000;
 
         long duration = getDurationMinutes();
-
-        /*
-        Date nd = new Date(adjustment * 60000);
-        Log.d("smarter", "equivalent week start on " + nd.toString());
-        */
 
         expandedDurations.clear();
 
@@ -236,8 +229,7 @@ public class SmarterTimeRange implements Parcelable {
                 ds.adjustedMinuteOfWeek = weekstart + adjustment - (7 * 1440);
                 ds.durationMinutes = duration;
 
-                // Log.d("smarter", "Week-wrapping event starts at " + (new Date(ds.adjustedMinuteOfWeek * 60000)).toString() + " for " + ds.durationMinutes);
-                Log.d("smarter", "Occurrence at " + (new Date(ds.adjustedMinuteOfWeek * 60000)).toString() + " until " + (new Date((ds.adjustedMinuteOfWeek + ds.durationMinutes) * 60000)).toString());
+                LogAlias.d("smarter", "Occurrence at " + (new Date(ds.adjustedMinuteOfWeek * 60000)).toString() + " until " + (new Date((ds.adjustedMinuteOfWeek + ds.durationMinutes) * 60000)).toString());
 
                 expandedDurations.add(ds);
             }
@@ -250,7 +242,7 @@ public class SmarterTimeRange implements Parcelable {
 
             expandedDurations.add(ds);
 
-            Log.d("smarter", "Occurrence at " + (new Date(ds.adjustedMinuteOfWeek * 60000)).toString() + " until " + (new Date((ds.adjustedMinuteOfWeek + ds.durationMinutes) * 60000)).toString());
+            LogAlias.d("smarter", "Occurrence at " + (new Date(ds.adjustedMinuteOfWeek * 60000)).toString() + " until " + (new Date((ds.adjustedMinuteOfWeek + ds.durationMinutes) * 60000)).toString());
         }
 
     }

@@ -36,11 +36,11 @@ public class SmarterDBSource {
 
         if (c.getCount() <= 0) {
             c.close();
-            // Log.d("smarter", "getTowerDb " + towerid + " not found return -1");
+            // LogAlias.d("smarter", "getTowerDb " + towerid + " not found return -1");
             return -1;
         }
 
-        // Log.d("smarter", "gettowerdb " + towerid + " id " + id);
+        // LogAlias.d("smarter", "gettowerdb " + towerid + " id " + id);
         id = c.getLong(0);
 
         c.close();
@@ -78,7 +78,7 @@ public class SmarterDBSource {
 
     // Update time or create new tower
     public long updateTower(long towerid, long tid) {
-        // Log.d("smarter", "updating tower " + towerid + " local id " + tid);
+        // LogAlias.d("smarter", "updating tower " + towerid + " local id " + tid);
         if (tid < 0)
             tid = getTowerDbId(towerid);
 
@@ -105,7 +105,7 @@ public class SmarterDBSource {
         dataBase.setTransactionSuccessful();
         dataBase.endTransaction();
 
-        // Log.d("smarter", "updatetower returning for " + towerid + " value " + tid);
+        // LogAlias.d("smarter", "updatetower returning for " + towerid + " value " + tid);
         return tid;
     }
 
@@ -211,7 +211,7 @@ public class SmarterDBSource {
         if (e == null)
             return;
 
-        // Log.d("smarter", "Blacklisting " + e.getSsid() + " in database: " + b);
+        // LogAlias.d("smarter", "Blacklisting " + e.getSsid() + " in database: " + b);
 
         ContentValues cv = new ContentValues();
         cv.put(SmarterWifiDBHelper.COL_SSIDBL_BLACKLIST, b ? "1" : "0");
@@ -225,7 +225,7 @@ public class SmarterDBSource {
                 dataBase.update(SmarterWifiDBHelper.TABLE_SSID_BLACKLIST, cv, compare, args);
             }
 
-            // Log.d("smarter", "Blacklist entry updated in db");
+            // LogAlias.d("smarter", "Blacklist entry updated in db");
         } else {
             cv.put(SmarterWifiDBHelper.COL_SSIDBL_SSID, e.getSsid());
 
@@ -233,7 +233,7 @@ public class SmarterDBSource {
 
             e.setBlacklistDatabaseId(sid);
 
-            // Log.d("smarter", "Blacklist entry added to db");
+            // LogAlias.d("smarter", "Blacklist entry added to db");
         }
         dataBase.setTransactionSuccessful();
         dataBase.endTransaction();
@@ -269,7 +269,7 @@ public class SmarterDBSource {
         if (e == null)
             return;
 
-        // Log.d("smarter", "Blacklisting bluetooth " + e.getBtmac() + " in database: " + blacklist);
+        // LogAlias.d("smarter", "Blacklisting bluetooth " + e.getBtmac() + " in database: " + blacklist);
 
         ContentValues cv = new ContentValues();
         cv.put(SmarterWifiDBHelper.COL_BTBL_BLACKLIST, blacklist ? "1" : "0");
@@ -284,7 +284,7 @@ public class SmarterDBSource {
                 dataBase.update(SmarterWifiDBHelper.TABLE_BT_BLACKLIST, cv, compare, args);
             }
 
-            // Log.d("smarter", "Bluetooth blacklist entry updated in db");
+            // LogAlias.d("smarter", "Bluetooth blacklist entry updated in db");
         } else {
             cv.put(SmarterWifiDBHelper.COL_BTBL_MAC, e.getBtmac());
             cv.put(SmarterWifiDBHelper.COL_BTBL_NAME, e.getBtName());
@@ -293,7 +293,7 @@ public class SmarterDBSource {
 
             e.setBlacklistDatabaseId(sid);
 
-            // Log.d("smarter", "Bluetooth blacklist entry added to db");
+            // LogAlias.d("smarter", "Bluetooth blacklist entry added to db");
         }
         dataBase.setTransactionSuccessful();
         dataBase.endTransaction();
@@ -312,7 +312,7 @@ public class SmarterDBSource {
         sid = updateSsid(ssid.getSsid(), sid);
         tid = updateTower(towerid, tid);
 
-        // Log.d("smarter", "got sid " + sid + " tid " + tid);
+        // LogAlias.d("smarter", "got sid " + sid + " tid " + tid);
 
         long mid = getMapId(sid, tid);
 
@@ -330,11 +330,11 @@ public class SmarterDBSource {
 
         dataBase.beginTransaction();
         if (mid < 0) {
-            // Log.d("smarter", "Mapping tower " + towerid + " to ssid " + ssid);
+            // LogAlias.d("smarter", "Mapping tower " + towerid + " to ssid " + ssid);
             cv.put(SmarterWifiDBHelper.COL_SCMAP_TIME_S, System.currentTimeMillis() / 1000);
             dataBase.insert(SmarterWifiDBHelper.TABLE_SSID_CELL_MAP, null, cv);
         } else {
-            Log.d("smarter", "Update tower/ssid map for " + towerid + " / " + ssid);
+            LogAlias.d("smarter", "Update tower/ssid map for " + towerid + " / " + ssid);
             dataBase.update(SmarterWifiDBHelper.TABLE_SSID_CELL_MAP, cv, compare, args);
         }
         dataBase.setTransactionSuccessful();
@@ -392,7 +392,7 @@ public class SmarterDBSource {
         ssidc.moveToFirst();
 
         if (ssidc.getCount() <= 0) {
-            // Log.d("smarter", "ssidc < 0 nothing in SSID table?");
+            // LogAlias.d("smarter", "ssidc < 0 nothing in SSID table?");
             ssidc.close();
             return retlist;
         }
@@ -405,7 +405,7 @@ public class SmarterDBSource {
 
             s.setNumTowers(getNumTowersInSsid(s.getMapDbId()));
 
-            // Log.d("smarter", "returning tower " + ssidc.getLong(0) + " " + ssidc.getLong(1) + " num " + s.getNumTowers());
+            // LogAlias.d("smarter", "returning tower " + ssidc.getLong(0) + " " + ssidc.getLong(1) + " num " + s.getNumTowers());
 
             if (s.getNumTowers() > 0)
                 retlist.add(s);
@@ -427,7 +427,7 @@ public class SmarterDBSource {
                 ssid = getMappedSsidFromBlacklist(ssid);
 
                 if (ssid == null) {
-                    Log.d("smarter", "deleteSsidTowerMap got a null from getmappedSsidFromBlacklist");
+                    LogAlias.d("smarter", "deleteSsidTowerMap got a null from getmappedSsidFromBlacklist");
                     return;
                 }
             }
@@ -456,23 +456,23 @@ public class SmarterDBSource {
 
     public void deleteSsidTowerLastTime(SmarterSSID ssidbl, int olderthan_sec) {
         if (ssidbl == null) {
-            Log.d("smarter", "ssid null in deletetowertime");
+            LogAlias.d("smarter", "ssid null in deletetowertime");
             return;
         }
 
         SmarterSSID ssidmapped = getMappedSsidFromBlacklist(ssidbl);
 
         if (ssidmapped == null) {
-            Log.d("smarter", "deleteSsidTowerLastTime got a null from getmappedssidfromblacklist");
+            LogAlias.d("smarter", "deleteSsidTowerLastTime got a null from getmappedssidfromblacklist");
             return;
         }
 
         if (ssidmapped.getMapDbId() < 0) {
-            Log.d("smarter", "ssid tower not in db?... " + ssidmapped.getDisplaySsid());
+            LogAlias.d("smarter", "ssid tower not in db?... " + ssidmapped.getDisplaySsid());
             return;
         }
 
-        Log.d("smarter", "Now: " + (System.currentTimeMillis() / 1000) + " older than sec " + olderthan_sec);
+        LogAlias.d("smarter", "Now: " + (System.currentTimeMillis() / 1000) + " older than sec " + olderthan_sec);
 
         long mintime = (System.currentTimeMillis() / 1000) - olderthan_sec;
 
@@ -491,7 +491,7 @@ public class SmarterDBSource {
         int newcount = getNumTowersInSsid(ssidmapped.getMapDbId());
 
         if (oldcount != newcount) {
-            Log.d("smarter", "SSID '" + ssidmapped.getDisplaySsid() + "' trimmed from " + oldcount + " to " + newcount);
+            LogAlias.d("smarter", "SSID '" + ssidmapped.getDisplaySsid() + "' trimmed from " + oldcount + " to " + newcount);
         }
     }
 

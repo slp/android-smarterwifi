@@ -16,7 +16,6 @@ public class BootReceiver extends BroadcastReceiver {
         SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(context);
 
         if (p.getBoolean("start_boot", true)) {
-            Log.d("smarter", "Starting service on boot");
             SmarterWifiServiceBinder b = new SmarterWifiServiceBinder(context);
             b.doStartService();
         }
