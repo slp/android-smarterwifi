@@ -15,7 +15,6 @@ import android.provider.Settings;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -187,8 +186,17 @@ public class ActivityQuickconfig extends FragmentActivity {
 
             sharedPreferences = PreferenceManager.getDefaultSharedPreferences(activity);
 
+            SharedPreferences.Editor e = sharedPreferences.edit();
+            e.putBoolean("everbeenrun", true);
+            e.commit();
+
             binder = new SmarterWifiServiceBinder(activity);
-            binder.doBindService();
+            binder.doCallAndBindService(new SmarterWifiServiceBinder.BinderCallback() {
+                @Override
+                public void run(SmarterWifiServiceBinder b) {
+                    b.doUpdatePreferences();
+                }
+            });
 
             wifiManager = (WifiManager) activity.getSystemService(Context.WIFI_SERVICE);
             btAdapter = BluetoothAdapter.getDefaultAdapter();

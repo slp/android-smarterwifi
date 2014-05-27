@@ -79,6 +79,7 @@
     <string name="explanation_wifi_ignore_tethered">Tethering / sharing connection</string>
     <string name="explanation_wifi_ignore_sleeppolicy">Ignoring due to sleep policy</string>
     <string name="explanation_wifi_idle_disable">Wi-Fi idle in unknown location, waiting to disable</string>
+    <string name="explanation_wifi_neverrun">Open Smarter Wi-Fi Manager to start controlling your Wi-Fi!</string>
     <string name="explanation_unknown">Unknown reason</string>
 
     <string name="wifistate_blocked">Wi-Fi forced off</string>

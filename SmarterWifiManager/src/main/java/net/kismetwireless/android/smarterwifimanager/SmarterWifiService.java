@@ -40,7 +40,7 @@ public class SmarterWifiService extends Service {
     public enum ControlType {
         CONTROL_DISABLED, CONTROL_USER, CONTROL_TOWER, CONTROL_TOWERID, CONTROL_GEOFENCE,
         CONTROL_BLUETOOTH, CONTROL_TIME, CONTROL_SSIDBLACKLIST, CONTROL_AIRPLANE, CONTROL_TETHER,
-        CONTROL_SLEEPPOLICY
+        CONTROL_SLEEPPOLICY, CONTROL_NEVERRUN
     }
 
     public enum WifiState {
@@ -55,6 +55,8 @@ public class SmarterWifiService extends Service {
     public enum TowerType {
         TOWER_UNKNOWN, TOWER_BLOCK, TOWER_ENABLE, TOWER_INVALID
     }
+
+    private boolean everBeenRun = false;
 
     private boolean shutdown = false;
 
@@ -383,6 +385,8 @@ public class SmarterWifiService extends Service {
     }
 
     public void updatePreferences() {
+        everBeenRun = preferences.getBoolean("everbeenrun", false);
+
         learnWifi = preferences.getBoolean(getString(R.string.pref_learn), true);
         proctorWifi = preferences.getBoolean(getString(R.string.pref_enable), true);
 
@@ -843,6 +847,12 @@ public class SmarterWifiService extends Service {
         SmarterSSID ssid = getCurrentSsid();
         boolean tethered = getWifiTethered();
 
+        // We've never been run
+        if (everBeenRun == false) {
+            lastControlReason = ControlType.CONTROL_NEVERRUN;
+            return WifiState.WIFI_IGNORE;
+        }
+
         // We're not looking at all
         if (proctorWifi == false) {
             lastControlReason = ControlType.CONTROL_DISABLED;
@@ -1078,6 +1088,8 @@ public class SmarterWifiService extends Service {
                 return R.string.explanation_wifi_ignore_airplane;
             case CONTROL_TETHER:
                 return R.string.explanation_wifi_ignore_tethered;
+            case CONTROL_NEVERRUN:
+                return R.string.explanation_wifi_neverrun;
         }
 
         return R.string.explanation_unknown;

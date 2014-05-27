@@ -59,7 +59,19 @@ public class MainActivity extends ActionBarActivity {
 
         context = this;
 
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor e = prefs.edit();
+        e.putBoolean("everbeenrun", true);
+        e.commit();
+
         serviceBinder = new SmarterWifiServiceBinder(this);
+
+        serviceBinder.doCallAndBindService(new SmarterWifiServiceBinder.BinderCallback() {
+            @Override
+            public void run(SmarterWifiServiceBinder b) {
+                b.doUpdatePreferences();
+            }
+        });
 
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerList = (ListView) findViewById(R.id.left_drawer);
