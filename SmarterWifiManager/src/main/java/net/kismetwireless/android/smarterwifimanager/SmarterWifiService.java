@@ -679,8 +679,10 @@ public class SmarterWifiService extends Service {
 
         LogAlias.d("smarter", "configureWifiState current " + curState + " target " + targetState);
 
-        if (curState == WifiState.WIFI_IGNORE)
+        if (curState == WifiState.WIFI_IGNORE) {
+            triggerCallbackWifiChanged();
             return;
+        }
 
         if (curState == WifiState.WIFI_ON || curState == WifiState.WIFI_IDLE) {
             // If we're on or idle then we only need to turn off
