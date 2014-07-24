@@ -150,25 +150,20 @@ public class FragmentMain extends SmarterFragment {
                 if (!isAdded())
                     return;
 
-                switchManageWifi.setOnClickListener(new View.OnClickListener() {
+                switchManageWifi.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
-                    public void onClick(View view) {
-                        boolean checked = ((CompoundButton) view).isChecked();
-
-                        switchAutoLearn.setEnabled(checked);
-                        setManageWifi(checked);
-
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                        switchAutoLearn.setEnabled(b);
+                        setManageWifi(b);
                     }
                 });
 
                 serviceBinder.addCallback(guiCallback);
 
-                switchAutoLearn.setOnClickListener(new View.OnClickListener() {
+                switchAutoLearn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
-                    public void onClick(View view) {
-                        boolean checked = ((CompoundButton) view).isChecked();
-
-                        setLearnWifi(checked);
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                        setLearnWifi(b);
                     }
                 });
 

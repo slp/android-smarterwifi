@@ -132,11 +132,10 @@ public class ActivityQuickconfig extends FragmentActivity {
                 enableSwitch.setChecked(false);
             }
 
-            enableSwitch.setOnClickListener(new View.OnClickListener() {
+            enableSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
-                public void onClick(View view) {
-                    boolean checked = ((CompoundButton) view).isChecked();
-                    setManageWifi(checked);
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    setManageWifi(b);
                 }
             });
 
@@ -154,26 +153,21 @@ public class ActivityQuickconfig extends FragmentActivity {
                 btSwitch.setChecked(false);
             }
 
-            wifiSwitch.setOnClickListener(new View.OnClickListener() {
+            wifiSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
-                public void onClick(View view) {
-                    boolean checked = ((CompoundButton) view).isChecked();
-
-                    wifiManager.setWifiEnabled(checked);
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    wifiManager.setWifiEnabled(b);
                 }
             });
 
-            btSwitch.setOnClickListener(new View.OnClickListener() {
+            btSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
-                public void onClick(View view) {
-                    boolean checked = ((CompoundButton) view).isChecked();
-
-                    if (checked) {
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    if (b) {
                         btAdapter.enable();
                     } else {
                         btAdapter.disable();
                     }
-
                 }
             });
 
