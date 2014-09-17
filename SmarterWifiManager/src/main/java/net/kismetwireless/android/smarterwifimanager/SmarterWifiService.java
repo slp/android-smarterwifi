@@ -314,6 +314,7 @@ public class SmarterWifiService extends Service {
         nextTimeRange = null;
 
         if (ranges == null) {
+            LogAlias.d("smarter", "updateTimeRanges, no ranges");
             return;
         }
 
@@ -358,7 +359,7 @@ public class SmarterWifiService extends Service {
         }
 
         if (currentTimeRange == null && nextTimeRange == null) {
-            LogAlias.d("smarter", "Not in any time ranges");
+            LogAlias.d("smarter", "Not in any time ranges and none coming up");
             return;
         }
 
@@ -368,10 +369,10 @@ public class SmarterWifiService extends Service {
             if (nextTimeRange == null ||
                     (nextTimeRange != null && currentTimeRange.getNextEndMillis() < nextTimeRange.getNextStartMillis())) {
                 LogAlias.d("smarter", "next alarm for end of this time range");
-                alarmReceiver.setAlarm(this, currentTimeRange.getNextEndMillis());
+                alarmReceiver.setAlarm(this, currentTimeRange.getNextEndMillis() + 1);
             } else {
                 LogAlias.d("smarter", "next alarm for start of overlapping time range");
-                alarmReceiver.setAlarm(this, nextTimeRange.getNextStartMillis());
+                alarmReceiver.setAlarm(this, nextTimeRange.getNextStartMillis() + 1);
             }
 
             if (currentTimeRange.getBluetoothControlled() && btAdapter != null) {
@@ -381,6 +382,9 @@ public class SmarterWifiService extends Service {
                     btAdapter.disable();
                 }
             }
+        } else if (nextTimeRange != null) {
+            LogAlias.d("smarter", "upcoming time range, setting alarm for start of it");
+            alarmReceiver.setAlarm(this, nextTimeRange.getNextStartMillis() + 1);
         }
     }
 
@@ -755,16 +759,17 @@ public class SmarterWifiService extends Service {
         // Are we in a state when we started?  If not, update our bluetooth state
         if (currentTimeRange == null) {
             initialBluetoothState = getBluetoothState() != BluetoothState.BLUETOOTH_OFF;
-            LogAlias.d("smarter", "learned default bt state: " + initialBluetoothState);
+            LogAlias.d("smarter", "not in a range, learned default bt state: " + initialBluetoothState);
         } else {
             wasInRange = true;
         }
 
+        LogAlias.d("smarter", "updating time ranges");
         // Figure out if we should be in one and set future alarms
         updateTimeRanges();
 
-        // We've transitioned out of a time range
-        if (currentTimeRange != null && btAdapter != null) {
+        // We've transitioned out of a time range so set BT back to whatever it used to be
+        if (currentTimeRange == null && wasInRange && btAdapter != null) {
             LogAlias.d("smarter", "transitioning out of time range, restoring bluetooth to previous state of: " + initialBluetoothState);
             if (initialBluetoothState) {
                 btAdapter.enable();
@@ -1271,6 +1276,8 @@ public class SmarterWifiService extends Service {
 
     public long updateTimeRange(SmarterTimeRange r) {
         long ud =  dbSource.updateTimeRange(r);
+
+        LogAlias.d("smarter", "saved time range to " + ud);
 
         configureTimerangeState();
 
