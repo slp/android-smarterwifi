@@ -201,7 +201,7 @@ public class SmarterWifiService extends Service {
         notificationBuilder.setContentIntent(pIntent);
 
         // Get the initial BT enable state
-        initialBluetoothState = getBluetoothState() != BluetoothState.BLUETOOTH_OFF;
+        initialBluetoothState = true;
 
         updatePreferences();
 
@@ -718,6 +718,7 @@ public class SmarterWifiService extends Service {
         }
 
         triggerCallbackWifiChanged();
+        configureBluetoothState();
     }
 
     public void configureBluetoothState() {
@@ -725,10 +726,10 @@ public class SmarterWifiService extends Service {
         BluetoothState targetstate = getShouldBluetoothBeEnabled();
 
         // Learn time range if null
-        if (currentTimeRange == null) {
-            initialBluetoothState = (btstate != BluetoothAdapter.STATE_OFF);
-            LogAlias.d("smarter", "learned default bt state: " + initialBluetoothState);
-        }
+        //if (currentTimeRange == null) {
+        //    initialBluetoothState = (btstate != BluetoothAdapter.STATE_OFF);
+        //    LogAlias.d("smarter", "learned default bt state: " + initialBluetoothState);
+        //}
 
         if (btstate == BluetoothAdapter.STATE_OFF) {
             bluetoothBlocking = false;
@@ -821,27 +822,13 @@ public class SmarterWifiService extends Service {
             return BluetoothState.BLUETOOTH_IGNORE;
         }
 
-        // Are we in a time range?
-        if (currentTimeRange != null) {
-            if (currentTimeRange.getBluetoothControlled()) {
-                // Does this time range control bluetooth?
-                if (currentTimeRange.getBluetoothEnabled())
-                    return BluetoothState.BLUETOOTH_ON;
-                else
-                    return BluetoothState.BLUETOOTH_BLOCKED;
-            } else {
-                // Otherwise ignore it
-                return BluetoothState.BLUETOOTH_IGNORE;
-            }
+        // Enable Bluetooth only if WiFi is disabled.
+        // Disable it otherwise.
+        if (getWifiState() == WifiState.WIFI_ON) {
+           return BluetoothState.BLUETOOTH_BLOCKED;
+        } else {
+           return BluetoothState.BLUETOOTH_ON;
         }
-
-        /* Otherwise ignore */
-        return BluetoothState.BLUETOOTH_IGNORE;
-
-        /*
-        // Otherwise return us to the state we were before we started this
-        return initialBluetoothState ? BluetoothState.BLUETOOTH_ON : BluetoothState.BLUETOOTH_BLOCKED;
-        */
     }
 
     // Based on everything we know, should wifi be enabled?
